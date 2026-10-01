@@ -1,0 +1,214 @@
+/* Hoja de estilos propia sobre Bootstrap 3.
+   Valores tomados del sistema de referencia (medidos en vivo en su login y en su CSS):
+   si cambia el aspecto del sistema actual, se cambia SOLO este archivo. */
+:root {
+  --c-body: #32323a;           /* fondo del menú lateral / "dark-logo-bg" */
+  --c-side-hover: #29282e;
+  --c-accent: #7cd8a9;         /* verde de activo/hover en el menú */
+  --c-content-bg: #f3f3f3;
+  --c-text: #323232;
+  --c-header-border: #e8e8e8;
+  --c-field-border: #dfdfdf;
+  --c-btn-primary: #a978d1;
+  --c-btn-info: #69c2fe;
+  --c-btn-success: #5cc691;
+  --c-btn-warning: #f1c500;
+  --c-btn-danger: #e55957;
+  --c-btn-dark: #454545;
+  --sidebar-w: 240px;
+  --header-h: 60px;
+}
+
+body {
+  font-family: "Source Sans Pro", "Source Sans 3", sans-serif;
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+input, select, textarea, button { font-family: inherit; }
+input, select, textarea { color: #767676; }
+a:hover, a:focus, a:active { outline: none; text-decoration: none; color: var(--c-accent); transition: all .3s; }
+
+/* ---------- botones (7 estilos; el color del botón de login es configurable por municipio) */
+.btn { border-radius: 2px; box-shadow: none; }
+.btn:focus, .btn:active:focus, .btn.active:focus { outline: none; }
+.btn-primary { background: var(--c-btn-primary); border-color: var(--c-btn-primary); color: #fff; }
+.btn-info    { background: var(--c-btn-info);    border-color: var(--c-btn-info);    color: #fff; }
+.btn-success { background: var(--c-btn-success); border-color: var(--c-btn-success); color: #fff; }
+.btn-warning { background: var(--c-btn-warning); border-color: var(--c-btn-warning); color: #fff; }
+.btn-danger  { background: var(--c-btn-danger);  border-color: var(--c-btn-danger);  color: #fff; }
+.btn-dark    { background: var(--c-btn-dark);    border-color: var(--c-btn-dark);    color: #fff; }
+.btn-primary:hover, .btn-info:hover, .btn-success:hover, .btn-warning:hover, .btn-danger:hover,
+.btn-primary:focus, .btn-info:focus, .btn-success:focus, .btn-warning:focus, .btn-danger:focus {
+  color: #fff; filter: brightness(.93);
+}
+.btn-dark:hover, .btn-dark:focus { background: #000; border-color: #000; color: #fff; }
+.btn-default { border-color: #ddd; background: #fff; color: #555; }
+
+.form-control { border: 1px solid var(--c-field-border); box-shadow: none; border-radius: 0; }
+.form-control:focus { box-shadow: none; border-color: #bbb; }
+.help-block { margin-bottom: 0; }
+
+/* ---------- login (reproduce el marcado/medidas del sistema de referencia) */
+.login-body { background: #ddd; }
+.login-body .login-logo {
+  margin: 0; text-align: center; background: #fff; color: var(--c-text); font-size: 18px;
+  text-transform: uppercase; display: inline-block; width: 100%; padding: 50px 0;
+}
+.login-image { max-width: 400px; }
+@media (max-width: 400px) { .login-image { max-width: 100%; } }
+h2.form-heading {
+  margin: -5px 0 0; padding: 30px 15px; text-align: center; background: #eee; color: #323232;
+  font-size: 18px; text-transform: uppercase; display: inline-block; width: 100%;
+}
+.form-signin { max-width: 330px; margin: 50px auto 0; }
+.form-signin .form-control { position: relative; font-size: 16px; height: auto; padding: 10px; box-sizing: border-box; }
+.form-signin input[type="text"], .form-signin input[type="password"] {
+  margin-bottom: 15px; border-radius: 4px; border: none; background: #222224; box-shadow: none;
+  font-size: 13px; color: #fff; padding: 12px;
+}
+.form-signin a, .registration { color: #565658; }
+.form-signin a:hover { color: #b6b6b6; }
+.registration { margin-top: 20px; }
+.login-body .lock-row { padding: 0 15px; }
+.login-body .u-name { display: block; font-weight: 500; }
+.red { color: red !important; }
+.login-form-heading-lock span { display: block; }
+
+/* ---------- toasts (mismo patrón que el sistema actual: esquina superior derecha) */
+.toast-container { position: fixed; top: 12px; right: 12px; z-index: 999999; width: 300px; pointer-events: none; }
+.toast-item {
+  pointer-events: auto; margin: 0 0 6px; padding: 15px 15px 15px 50px; color: #fff; opacity: .9;
+  border-radius: 3px; box-shadow: 0 0 12px #999; font-size: 14px; line-height: 18px; position: relative;
+}
+.toast-item:before { font-family: FontAwesome; position: absolute; left: 18px; top: 14px; font-size: 20px; }
+.toast-success { background: #51a351; } .toast-success:before { content: "\f00c"; }
+.toast-error   { background: #bd362f; } .toast-error:before   { content: "\f071"; }
+.toast-info    { background: #2f96b4; } .toast-info:before    { content: "\f05a"; }
+.toast-warning { background: #f89406; } .toast-warning:before { content: "\f06a"; }
+
+/* ---------- cascarón: barra superior + menú lateral */
+body.app-body { background: var(--c-body); }
+.logo {
+  height: var(--header-h); line-height: var(--header-h); position: fixed; top: 0; left: 0;
+  width: var(--sidebar-w); z-index: 1001; padding-left: 20px; background: var(--c-body);
+}
+.logo a { font-size: 22px; color: #fff; margin: 0; display: inline-block; }
+.logo a i { font-size: 24px; color: var(--c-accent); padding-right: 5px; }
+.logo a:hover { color: #fff; }
+
+.sidebar-left {
+  width: var(--sidebar-w); position: fixed; top: var(--header-h); left: 0; bottom: 0;
+  overflow-y: auto; z-index: 1000; background: var(--c-body);
+}
+.side-navigation { margin: 1px 0 10px; padding: 0; list-style: none; }
+.side-navigation > li > a {
+  display: block; color: #fff; padding: 15px 20px; border-radius: 0; position: relative; cursor: pointer;
+}
+.side-navigation > li > a:hover, .side-navigation > li.nav-active > a { background: var(--c-side-hover); color: var(--c-accent); }
+.side-navigation li .fa { font-size: 14px; vertical-align: middle; margin-right: 10px; width: 16px; text-align: center; }
+.side-navigation > li.menu-list > a:after {
+  content: "\f105"; font-family: FontAwesome; position: absolute; right: 20px;
+}
+.side-navigation > li.menu-list.nav-active > a:after { content: "\f107"; color: var(--c-accent); }
+.side-navigation .child-list { list-style: none; display: none; margin: 0; padding: 0 0 1px; background: var(--c-side-hover); }
+.side-navigation > li.nav-active > .child-list { display: block; }
+.side-navigation .child-list > li > a {
+  color: #fff; font-size: 13px; display: block; padding: 10px 5px 10px 50px; transition: all .2s ease-out;
+}
+.side-navigation .child-list > li > a:hover { color: var(--c-accent); background: rgba(0,0,0,.2); }
+.side-navigation .child-list > li > a .fa { font-size: 12px; opacity: .5; margin-right: 5px; width: auto; }
+.navigation-title {
+  font-size: 11px; margin: 0; padding: 10px 20px; text-transform: uppercase; letter-spacing: 2px;
+  color: rgba(255,255,255,.5); border-top: 1px solid rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.05);
+  list-style: none;
+}
+/* secciones de fases futuras: visibles pero deshabilitadas (nunca ocultas) */
+.side-navigation li.proximamente > a, .side-navigation .child-list li.proximamente > a {
+  opacity: .45; cursor: not-allowed; pointer-events: auto;
+}
+.side-navigation li.proximamente > a:hover { background: transparent; color: #fff; }
+.side-navigation .child-list li.proximamente > a:hover { background: transparent; color: #fff; }
+.side-navigation .badge-pronto {
+  position: absolute; right: 20px; top: 50%; margin-top: -8px; font-size: 9px; line-height: 16px; text-transform: uppercase;
+  letter-spacing: 1px; background: rgba(255,255,255,.15); color: #fff; padding: 0 6px; border-radius: 2px;
+}
+.side-navigation li.menu-list > a .badge-pronto { right: 40px; }
+
+.header-section {
+  background: #fff; border-bottom: 1px solid var(--c-header-border); position: fixed; top: 0;
+  left: var(--sidebar-w); right: 0; height: var(--header-h); z-index: 1002;
+}
+.header-section:after { clear: both; display: block; content: ""; }
+.toggle-btn {
+  width: 55px; height: var(--header-h); line-height: 30px; font-size: 14px; padding: 15px; cursor: pointer;
+  float: left; text-align: center; color: #384246; transition: all .2s ease-out; background: none; border: 0;
+}
+.toggle-btn:hover { background: #f7f7f7; color: #8b8b8b; }
+.header-municipio { float: left; height: var(--header-h); display: flex; align-items: center; padding-left: 10px; }
+.header-municipio img { max-height: 42px; max-width: 160px; margin-right: 12px; }
+.header-municipio span { font-size: 16px; color: #555; text-transform: uppercase; }
+.right-notification { float: right; list-style: none; margin: 0; padding: 0; }
+.right-notification > li { float: left; position: relative; }
+.right-notification .user-toggle {
+  display: block; padding: 0 18px; height: var(--header-h); line-height: var(--header-h); color: #8b8b8b;
+  font-size: 14px; background: none; border: 0; cursor: pointer;
+}
+.right-notification .user-toggle:hover, .right-notification li.open .user-toggle { background: #f7f7f7; color: #8b8b8b; }
+.right-notification .user-toggle .fa-user { margin-right: 6px; }
+.right-notification .dropdown-menu {
+  margin-top: 0; border-radius: 0; box-shadow: none; border: 1px solid #ececec; border-top-color: transparent; right: 0; left: auto;
+}
+.right-notification .dropdown-menu > li > a { padding: 9px 18px; font-size: 13px; color: #555; }
+.right-notification .dropdown-menu > li > a:hover { background: #f7f7f7; color: #2b2b2c; }
+
+.body-content { margin-left: var(--sidebar-w); padding-top: var(--header-h); background: var(--c-content-bg); min-height: 100vh; }
+.wrapper { padding: 20px; }
+.sidebar-collapsed .sidebar-left, .sidebar-collapsed .logo { transform: translateX(-100%); }
+.sidebar-collapsed .header-section { left: 0; }
+.sidebar-collapsed .body-content { margin-left: 0; }
+.sidebar-left, .logo, .header-section, .body-content { transition: all .25s ease; }
+@media (max-width: 991px) {
+  .sidebar-left, .logo { transform: translateX(-100%); }
+  .header-section { left: 0; } .body-content { margin-left: 0; }
+  .sidebar-open .sidebar-left, .sidebar-open .logo { transform: none; }
+  .header-municipio span { display: none; }
+}
+
+/* ---------- panel / tabla / pestañas / modal / badges (patrón del sistema actual) */
+.panel { border-radius: 0; box-shadow: none; border: 1px solid var(--c-header-border); background: #fff; }
+.panel-heading { border-radius: 0; background: var(--c-body); color: #fff; padding: 12px 20px; border: 0; }
+.panel-heading .panel-title { font-size: 16px; color: #fff; }
+.panel-heading .nav-tabs { border: 0; margin: -12px -20px; }
+.panel-heading .nav > li > a { color: #fff; border-width: 0; border-radius: 0; padding: 14px 18px; margin: 0; }
+.panel-heading .nav > li.active > a, .panel-heading .nav > li > a:hover, .panel-heading .nav > li.active > a:focus {
+  color: var(--c-body); background: #fff; border-width: 0; border-radius: 0;
+}
+.panel-body { padding: 20px; }
+.table > thead > tr > th { border-bottom: 1px solid #ddd; font-weight: 600; background: #fafafa; }
+.table-hover > tbody > tr:hover { background: #f7f7f7; }
+.table td, .table th { vertical-align: middle !important; }
+.label { border-radius: 2px; font-weight: 400; font-size: 11px; padding: .3em .7em; }
+.label-success { background: var(--c-btn-success); }
+.label-danger  { background: var(--c-btn-danger); }
+.label-default { background: #aaa; }
+.nav-tabs { border-bottom: 1px solid #ddd; }
+.nav-tabs > li > a { border-radius: 0; color: #555; }
+
+.modal-backdrop-static { position: fixed; inset: 0; background: #000; opacity: .5; z-index: 1040; }
+.modal.show-modal { display: block; overflow-y: auto; z-index: 1050; }
+.modal-content { border-radius: 0; box-shadow: 0 5px 15px rgba(0,0,0,.35); }
+.modal-header { border-bottom: 1px solid #eee; padding: 15px 20px; }
+.modal-header h4.modal-title { font-weight: normal; }
+.modal-body label { font-weight: 400; }
+.modal-body p { color: #333; }
+
+.page-heading { margin: 0 0 20px; font-size: 22px; font-weight: 300; color: #444; }
+.toolbar { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.toolbar .spacer { flex: 1; }
+.error-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ddd; text-align: center; }
+.error-page h1 { font-weight: 300; color: #555; margin-top: 0; }
+.error-page p { color: #777; }
