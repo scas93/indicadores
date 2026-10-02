@@ -9,3 +9,4 @@ pydantic-settings>=2.4
 email-validator>=2.2
 python-multipart>=0.0.9
 boto3>=1.34  # opcional, solo con R2/S3
+reportlab>=4.2
