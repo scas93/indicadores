@@ -3,6 +3,9 @@ import os
 
 os.environ.setdefault("PASSWORD_ENCRYPTION_KEY", base64.b64encode(b"k" * 32).decode())
 os.environ["COOKIE_SECURE"] = "false"
+# herméticas: ningún .env local debe cambiar el resultado de las pruebas
+os.environ.update(ROOT_DOMAIN="localtest.me", PUBLIC_SCHEME="https", PUBLIC_PORT="",
+                  RESEND_API_KEY="", EMAIL_FROM="")
 os.environ.setdefault("SESSION_SECRET", "test-secret")
 os.environ.setdefault("UPLOAD_DIR", "/tmp/indicadores-test-uploads")
 

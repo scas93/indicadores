@@ -3,7 +3,8 @@ import uuid
 
 from sqlalchemy import func, select
 
-from app.models import (Bitacora, CatalogoMunicipio, GeografiaEstado, GeografiaLocalidad,
+from app.models import (Bitacora, CatalogoMunicipio, ClasificacionProgramatica, Frecuencia,
+                        GeografiaEstado, GeografiaLocalidad,
                         GeografiaMunicipio, Municipio, Sesion, Usuario)
 from app.security import decrypt_password
 
@@ -26,9 +27,15 @@ def test_alta_de_municipio_deja_admin_listo_y_plantillas_copiadas(admin, db):
     mid = uuid.UUID(r.json()["municipio"]["id"])
     tipos = dict(db.execute(select(CatalogoMunicipio.tipo, func.count()).where(
         CatalogoMunicipio.municipio_id == mid).group_by(CatalogoMunicipio.tipo)).all())
-    for t in ("frecuencia", "dimension", "algoritmo", "grupo_edad", "nivel_socioeconomico",
-              "clasificacion_programatica", "conac_capitulo", "conac_partida"):
+    for t in ("dimension", "algoritmo", "grupo_edad", "nivel_socioeconomico",
+              "conac_capitulo", "conac_partida"):
         assert tipos.get(t), f"no se copió {t}"
+    # Fase 1: frecuencia y clasificación programática son tablas propias, no filas genéricas
+    assert "frecuencia" not in tipos and "clasificacion_programatica" not in tipos
+    assert db.scalar(select(func.count()).select_from(Frecuencia).where(
+        Frecuencia.municipio_id == mid)) > 0
+    assert db.scalar(select(func.count()).select_from(ClasificacionProgramatica).where(
+        ClasificacionProgramatica.municipio_id == mid)) > 0
     assert db.scalar(select(func.count()).select_from(Bitacora).where(
         Bitacora.accion == "municipio.crear")) == 1
 
@@ -61,9 +68,8 @@ def test_editar_plantilla_global_no_toca_copias_existentes(admin, db):
            if f["clave"] == "mensual"][0]["id"]
     assert admin.patch(f"/api/admin/plantillas/frecuencia/{fid}", headers=ADMIN,
                        json={"nombre": "Cada mes"}).status_code == 200
-    copia = db.scalar(select(CatalogoMunicipio).where(
-        CatalogoMunicipio.municipio_id == mid, CatalogoMunicipio.tipo == "frecuencia",
-        CatalogoMunicipio.clave == "mensual"))
+    copia = db.scalar(select(Frecuencia).where(
+        Frecuencia.municipio_id == mid, Frecuencia.clave == "mensual"))
     assert copia.nombre == "Mensual"
 
 
@@ -294,13 +300,15 @@ def test_login_credenciales_y_usuario_inactivo(admin, db):
     assert login(admin, "demo").json()["codigo"] == "USUARIO_INACTIVO"
 
 
-def test_debe_cambiar_password_se_apaga_en_primer_login(admin, db):
+def test_login_nunca_obliga_ni_apaga_debe_cambiar_password(admin, db):
+    """Decisión de producto: la bandera es solo informativa; el login no la toca."""
     crear_municipio(admin, "demo")
     assert db.scalar(select(Usuario.debe_cambiar_password)) is True
-    assert login(admin, "demo").json()["primer_login"] is True
+    assert login(admin, "demo").status_code == 200
     db.expire_all()
-    assert db.scalar(select(Usuario.debe_cambiar_password)) is False
-    assert login(admin, "demo").json()["primer_login"] is False
+    assert db.scalar(select(Usuario.debe_cambiar_password)) is True
+    me = admin.get("/api/auth/me", headers=mun("demo")).json()
+    assert me["usuario"]["debe_cambiar_password"] is True
 
 
 def test_branding_expone_solo_lo_necesario(admin):

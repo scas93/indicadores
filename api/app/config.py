@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
 
+    # Recuperación de contraseña por email (Resend). Sin API key el correo no se envía (solo log).
+    resend_api_key: str = ""
+    email_from: str = ""
+    public_scheme: str = "https"  # esquema de los links del correo (http en desarrollo)
+    public_port: str = ""         # p. ej. 3000 en desarrollo
+
     # Solo seed.py
     seed_super_admin_usuario: str = ""
     seed_super_admin_password: str = ""

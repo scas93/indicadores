@@ -209,7 +209,7 @@ export function Municipios() {
         </div>
         <div className="table-responsive">
           <table className="table table-hover">
-            <thead><tr><th>Nombre</th><th>Subdominio</th><th>Estado</th><th>Fecha de alta</th><th style={{ width: 130 }}>Acciones</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Subdominio</th><th>Estado</th><th>Fecha de alta</th><th style={{ width: 160 }}>Acciones</th></tr></thead>
             <tbody>
               {lista === null && <tr><td colSpan={5} className="text-center text-muted">Cargando…</td></tr>}
               {lista && !filtrada.length && <tr><td colSpan={5} className="text-center text-muted">Sin municipios</td></tr>}
@@ -221,6 +221,7 @@ export function Municipios() {
                   <td>{fecha(m.created_at)}</td>
                   <td>
                     <button className="btn btn-xs btn-info" title="Editar" onClick={() => setModal(m)}><i className="fa fa-pencil" /></button>{" "}
+                    <a className="btn btn-xs btn-primary" title="Usuarios" href={`/municipios/${m.id}/usuarios`}><i className="fa fa-users" /></a>{" "}
                     <button className={`btn btn-xs ${m.estado === "activo" ? "btn-warning" : "btn-success"}`}
                       title={m.estado === "activo" ? "Suspender" : "Activar"} onClick={() => m.estado === "activo" ? setConfirma(m) : cambiarEstado(m)}>
                       <i className={`fa ${m.estado === "activo" ? "fa-pause" : "fa-play"}`} /></button>
