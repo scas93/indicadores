@@ -1,16 +1,21 @@
 import { redirect } from "next/navigation";
 import { apiServer } from "@/lib/api.server";
-import { Shell } from "@/components/Shell";
-import { BodyClass } from "@/components/BodyClass";
+import { AppShell } from "@/components/shell/AppShell";
+import { MENU_MUNICIPIO, TIPO_ETIQUETA, menuPara, type TipoUsuario } from "@/components/shell/menu";
 
 export default async function ShellLayout({ children }: { children: React.ReactNode }) {
   const me = await apiServer("/api/auth/me");
   if (me.status !== 200) redirect("/login"); // sin sesión o vencida: pide login de nuevo
   const { usuario, municipio } = me.data;
+  const tipo = usuario.tipo as TipoUsuario;
   return (
-    <>
-      <BodyClass name="app-body" />
-      <Shell marca={municipio} usuario={usuario}>{children}</Shell>
-    </>
+    <AppShell
+      menu={menuPara(MENU_MUNICIPIO, tipo)}
+      etiquetaUsuario={TIPO_ETIQUETA[tipo] ?? usuario.nombre}
+      logoutUrl="/api/auth/logout"
+      marca={municipio}
+    >
+      {children}
+    </AppShell>
   );
 }
