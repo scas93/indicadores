@@ -227,3 +227,30 @@ body.app-body { background: var(--c-body); }
 .error-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ddd; text-align: center; }
 .error-page h1 { font-weight: 300; color: #555; margin-top: 0; }
 .error-page p { color: #777; }
+
+/* ---------- Fase 2: módulo Inicio (árbol, matriz, captura) */
+.inicio-selector { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
+.semaforo { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: middle; border: 1px solid rgba(0,0,0,.15); }
+.semaforo-verde { background: var(--c-btn-success); }
+.semaforo-amarillo { background: var(--c-btn-warning); }
+.semaforo-rojo { background: var(--c-btn-danger); }
+.semaforo-gris { background: #bdbdbd; }
+.semaforo-sin_color { background: #fff; border-color: #999; }
+.arbol-encabezado textarea { resize: vertical; }
+.arbol-tabla td { vertical-align: top !important; white-space: pre-wrap; }
+.arbol-tabla tr.nodo-hijo td.texto { padding-left: 32px; }
+.arbol-tabla tr.nodo-raiz td { font-weight: 600; background: #fcfcfc; }
+.matriz-tabla td { vertical-align: top !important; white-space: pre-wrap; }
+.matriz-tabla tr.nivel-fin td, .matriz-tabla tr.nivel-proposito td { background: #f7f7f7; }
+.matriz-tabla tr.nivel-actividad td:first-child { padding-left: 28px; }
+.rejilla-wrap { overflow-x: auto; }
+.rejilla th, .rejilla td { text-align: center; white-space: nowrap; }
+.modal-dialog.modal-xl { width: min(1180px, calc(100vw - 30px)); }
+.rejilla input { width: 70px; padding: 2px 4px; text-align: right; }
+.dato-solo-lectura { background: #f7f7f7; border: 1px solid var(--c-field-border); padding: 6px 10px; min-height: 34px; }
+.tabs-modal { margin-bottom: 15px; }
+.tabs-modal > li.deshabilitado > a { color: #bbb; cursor: not-allowed; }
+.descargas-menu { position: relative; display: inline-block; }
+.descargas-menu ul { position: absolute; right: 0; top: 100%; z-index: 20; background: #fff; border: 1px solid #ddd; padding: 4px 0; margin: 2px 0 0; list-style: none; min-width: 270px; box-shadow: 0 3px 8px rgba(0,0,0,.15); }
+.descargas-menu li a { display: block; padding: 7px 16px; color: var(--c-text); }
+.descargas-menu li a:hover { background: #f3f3f3; }

@@ -150,3 +150,14 @@ def guardar(db: Session, actor: ActorCtx, indicador_id: uuid.UUID, anio: int, me
     return {"guardados": sorted(n["mes"] for n in aceptados),
             "rechazados": [{"mes": r.mes, "codigo": r.codigo, "mensaje": r.mensaje} for r in rechazados],
             "rejilla": rejilla(db, actor, indicador_id, anio, hoy)}
+
+
+def calcular(db: Session, actor: ActorCtx, indicador_id: uuid.UUID, meses: list[dict]) -> dict:
+    """Vista previa en vivo de la rejilla (sin guardar): mismo cálculo que al leer, para que el
+    front no reimplemente sumatoria, algoritmo ni semáforo."""
+    i, _, _ = indicador_accesible(db, actor, indicador_id)
+    for m in meses:
+        vm.validar_mes(m.get("mes"))
+    por_mes = {m["mes"]: (vm.normalizar_valor(m.get("valor_a"), f"mes_{m['mes']}"),
+                          vm.normalizar_valor(m.get("valor_b"), f"mes_{m['mes']}")) for m in meses}
+    return cumpl.resultado_a_dict(cumpl.evaluar_indicador(i, por_mes))

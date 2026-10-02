@@ -34,7 +34,7 @@ const mir: TipoUsuario[] = [...T.informes, ...T.alc];
 /** Menú del municipio. Estructura y orden de las capturas (usuarios 3 y 4); las secciones que las
  *  capturas no cubren (tipos 1, 2, 5, 6 y fases futuras) se infieren de la tabla de tipos de la Fase 1. */
 export const MENU_MUNICIPIO: Menu = [
-  { label: "Inicio", icon: "fa-home" },
+  { label: "Inicio", icon: "fa-home", href: "/", tipos: [...T.informes, ...T.presup, ...T.ctrl, ...T.ind, ...T.alc] },
   {
     label: "Catálogos", icon: "fa-book", hijos: [
       { label: "Centros gestores", href: "/catalogos/centros-gestores", tipos: mir }, { label: "Ejes", href: "/catalogos/ejes", tipos: mir }, { label: "Subtemas", href: "/catalogos/subtemas", tipos: mir },

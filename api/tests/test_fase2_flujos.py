@@ -352,3 +352,16 @@ def test_arbol_dos_niveles_numeracion_espejo_y_borrado_en_cascada(m, ctx):
     t = m.get(m.admin, f"/api/programas/{p}/arbol").json()
     assert [(n["numero"], n["texto_causa"]) for n in t["causas"]] == [("1", "C2b")]
     assert m.admin.delete(f"/api/arbol-efecto-fin/{e1['id']}", headers=m.h).json() == {"eliminados": 1}
+
+
+def test_vista_previa_calcula_sin_guardar_y_con_el_mismo_motor(m, ctx, db):
+    ind = ctx.nuevo_indicador()
+    meses = [{"mes": 1, "valor_a": 3, "valor_b": 250}, {"mes": 2, "valor_a": 8.8, "valor_b": 750}]
+    r = m.post(m.admin, f"/api/indicadores/{ind['id']}/avances/calcular", {"meses": meses})
+    assert r.status_code == 200 and r.json()["cumplimiento"] == 1.18 and r.json()["color"] == "rojo"
+    assert db.scalars(select(AvanceMensual)).all() == []   # no guardó nada
+    sin = m.post(m.admin, f"/api/indicadores/{ind['id']}/avances/calcular", {"meses": []}).json()
+    assert sin["color"] == "gris" and sin["cumplimiento"] is None
+    cero = m.post(m.admin, f"/api/indicadores/{ind['id']}/avances/calcular",
+                  {"meses": [{"mes": 1, "valor_a": 1, "valor_b": 0}]}).json()
+    assert cero["color"] == "gris" and cero["cumplimiento"] is None

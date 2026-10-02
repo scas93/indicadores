@@ -1,4 +1,7 @@
-// Contenido central vacío en Fase 0: "Inicio" llega con la Fase 1.
+import { Inicio } from "@/components/inicio/Inicio";
+
+export const metadata = { title: "Inicio - Sistema Indicadores" };
+
 export default function Home() {
-  return null;
+  return <Inicio />;
 }

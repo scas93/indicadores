@@ -142,6 +142,7 @@ Todos de ámbito municipio, filtrados además por los `programa` asignados al us
 | `PATCH /api/arbol-causa-medio/{id}` | Editar (causa, medio, o ambos) |
 | `DELETE /api/arbol-causa-medio/{id}` | Elimina el nodo y sus hijos (con confirmación en el front) |
 | `POST /api/programas/{id}/arbol/efectos` · `PATCH/DELETE /api/arbol-efecto-fin/{id}` | Análogos para efectos/fines |
+| `PUT /api/programas/{id}/arbol/encabezado` | Guarda la situación no deseada (problema) y el objetivo que encabezan el árbol (tabla `arbol_encabezado`: `programa_id`, `problema`, `objetivo`) |
 | `GET /api/programas/{id}/arbol/descarga?tipo=completo\|problemas\|objetivos` | PDF |
 
 ### Matriz de indicadores
@@ -165,6 +166,7 @@ Fin y Propósito se crean automáticamente (vacíos) la primera vez que se entra
 | --- | --- |
 | `GET /api/programas/{id}/captura-avances` | Lista de indicadores del programa con datos generales de solo lectura |
 | `GET /api/indicadores/{id}/avances?anio=` | Rejilla del año: A/B × 12 meses, más sumatoria y cumplimiento calculados |
+| `POST /api/indicadores/{id}/avances/calcular` | Vista previa en vivo (sin guardar): sumatoria, cumplimiento y semáforo de los valores capturados, con el mismo motor (`app/calculo.py`) que la lectura |
 | `PUT /api/indicadores/{id}/avances?anio=` | Guarda los 12 valores de A (y B si aplica) de ese año. Valida meses activos y tolerancia (ver Reglas de negocio) antes de aceptar cada mes |
 | `GET /api/indicadores/{id}/exportar?formato=fn\|fa` | PDF: Exportar FN (Ficha Narrativa) / Exportar FA (Ficha de Avance) |
 
@@ -172,7 +174,7 @@ Fin y Propósito se crean automáticamente (vacíos) la primera vez que se entra
 
 ### Módulo Inicio
 
-Selector de programa (solo los asignados al usuario) y 3 pestañas: Árbol de problemas y objetivos, Matriz de indicadores, Captura de avances. Una 4a pestaña, Presupuestación, se agrega en Fase 4 (aparece si el usuario tiene el permiso y el programa tiene techo). Botón de descargas globales (ícono de nube) con las 4 opciones de PDF.
+Selector de programa (solo los asignados al usuario) y 3 pestañas: Árbol de problemas y objetivos, Matriz de indicadores, Captura de avances. Una 4a pestaña, Presupuestación, se agrega en Fase 4 (aparece si el usuario tiene el permiso y el programa tiene techo). Botón de descargas globales (ícono de nube) con las 5 opciones de PDF del módulo (árbol completo, solo problemas, solo objetivos, Matriz de Resultados, Matriz de Cumplimiento). Las 2 de nivel indicador (Ficha Narrativa y Ficha de Avance) se descargan desde el modal de Captura de avances, no desde este botón.
 
 ### Árbol de problemas y objetivos
 

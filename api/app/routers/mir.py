@@ -87,6 +87,13 @@ def rejilla(id: uuid.UUID, anio: int | None = None, actor: ActorCtx = Depends(_i
     return av.rejilla(db, actor, id, anio, hoy)
 
 
+@router.post("/indicadores/{id}/avances/calcular")
+def calcular_avances(id: uuid.UUID, body: AvancesGuardarIn, actor: ActorCtx = Depends(_inicio),
+                     db: Session = Depends(get_db)):
+    """Vista previa del cumplimiento y el semáforo con los valores capturados (no guarda nada)."""
+    return av.calcular(db, actor, id, [m.model_dump() for m in body.meses])
+
+
 @router.put("/indicadores/{id}/avances")
 def guardar_avances(id: uuid.UUID, body: AvancesGuardarIn, anio: int, actor: ActorCtx = Depends(_inicio),
                     db: Session = Depends(get_db), hoy: date = Depends(hoy_actual)):
