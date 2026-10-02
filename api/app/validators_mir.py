@@ -10,6 +10,19 @@ from .errors import ApiError
 NIVELES_UNICOS = frozenset({"fin", "proposito"})
 
 
+def normalizar_valor(valor, campo: str) -> Decimal | None:
+    """Valor numérico de captura (A/B, metas, rangos): 4 decimales como la columna Numeric(18,4)."""
+    if valor is None:
+        return None
+    try:
+        d = Decimal(str(valor)) if not isinstance(valor, Decimal) else valor
+        if not d.is_finite() or abs(d) >= Decimal(10) ** 13:
+            raise ValueError
+    except (ArithmeticError, ValueError):
+        raise ApiError(422, "VALOR_INVALIDO", "Valor numérico inválido", {campo: "Número inválido o fuera de rango"})
+    return d.quantize(Decimal("0.0001"))
+
+
 def usa_b(algoritmo: str | None) -> bool:
     """La variable B existe salvo con "solo A" (sin algoritmo aún, todavía no se bloquea)."""
     return algoritmo != "a"

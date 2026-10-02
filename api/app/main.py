@@ -7,8 +7,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
 from .errors import ApiError, TenantViolation
-from .routers import (admin_auth, auth, config, matriz, municipios, planeacion, plantillas, uploads,
-                      usuarios)
+from .routers import (admin_auth, arbol, auth, config, matriz, mir, municipios, planeacion, plantillas,
+                      uploads, usuarios)
 
 app = FastAPI(title="Indicadores API", docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -42,7 +42,7 @@ def health():
 
 # matriz antes que usuarios: "/api/usuarios/matriz" no debe caer en "/api/usuarios/{id}"
 for r in (auth.router, admin_auth.router, municipios.router, plantillas.router, uploads.router,
-          matriz.router, usuarios.router, usuarios.admin_router, planeacion.router, config.router):
+          matriz.router, usuarios.router, usuarios.admin_router, planeacion.router, config.router, arbol.router, mir.router):
     app.include_router(r)
 
 _up = Path(get_settings().upload_dir)
