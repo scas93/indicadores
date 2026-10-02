@@ -22,6 +22,10 @@ PERMISOS: dict[str, frozenset[str]] = {
                                  "indicadores", "alcalde", ADMIN}),
     "planeacion_editar": frozenset({"alcalde", ADMIN}),
     "programas_editar": frozenset({"alcalde", "presupuestacion", ADMIN}),
+    # Fase 2: módulo Inicio (árbol, matriz de indicadores, captura de avances). Todos los tipos con
+    # "Inicio" en su menú; además cada endpoint filtra por los programas asignados (usuario_programa).
+    "inicio": frozenset({"informes", "presupuestacion", "control_presupuestal", "indicadores",
+                         "alcalde", ADMIN}),
     # Configuración
     "config_ver": frozenset({"informes", "alcalde", ADMIN}),
 }

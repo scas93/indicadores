@@ -1,9 +1,10 @@
 import enum
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 
-from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, Enum, ForeignKey,
-                        Integer, String, Text, TypeDecorator, UniqueConstraint, Uuid)
+from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index,
+                        Integer, Numeric, String, Text, TypeDecorator, UniqueConstraint, Uuid, text)
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
@@ -330,3 +331,139 @@ class PasswordResetToken(TenantMixin, Base):
     expires_at: Mapped[datetime] = mapped_column(UTCDateTime)
     used_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
+
+
+# --------------------------------------------------------------------------- Fase 2: MIR
+class NivelMatriz(str, enum.Enum):
+    fin = "fin"
+    proposito = "proposito"
+    componente = "componente"
+    actividad = "actividad"
+
+
+class TipoIndicador(str, enum.Enum):
+    gestion = "gestion"
+    estrategico = "estrategico"
+
+
+class DimensionIndicador(str, enum.Enum):
+    eficacia = "eficacia"
+    eficiencia = "eficiencia"
+    calidad = "calidad"
+    economia = "economia"
+
+
+class Algoritmo(str, enum.Enum):
+    a_sobre_b_pct = "a_sobre_b_pct"
+    a_sobre_b_menos1_pct = "a_sobre_b_menos1_pct"
+    a_sobre_b = "a_sobre_b"
+    a = "a"
+
+
+_VALOR = Numeric(18, 4)
+
+
+class ArbolEncabezado(TenantMixin, Base):
+    """Situación no deseada (problema) y objetivo (positivo) que encabezan el árbol."""
+
+    __tablename__ = "arbol_encabezado"
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), primary_key=True)
+    problema: Mapped[str | None] = mapped_column(Text)
+    objetivo: Mapped[str | None] = mapped_column(Text)
+
+
+class _ArbolNodo(TenantMixin):
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    numero: Mapped[str] = mapped_column(Text)  # "1", "1.1": se recalcula al insertar y al borrar
+    orden: Mapped[int] = mapped_column(Integer)
+
+
+class ArbolCausaMedio(_ArbolNodo, Base):
+    """Par causa/medio espejo (comparten número). 2 niveles."""
+
+    __tablename__ = "arbol_causa_medio"
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), index=True)
+    padre_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("arbol_causa_medio.id"), index=True)
+    texto_causa: Mapped[str] = mapped_column(Text, default="")
+    texto_medio: Mapped[str] = mapped_column(Text, default="")
+
+
+class ArbolEfectoFin(_ArbolNodo, Base):
+    __tablename__ = "arbol_efecto_fin"
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), index=True)
+    padre_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("arbol_efecto_fin.id"), index=True)
+    texto_efecto: Mapped[str] = mapped_column(Text, default="")
+    texto_fin: Mapped[str] = mapped_column(Text, default="")
+
+
+class ElementoMatriz(TenantMixin, Base):
+    """Filas de la MIR. A lo más un fin y un propósito por programa (índice único parcial)."""
+
+    __tablename__ = "elemento_matriz"
+    __table_args__ = (
+        Index("uq_elemento_matriz_fin_proposito", "programa_id", "nivel", unique=True,
+              postgresql_where=text("nivel IN ('fin', 'proposito')"),
+              sqlite_where=text("nivel IN ('fin', 'proposito')")),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), index=True)
+    nivel: Mapped[NivelMatriz] = mapped_column(_enum(NivelMatriz))
+    numero: Mapped[str] = mapped_column(Text, default="")  # vacío en fin/propósito
+    orden: Mapped[int] = mapped_column(Integer, default=0)
+    padre_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("elemento_matriz.id"), index=True)
+    resumen_narrativo: Mapped[str] = mapped_column(Text, default="")
+    medios_verificacion: Mapped[str] = mapped_column(Text, default="")
+    supuestos: Mapped[str] = mapped_column(Text, default="")
+    evidencia: Mapped[str | None] = mapped_column(Text)
+
+
+class Indicador(TenantMixin, Base):
+    __tablename__ = "indicador"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    elemento_matriz_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("elemento_matriz.id"), index=True)
+    tipo: Mapped[TipoIndicador] = mapped_column(_enum(TipoIndicador))
+    prioritario: Mapped[bool] = mapped_column(Boolean, default=False)
+    nombre: Mapped[str] = mapped_column(Text, default="")
+    interpretacion: Mapped[str] = mapped_column(Text, default="")
+    dimension: Mapped[DimensionIndicador | None] = mapped_column(_enum(DimensionIndicador))
+    frecuencia_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("frecuencia.id"))
+    unidad_medida: Mapped[str] = mapped_column(Text, default="")
+    algoritmo: Mapped[Algoritmo | None] = mapped_column(_enum(Algoritmo))
+    unidad_a: Mapped[str] = mapped_column(Text, default="")
+    unidad_b: Mapped[str | None] = mapped_column(Text)
+    rango_verde_desde: Mapped[Decimal | None] = mapped_column(_VALOR)
+    rango_verde_hasta: Mapped[Decimal | None] = mapped_column(_VALOR)
+    rango_amarillo_desde: Mapped[Decimal | None] = mapped_column(_VALOR)
+    rango_amarillo_hasta: Mapped[Decimal | None] = mapped_column(_VALOR)
+    rango_rojo_desde: Mapped[Decimal | None] = mapped_column(_VALOR)
+    rango_rojo_hasta: Mapped[Decimal | None] = mapped_column(_VALOR)
+    anio_base: Mapped[int | None] = mapped_column(Integer)
+    meta_administracion: Mapped[Decimal | None] = mapped_column(_VALOR)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
+
+
+class MetaAnual(TenantMixin, Base):
+    __tablename__ = "meta_anual"
+    __table_args__ = (UniqueConstraint("indicador_id", "anio"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    indicador_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("indicador.id"), index=True)
+    anio: Mapped[int] = mapped_column(Integer)
+    valor_a_programado: Mapped[Decimal | None] = mapped_column(_VALOR)
+    valor_b_programado: Mapped[Decimal | None] = mapped_column(_VALOR)
+    es_ejercicio_fiscal: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class AvanceMensual(TenantMixin, Base):
+    """Sumatoria y cumplimiento NO se guardan: se calculan al leer (app/calculo.py)."""
+
+    __tablename__ = "avance_mensual"
+    __table_args__ = (UniqueConstraint("indicador_id", "anio", "mes"),
+                      CheckConstraint("mes BETWEEN 1 AND 12", name="ck_avance_mes"))
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    indicador_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("indicador.id"), index=True)
+    anio: Mapped[int] = mapped_column(Integer)
+    mes: Mapped[int] = mapped_column(Integer)
+    valor_a: Mapped[Decimal | None] = mapped_column(_VALOR)
+    valor_b: Mapped[Decimal | None] = mapped_column(_VALOR)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now, onupdate=_now)

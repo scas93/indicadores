@@ -164,3 +164,88 @@ class RecuperarConfirmarIn(BaseModel):
 class CambiarPasswordIn(BaseModel):
     password_actual: str = Field(min_length=1)
     password_nueva: str = Field(min_length=1)
+
+
+# --------------------------------------------------------------------------- Fase 2: MIR
+from decimal import Decimal  # noqa: E402
+
+from .models import Algoritmo, DimensionIndicador, TipoIndicador  # noqa: E402
+
+
+class EncabezadoIn(BaseModel):
+    problema: str | None = None
+    objetivo: str | None = None
+
+
+class CausaIn(BaseModel):
+    padre_id: uuid.UUID | None = None
+    texto_causa: str | None = None
+    texto_medio: str | None = None
+
+
+class EfectoIn(BaseModel):
+    padre_id: uuid.UUID | None = None
+    texto_efecto: str | None = None
+    texto_fin: str | None = None
+
+
+class ElementoIn(BaseModel):
+    resumen_narrativo: str | None = None
+    medios_verificacion: str | None = None
+    supuestos: str | None = None
+    evidencia: str | None = None
+
+
+class FichaIn(BaseModel):
+    tipo: TipoIndicador | None = None
+    prioritario: bool | None = None
+    nombre: str | None = None
+    interpretacion: str | None = None
+    dimension: DimensionIndicador | None = None
+    frecuencia_id: uuid.UUID | None = None
+    unidad_medida: str | None = None
+    algoritmo: Algoritmo | None = None
+    unidad_a: str | None = None
+    unidad_b: str | None = None
+
+
+class MetaAnualIn(BaseModel):
+    anio: int
+    valor_a_programado: Decimal | None = None
+    valor_b_programado: Decimal | None = None
+    es_ejercicio_fiscal: bool = False
+
+
+class MetasIn(BaseModel):
+    anio_base: int | None = None
+    meta_administracion: Decimal | None = None
+    anuales: list[MetaAnualIn] | None = None  # si viene, reemplaza el conjunto de años
+
+
+class RangoIn(BaseModel):
+    desde: Decimal | None = None
+    hasta: Decimal | None = None
+
+
+class RangosIn(BaseModel):
+    verde: RangoIn | None = None
+    amarillo: RangoIn | None = None
+    rojo: RangoIn | None = None
+
+
+class IndicadorIn(BaseModel):
+    """Las 4 pestañas del modal en un solo payload. En PATCH solo se aplica lo que viene."""
+    mir: ElementoIn | None = None
+    ficha: FichaIn | None = None
+    metas: MetasIn | None = None
+    rangos: RangosIn | None = None
+
+
+class AvanceMesIn(BaseModel):
+    mes: int
+    valor_a: Decimal | None = None
+    valor_b: Decimal | None = None
+
+
+class AvancesGuardarIn(BaseModel):
+    meses: list[AvanceMesIn]

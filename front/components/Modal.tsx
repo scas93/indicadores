@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 /** Modal con el marcado de Bootstrap 3 (modal > modal-dialog > modal-content). */
 export function Modal({ titulo, onClose, children, footer, size }: {
-  titulo: string; onClose: () => void; children: React.ReactNode; footer?: React.ReactNode; size?: "lg" | "sm";
+  titulo: string; onClose: () => void; children: React.ReactNode; footer?: React.ReactNode; size?: "lg" | "sm" | "xl";
 }) {
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
