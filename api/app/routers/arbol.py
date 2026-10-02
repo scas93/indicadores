@@ -1,12 +1,13 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..deps import ActorCtx, actor_con_tipo
 from ..schemas import CausaIn, EfectoIn, EncabezadoIn
 from ..services import arbol as svc
+from ..services import descargas
 
 router = APIRouter(prefix="/api", tags=["arbol"])
 _inicio = actor_con_tipo("inicio")
@@ -65,3 +66,12 @@ def eliminar_efecto(id: uuid.UUID, actor: ActorCtx = Depends(_inicio), db: Sessi
     n = svc.eliminar(db, actor, "efecto", id)
     db.commit()
     return {"eliminados": n}
+
+
+@router.get("/programas/{id}/arbol/descarga")
+def descargar(id: uuid.UUID, tipo: str = "completo", actor: ActorCtx = Depends(_inicio),
+              db: Session = Depends(get_db)):
+    """PDF: tipo = completo | problemas | objetivos."""
+    contenido, nombre = descargas.arbol(db, actor, id, tipo)
+    return Response(contenido, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})

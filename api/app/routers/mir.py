@@ -1,13 +1,14 @@
 import uuid
 from datetime import date
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..deps import ActorCtx, actor_con_tipo
 from ..schemas import AvancesGuardarIn, ElementoIn, IndicadorIn
 from ..services import avances as av
+from ..services import descargas
 from ..services import mir as svc
 
 router = APIRouter(prefix="/api", tags=["mir"])
@@ -92,3 +93,23 @@ def guardar_avances(id: uuid.UUID, body: AvancesGuardarIn, anio: int, actor: Act
     r = av.guardar(db, actor, id, anio, [m.model_dump() for m in body.meses], hoy)
     db.commit()
     return r
+
+
+def _pdf(contenido: bytes, nombre: str) -> Response:
+    return Response(contenido, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
+
+
+@router.get("/programas/{id}/matriz/descarga")
+def descargar_matriz(id: uuid.UUID, tipo: str = "resultados", anio: int | None = None,
+                     actor: ActorCtx = Depends(_inicio), db: Session = Depends(get_db)):
+    """PDF: tipo = resultados (Matriz de Indicadores de Resultados) | cumplimiento (Matriz de Cumplimiento)."""
+    return _pdf(*descargas.matriz(db, actor, id, tipo, anio))
+
+
+@router.get("/indicadores/{id}/exportar")
+def exportar_ficha(id: uuid.UUID, formato: str = "fn", anio: int | None = None,
+                   actor: ActorCtx = Depends(_inicio), db: Session = Depends(get_db),
+                   hoy: date = Depends(hoy_actual)):
+    """PDF: formato = fn (Ficha Narrativa) | fa (Ficha de Avance)."""
+    return _pdf(*descargas.ficha(db, actor, id, formato, anio, hoy))
