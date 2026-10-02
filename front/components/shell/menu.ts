@@ -37,16 +37,16 @@ export const MENU_MUNICIPIO: Menu = [
   { label: "Inicio", icon: "fa-home" },
   {
     label: "Catálogos", icon: "fa-book", hijos: [
-      { label: "Centros gestores", tipos: mir }, { label: "Ejes", tipos: mir }, { label: "Subtemas", tipos: mir },
-      { label: "Estrategias", tipos: mir }, { label: "Frecuencias", tipos: mir },
-      { label: "Programas", tipos: [...T.informes, ...T.presup, ...T.alc] },
+      { label: "Centros gestores", href: "/catalogos/centros-gestores", tipos: mir }, { label: "Ejes", href: "/catalogos/ejes", tipos: mir }, { label: "Subtemas", href: "/catalogos/subtemas", tipos: mir },
+      { label: "Estrategias", href: "/catalogos/estrategias", tipos: mir }, { label: "Frecuencias", href: "/catalogos/frecuencias", tipos: mir },
+      { label: "Programas", href: "/catalogos/programas", tipos: [...T.informes, ...T.presup, ...T.alc] },
       { label: "Capitulos", tipos: T.presup }, { label: "Partidas", tipos: T.presup },
       { label: "Partidas Especificas", tipos: T.presup }, { label: "Articulos", tipos: T.presup },
       { label: "Apoyos", tipos: T.padron }, { label: "Descripciones de apoyo", tipos: T.padron },
       { label: "Grupos de edad", tipos: T.padron }, { label: "Niveles socioeconómicos", tipos: T.padron },
       { label: "Municipios", tipos: T.padron }, { label: "Localidades", tipos: T.padron },
       { label: "Colonias", tipos: T.padron },
-      { label: "Usuarios", tipos: ["informes", "padron", "presupuestacion", "indicadores", "alcalde"] },
+      { label: "Usuarios", href: "/catalogos/usuarios", tipos: ["informes", "padron", "presupuestacion", "indicadores", "alcalde"] },
     ],
   },
   { label: "Padrón de Beneficiarios", icon: "fa-users", tipos: T.padron },
@@ -64,7 +64,7 @@ export const MENU_MUNICIPIO: Menu = [
   { label: "Techo Presupuestal", icon: "fa-money", tipos: T.presup },
   {
     label: "Configuración", icon: "fa-cog", tipos: mir, hijos: [
-      { label: "Login", tipos: T.informes }, { label: "Meses de avances", tipos: mir },
+      { label: "Login", href: "/configuracion/login", tipos: T.informes }, { label: "Meses de avances", href: "/configuracion/meses-avances", tipos: mir },
     ],
   },
   // Fase 6 (por inferencia): módulos que solo ve el administrador. Visibles pero deshabilitados

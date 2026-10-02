@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, Enum, ForeignKey,
                         Integer, String, Text, TypeDecorator, UniqueConstraint, Uuid)
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
 
@@ -26,6 +26,8 @@ class UTCDateTime(TypeDecorator):
 
 
 JSONType = JSON().with_variant(JSONB(), "postgresql")
+# int[] en Postgres; JSON en SQLite (pruebas)
+IntArray = JSON().with_variant(ARRAY(Integer), "postgresql")
 
 
 def _now() -> datetime:
@@ -158,6 +160,9 @@ class Municipio(Base):
     color_boton: Mapped[ColorBoton] = mapped_column(_enum(ColorBoton), default=ColorBoton.info)
     mostrar_logos: Mapped[bool] = mapped_column(Boolean, default=True)
     duracion_sesion_dias: Mapped[int] = mapped_column(Integer, default=30)
+    # Fase 1: configuración del municipio (columnas, sin tabla aparte)
+    meses_avance_activos: Mapped[list[int]] = mapped_column(IntArray, default=list)
+    tolerancia_semaforo: Mapped[int] = mapped_column(Integer, default=0)  # días
     estado: Mapped[EstadoMunicipio] = mapped_column(
         _enum(EstadoMunicipio), default=EstadoMunicipio.activo)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
@@ -188,7 +193,13 @@ class Usuario(TenantMixin, Base):
     tipo: Mapped[TipoUsuario] = mapped_column(_enum(TipoUsuario))
     nombre: Mapped[str] = mapped_column(Text)
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Solo informativo: el login nunca obliga a cambiar la contraseña (decisión de producto)
     debe_cambiar_password: Mapped[bool] = mapped_column(Boolean, default=True)
+    direccion: Mapped[str | None] = mapped_column(Text)
+    telefono: Mapped[str | None] = mapped_column(Text)
+    email: Mapped[str | None] = mapped_column(Text)
+    anios_acceso: Mapped[list[int]] = mapped_column(IntArray, default=list)
+    meses_acceso: Mapped[list[int]] = mapped_column(IntArray, default=list)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
 
 
@@ -237,3 +248,85 @@ class CatalogoMunicipio(TenantMixin, Base):
     padre_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("catalogo_municipio.id"), index=True)
     datos: Mapped[dict] = mapped_column(JSONType, default=dict)
+
+
+# --------------------------------------------------------------------------- Fase 1: planeación
+class _Catalogo(TenantMixin):
+    """Catálogo por municipio con baja lógica: se deshabilita, nunca se borra."""
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    clave: Mapped[str] = mapped_column(String(32))
+    nombre: Mapped[str] = mapped_column(Text)
+    activo: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class CentroGestor(_Catalogo, Base):
+    __tablename__ = "centro_gestor"
+    __table_args__ = (UniqueConstraint("municipio_id", "clave"),)
+
+
+class Eje(_Catalogo, Base):
+    __tablename__ = "eje"
+    __table_args__ = (UniqueConstraint("municipio_id", "centro_gestor_id", "clave"),)
+    centro_gestor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("centro_gestor.id"), index=True)
+
+
+class Subtema(_Catalogo, Base):
+    __tablename__ = "subtema"
+    __table_args__ = (UniqueConstraint("municipio_id", "eje_id", "clave"),)
+    eje_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("eje.id"), index=True)
+
+
+class Estrategia(_Catalogo, Base):
+    __tablename__ = "estrategia"
+    __table_args__ = (UniqueConstraint("municipio_id", "subtema_id", "clave"),)
+    subtema_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("subtema.id"), index=True)
+
+
+class Frecuencia(_Catalogo, Base):
+    """Copiada de plantilla_frecuencia al crear el municipio; editable por Admin y Alcalde."""
+
+    __tablename__ = "frecuencia"
+    __table_args__ = (UniqueConstraint("municipio_id", "clave"),)
+
+
+class ClasificacionProgramatica(_Catalogo, Base):
+    """Copiada de plantilla_clasificacion_programatica; solo lectura en Fase 1."""
+
+    __tablename__ = "clasificacion_programatica"
+    __table_args__ = (UniqueConstraint("municipio_id", "clave"),)
+
+
+class Programa(TenantMixin, Base):
+    __tablename__ = "programa"
+    __table_args__ = (UniqueConstraint("municipio_id", "ejercicio_fiscal", "clave"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    ejercicio_fiscal: Mapped[int] = mapped_column(Integer, index=True)
+    clave: Mapped[str] = mapped_column(String(32))
+    nombre: Mapped[str] = mapped_column(Text)
+    centro_gestor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("centro_gestor.id"), index=True)
+    subtema_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("subtema.id"))
+    estrategia_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("estrategia.id"))
+    clasificacion_programatica_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("clasificacion_programatica.id"))
+    activo: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
+
+
+class UsuarioPrograma(TenantMixin, Base):
+    """Binario: existe o no existe la fila (sin lectura/escritura por separado)."""
+
+    __tablename__ = "usuario_programa"
+    usuario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("usuario.id"), primary_key=True)
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
+
+
+class PasswordResetToken(TenantMixin, Base):
+    __tablename__ = "password_reset_token"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    usuario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("usuario.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)  # sha256 hex; el token no se guarda
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime)
+    used_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)

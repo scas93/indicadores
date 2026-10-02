@@ -43,4 +43,6 @@ TEST_DATABASE_URL=postgresql+psycopg://… pytest -q   # contra Postgres real
 API: `DATABASE_URL`, `SESSION_SECRET`, `PASSWORD_ENCRYPTION_KEY` (32 bytes base64), `ROOT_DOMAIN`,
 `SUPER_ADMIN_SUBDOMAIN` (=`admin`), `COOKIE_SECURE`, `ADMIN_SESSION_DIAS`; opcionales para imágenes:
 `S3_ENDPOINT_URL`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `MEDIA_PUBLIC_BASE_URL`.
+Fase 1 (recuperación de contraseña por email, vía Resend): `RESEND_API_KEY`, `EMAIL_FROM`; el link del correo usa
+`ROOT_DOMAIN` y, solo en desarrollo, `PUBLIC_SCHEME=http` y `PUBLIC_PORT=3100`. Sin `RESEND_API_KEY` no se envía nada (queda en el log).
 Front: `API_URL`, `ROOT_DOMAIN`, `SUPER_ADMIN_SUBDOMAIN`.

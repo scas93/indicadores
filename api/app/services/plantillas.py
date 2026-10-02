@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..errors import ApiError
-from ..models import (CatalogoMunicipio, GeografiaEstado, GeografiaLocalidad, GeografiaMunicipio,
+from ..models import (CatalogoMunicipio, ClasificacionProgramatica, Frecuencia, GeografiaEstado, GeografiaLocalidad, GeografiaMunicipio,
                       Municipio, PlantillaAlgoritmo, PlantillaClasificacionProgramatica,
                       PlantillaConac, PlantillaDimension, PlantillaFrecuencia,
                       PlantillaGrupoEdad, PlantillaNivelSocioeconomico)
@@ -67,12 +67,10 @@ def en_uso(db: Session, tipo: str, nivel: str | None, item) -> bool:
 
 # ------------------------------------------------------------------------ copia a un municipio
 _PLANOS = [
-    ("frecuencia", PlantillaFrecuencia, {}),
     ("dimension", PlantillaDimension, {}),
     ("algoritmo", PlantillaAlgoritmo, {}),
     ("grupo_edad", PlantillaGrupoEdad, {"edad_min", "edad_max"}),
     ("nivel_socioeconomico", PlantillaNivelSocioeconomico, {}),
-    ("clasificacion_programatica", PlantillaClasificacionProgramatica, {}),
 ]
 
 
@@ -82,6 +80,16 @@ def copiar_plantillas(db: Session, municipio: Municipio) -> dict[str, int]:
     sentido). Corre dentro de la transacción de alta."""
     mid = municipio.id
     conteo: dict[str, int] = {}
+
+    # Fase 1: frecuencia y clasificación programática son tablas propias (no filas genéricas)
+    for tipo, plantilla, destino in (("frecuencia", PlantillaFrecuencia, Frecuencia),
+                                     ("clasificacion_programatica",
+                                      PlantillaClasificacionProgramatica,
+                                      ClasificacionProgramatica)):
+        filas = db.scalars(select(plantilla).order_by(plantilla.clave)).all()
+        for f in filas:
+            db.add(destino(municipio_id=mid, clave=f.clave, nombre=f.nombre, activo=True))
+        conteo[tipo] = len(filas)
 
     for tipo, modelo, extras in _PLANOS:
         filas = db.scalars(select(modelo).order_by(modelo.clave)).all()

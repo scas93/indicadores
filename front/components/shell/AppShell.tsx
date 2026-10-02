@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { api } from "@/lib/api.client";
+import { ApiError, api } from "@/lib/api.client";
+import { Campo } from "../Campo";
+import { Modal } from "../Modal";
+import { toast } from "../Toasts";
 import type { Item, Menu } from "./menu";
 
 export type ShellProps = {
@@ -14,6 +17,8 @@ export type ShellProps = {
   notificaciones?: number;
   /** Logo/nombre del municipio junto a los iconos del header (solo contenido, no estilo). */
   marca?: { nombre: string; logo_url: string | null; mostrar_logos: boolean };
+  /** Muestra "Cambiar contraseña" en el menú de usuario (voluntario, nunca obligatorio). */
+  cambiarPassword?: boolean;
   children: React.ReactNode;
 };
 
@@ -45,12 +50,45 @@ function Fila({ item, abierto, onToggle, activo, hijo }: {
 }
 
 /** Cascarón ÚNICO (menú lateral + header + contenido). Lo usan /sa y /mun sin variantes. */
-export function AppShell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0, marca, children }: ShellProps) {
+function CambiarPassword({ onClose }: { onClose: () => void }) {
+  const [f, setF] = useState({ password_actual: "", password_nueva: "", repetir: "" });
+  const [errores, setErrores] = useState<Record<string, string>>({});
+
+  async function guardar() {
+    if (f.password_nueva !== f.repetir) return void setErrores({ repetir: "No coincide" });
+    setErrores({});
+    try {
+      await api("/api/auth/cambiar-password", { method: "POST", json: { password_actual: f.password_actual, password_nueva: f.password_nueva } });
+      toast.success("Contraseña actualizada");
+      onClose();
+    } catch (e) {
+      if (e instanceof ApiError) { setErrores(e.campos); toast.error(e.message); } else toast.error("Error de conexión");
+    }
+  }
+  return (
+    <Modal titulo="Cambiar contraseña" onClose={onClose} footer={<>
+      <button className="btn btn-default" onClick={onClose}>Cancelar</button>
+      <button className="btn btn-success" onClick={guardar}>Guardar</button></>}>
+      <Campo label="Contraseña actual" error={errores.password_actual}>
+        <input type="password" className="form-control" value={f.password_actual} autoFocus autoComplete="off"
+          onChange={(e) => setF({ ...f, password_actual: e.target.value })} /></Campo>
+      <Campo label="Contraseña nueva" error={errores.password_nueva}>
+        <input type="password" className="form-control" value={f.password_nueva} autoComplete="off"
+          onChange={(e) => setF({ ...f, password_nueva: e.target.value })} /></Campo>
+      <Campo label="Repetir contraseña nueva" error={errores.repetir}>
+        <input type="password" className="form-control" value={f.repetir} autoComplete="off"
+          onChange={(e) => setF({ ...f, repetir: e.target.value })} /></Campo>
+    </Modal>
+  );
+}
+
+export function AppShell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0, marca, cambiarPassword, children }: ShellProps) {
   const router = useRouter();
   const path = usePathname().replace(/^\/(sa|mun)/, "") || "/";
   const [colapsado, setColapsado] = useState(false);
   const [movil, setMovil] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
+  const [modalPassword, setModalPassword] = useState(false);
   // Acordeón como el sistema de referencia: un solo submenú abierto a la vez
   const [abierto, setAbierto] = useState<string | null>(null);
 
@@ -99,6 +137,8 @@ export function AppShell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0,
               {etiquetaUsuario} <span className="caret" />
             </button>
             <ul className="dropdown-menu" style={{ display: userMenu ? "block" : "none" }}>
+              {cambiarPassword && <li><a href="#" onMouseDown={(e) => e.preventDefault()}
+                onClick={(e) => { e.preventDefault(); setUserMenu(false); setModalPassword(true); }}><i className="fa fa-key" /> Cambiar contraseña</a></li>}
               <li><a href="#" onClick={(e) => { e.preventDefault(); salir(); }}><i className="fa fa-sign-out" /> Cerrar sesión</a></li>
             </ul>
           </li>
@@ -106,6 +146,7 @@ export function AppShell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0,
       </header>
 
       <div className="body-content"><div className="wrapper">{children}</div></div>
+      {modalPassword && <CambiarPassword onClose={() => setModalPassword(false)} />}
     </div>
   );
 }

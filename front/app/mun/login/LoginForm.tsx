@@ -84,6 +84,9 @@ export function LoginForm({ marca }: { marca: Marca }) {
                 <div className="registration text-center">
                   <a href="/login">Entrar con una cuenta diferente</a>
                 </div>
+                <div className="registration text-center" style={{ marginTop: 8 }}>
+                  <a href="/recuperar">¿Olvidaste tu contraseña?</a>
+                </div>
               </div>
             </form>
           </div>
