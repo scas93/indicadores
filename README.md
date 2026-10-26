@@ -46,3 +46,6 @@ API: `DATABASE_URL`, `SESSION_SECRET`, `PASSWORD_ENCRYPTION_KEY` (32 bytes base6
 Fase 1 (recuperación de contraseña por email, vía Resend): `RESEND_API_KEY`, `EMAIL_FROM`; el link del correo usa
 `ROOT_DOMAIN` y, solo en desarrollo, `PUBLIC_SCHEME=http` y `PUBLIC_PORT=3100`. Sin `RESEND_API_KEY` no se envía nada (queda en el log).
 Front: `API_URL`, `ROOT_DOMAIN`, `SUPER_ADMIN_SUBDOMAIN`.
+
+`DATABASE_URL` puede venir como la entrega Railway (`postgresql://…` o `postgres://…`): se normaliza a `postgresql+psycopg://`.
+En Railway las migraciones corren solas antes de cada despliegue (`preDeployCommand` en `api/railway.json`).
