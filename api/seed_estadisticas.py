@@ -5,7 +5,8 @@ las veces que haga falta; cada corrida deja exactamente los mismos datos (no dup
         --municipio <subdominio> --password '<contraseña del usuario de prueba>' [--usuario informes1]
 
 Carga, con el alcance del municipio dado:
-  * centro gestor ECONÓMICO, eje ECONÓMICO, un subtema y una estrategia de muestra, y el programa 1014
+  * centro gestor ECONÓMICO; eje EJE2 «ECONÓMICO» (general, sin centro gestor), un subtema y una estrategia
+    de muestra, y el programa 1014
     "Fortalecimiento del empleo y la gestión empresarial" (ejercicio 2025);
   * su MIR: Fin, Propósito, 5 Componentes y 12 Actividades, con sus 19 indicadores, la meta anual 2025 y
     las capturas A/B mensuales reales (seed_data/economico_2025.py, del export de Cuenta Pública);
@@ -71,7 +72,8 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
 
     # --- catálogos y programa
     cg = _uno(db, CentroGestor, {"clave": "ECONOMICO"}, {"nombre": "ECONÓMICO", "activo": True})
-    eje = _uno(db, Eje, {"centro_gestor_id": cg.id, "clave": "ECONOMICO"}, {"nombre": "ECONÓMICO", "activo": True})
+    # el eje es general (no cuelga de ningún centro gestor); en la referencia es clave EJE2, nombre ECONÓMICO
+    eje = _uno(db, Eje, {"clave": "EJE2"}, {"nombre": "ECONÓMICO", "activo": True})
     sub = _uno(db, Subtema, {"eje_id": eje.id, "clave": "DESARROLLO"}, {"nombre": "Desarrollo económico", "activo": True})
     est = _uno(db, Estrategia, {"subtema_id": sub.id, "clave": "EMPLEO"}, {"nombre": "Fortalecimiento del empleo", "activo": True})
     frec = _uno(db, Frecuencia, {"clave": "mensual"}, {"nombre": "Mensual", "activo": True})

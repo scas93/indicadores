@@ -1,4 +1,4 @@
-"""Catálogos de planeación (centro gestor → eje → subtema → estrategia) y frecuencias.
+"""Catálogos de planeación (eje → subtema → estrategia; el centro gestor es una rama aparte) y frecuencias.
 Baja lógica: se deshabilita (`activo=false`), nunca se borra, para no romper el histórico."""
 import uuid
 from dataclasses import dataclass
@@ -24,7 +24,7 @@ class Cat:
 
 CATALOGOS: dict[str, Cat] = {
     "centros-gestores": Cat(CentroGestor, "centro_gestor"),
-    "ejes": Cat(Eje, "eje", "centro_gestor_id", CentroGestor),
+    "ejes": Cat(Eje, "eje"),
     "subtemas": Cat(Subtema, "subtema", "eje_id", Eje),
     "estrategias": Cat(Estrategia, "estrategia", "subtema_id", Subtema),
     "frecuencias": Cat(Frecuencia, "frecuencia"),

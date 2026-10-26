@@ -6,13 +6,13 @@ Basado en @santiago — Panel Indicadores — Documento de producto. Depende de 
 
 ## Resumen y alcance de esta fase
 
-Fase 1 convierte el cascarón vacío de Fase 0 en un sistema usable para dar de alta la estructura de un municipio: sus usuarios (los 7 tipos, con sus programas asignados) y su jerarquía de planeación (centro gestor → eje → subtema → estrategia → programa). Al terminar esta fase, un Administrador puede armar todo el andamiaje de su municipio sin tocar MIR, presupuesto ni padrón —esos llegan después y dependen de que los programas ya existan.
+Fase 1 convierte el cascarón vacío de Fase 0 en un sistema usable para dar de alta la estructura de un municipio: sus usuarios (los 7 tipos, con sus programas asignados) y su jerarquía de planeación (dos ramas independientes: **eje → subtema → estrategia → programa** y **centro gestor → programa**; el eje no pertenece a ningún centro gestor). Al terminar esta fase, un Administrador puede armar todo el andamiaje de su municipio sin tocar MIR, presupuesto ni padrón —esos llegan después y dependen de que los programas ya existan.
 
 **Depende de:** Fase 0 (municipio, subdominio, sesión, tabla `usuario` mínima).
 
 **De esta fase dependen:** Fase 2 (MIR se captura sobre los programas creados aquí), Fase 4 (Presupuesto usa centro gestor y programa), y en general todo lo demás —sin programas no hay dónde capturar nada.
 
-**Entregable:** en `demo.<dominio>`, un Administrador crea usuarios de los 7 tipos, les asigna programas por la matriz, y arma al menos un centro gestor completo (eje, subtema, estrategia, programa) duplicable a otro ejercicio.
+**Entregable:** en `demo.<dominio>`, un Administrador crea usuarios de los 7 tipos, les asigna programas por la matriz, y arma al menos un centro gestor y una jerarquía eje → subtema → estrategia, y con ellos un programa duplicable a otro ejercicio.
 
 ## Modelo de datos de esta fase
 
@@ -45,7 +45,7 @@ PK compuesta `(usuario_id, programa_id)`. Binario: existe o no existe la fila, n
 | Tabla | Columnas clave | Notas |
 | --- | --- | --- |
 | `centro_gestor` | `id`, `municipio_id`, `clave`, `nombre` | único `(municipio_id, clave)` |
-| `eje` | `id`, `municipio_id`, `centro_gestor_id`, `clave`, `nombre` |  |
+| `eje` | `id`, `municipio_id`, `clave`, `nombre` | único `(municipio_id, clave)`. **General: no pertenece a ningún centro gestor** (migración 0004; antes llevaba `centro_gestor_id`) |
 | `subtema` | `id`, `municipio_id`, `eje_id`, `clave`, `nombre` |  |
 | `estrategia` | `id`, `municipio_id`, `subtema_id`, `clave`, `nombre` |  |
 | `frecuencia` | `id`, `municipio_id`, `clave`, `nombre` | copiada de la plantilla global en Fase 0, editable por Admin y Alcalde |
@@ -130,7 +130,7 @@ Toda acción del super admin sobre usuarios de un municipio queda en `bitacora` 
 | Método y ruta | Qué hace |
 | --- | --- |
 | `GET/POST/PATCH /api/centros-gestores` | CRUD. Editable por `administrador` y `alcalde` (regla del Documento de producto). |
-| `GET/POST/PATCH /api/ejes`, `/api/subtemas`, `/api/estrategias` | CRUD, cada uno filtrado por su padre en la jerarquía. Editable por `administrador` y `alcalde`. |
+| `GET/POST/PATCH /api/ejes`, `/api/subtemas`, `/api/estrategias` | CRUD. Los ejes no tienen padre; subtemas se filtran por eje y estrategias por subtema (`padre_id`). Editable por `administrador` y `alcalde`. |
 | `GET/POST/PATCH /api/frecuencias` | CRUD. Editable por `administrador` y `alcalde`. |
 | `GET/POST/PATCH /api/programas` | CRUD, con `ejercicio_fiscal`. Editable por `administrador`, `alcalde` y `presupuestacion`. |
 | `POST /api/programas/{id}/duplicar` | Crea un `programa` nuevo con clave nueva en el `ejercicio_fiscal` destino, **reutilizando** (no duplicando) su `centro_gestor_id`, `subtema_id` y `estrategia_id` originales —esos catálogos no tienen versión por ejercicio, así que no se copian, solo se referencian de nuevo. Editable por `administrador`, `alcalde` y `presupuestacion`, igual que el resto de Programas. |
@@ -179,6 +179,17 @@ Tabla editable: una fila por usuario nuevo (nombre, usuario, email, tipo, contra
 
 Una pantalla por nivel (Centros gestores, Ejes, Subtemas, Estrategias, Programas), mismo patrón de tabla + modal que el resto del sistema. Programas incluye acción **Duplicar a otro ejercicio**.
 
+**Ejes generales (decisión de producto, 2026-10; migración 0004).** En el sistema de referencia la planeación son dos ramas independientes —Eje → Subtema → Estrategia → Programa, y Centro gestor → Programa—; el eje no cuelga de ningún centro gestor. Columnas de cada pantalla (como en la referencia):
+
+| Pantalla | Columnas | Alta/edición |
+| --- | --- | --- |
+| Ejes | clave, nombre | clave, nombre |
+| Subtemas | clave, nombre, eje | eje (dropdown), clave, nombre |
+| Estrategias | clave, nombre, eje, subtema | Eje → Subtema (el subtema se habilita al elegir el eje), clave, nombre. Filtros de la lista: Eje y luego Subtema |
+| Programas | clave, ejercicio fiscal, nombre, eje, subtema, estrategia, centro gestor, clasificación programática, estado, acciones | Ejercicio fiscal, Clave, Nombre, **Eje → Subtema → Estrategia** (cada uno deshabilitado hasta elegir el anterior; cambiar uno reinicia los de abajo), **Centro gestor** (independiente) y Clasificación programática |
+
+El eje de un programa no se guarda en `programa`: sale de su subtema. La API acepta `eje_id` en el alta/edición del programa solo para **validar** que el subtema pertenezca a ese eje.
+
 &#91;image: Referencia real: catálogo de Centros gestores, sistema actual\]
 
 &#91;image: Referencia real: catálogo de Programas, sistema actual\]
@@ -198,6 +209,8 @@ Pestañas Login (imagen, color de botón, mostrar logos —ya en Fase 0) y Meses
 - Alta masiva: fila por fila, mismas validaciones que el alta individual (usuario repetido dentro del municipio, email con formato válido, tipo dentro de los 7 permitidos); una fila inválida no bloquea al resto.
 - La contraseña inicial (individual o masiva, o generada por un reseteo de admin) se guarda con `debe_cambiar_password=true`. **Decisión de producto (2026-10-02): minimizar fricción** — el login nunca obliga a capturar una contraseña nueva, ni en el alta inicial ni después de un reseteo por admin; la persona puede seguir usando la que le dieron indefinidamente. La bandera se apaga solo si la persona cambia su contraseña por su cuenta (pantalla de cambio voluntario, o el flujo de recuperación por email); mientras tanto queda disponible como dato informativo (ej. para que un admin vea qué usuarios siguen con la contraseña original).
 - `programa` único por `(municipio_id, ejercicio_fiscal, clave)`; duplicar a otro ejercicio exige clave nueva (no puede repetir la del ejercicio origen).
+- `programa` valida sus referencias en dos ramas: **(1)** la estrategia debe ser del subtema y el subtema del eje (si se indica `eje_id`), cada uno existente y activo; **(2)** el centro gestor solo debe existir y estar activo (no hay relación entre centro gestor y eje/subtema). Se quitó la regla anterior "el subtema no pertenece al centro gestor".
+- La migración 0004 fusiona los ejes que repetían clave en un municipio (se conserva el activo, sus subtemas se repuntan) y **no se puede revertir sin perder el centro gestor original**: `downgrade` asigna a cada eje el primer centro gestor del municipio (por clave) y falla si el municipio no tiene ninguno.
 - Catálogos de planeación (`centro_gestor`, `eje`, `subtema`, `estrategia`, `programa`) se deshabilitan, nunca se borran, igual que hoy — `activo=false` los saca de los selectores sin perder el histórico.
 - `usuario_programa`: solo pueden asignarse programas del mismo municipio del usuario (validado en el servidor, no solo en el front del selector).
 - Cambiar el tipo de un usuario no le quita ni le agrega programas automáticamente; son independientes.

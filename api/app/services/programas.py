@@ -57,18 +57,17 @@ def _cargar(db: Session, actor: ActorCtx, id: uuid.UUID) -> Programa:
     return p
 
 
-def _validar_refs(db: Session, centro_id, subtema_id, estrategia_id, clasif_id) -> None:
+def _validar_refs(db: Session, centro_id, subtema_id, estrategia_id, clasif_id, eje_id=None) -> None:
     c = db.get(CentroGestor, centro_id) if centro_id else None
+    j = db.get(Eje, eje_id) if eje_id else None
     s = db.get(Subtema, subtema_id) if subtema_id else None
     e = db.get(Estrategia, estrategia_id) if estrategia_id else None
-    s_ref = None
-    if s is not None:
-        eje = db.get(Eje, s.eje_id)
-        s_ref = vp.Ref(s.id, s.activo, s.eje_id, eje.centro_gestor_id if eje else None)
     vp.validar_referencias_programa(
-        vp.Ref(c.id, c.activo) if c else None, s_ref,
+        vp.Ref(c.id, c.activo) if c else None,
+        vp.Ref(s.id, s.activo, s.eje_id) if s else None,
         vp.Ref(e.id, e.activo, e.subtema_id) if e else None,
-        subtema_pedido=subtema_id is not None, estrategia_pedida=estrategia_id is not None)
+        subtema_pedido=subtema_id is not None, estrategia_pedida=estrategia_id is not None,
+        eje=vp.Ref(j.id, j.activo) if j else None, eje_pedido=eje_id is not None)
     if clasif_id and db.get(ClasificacionProgramatica, clasif_id) is None:
         raise ApiError(422, "CLASIFICACION_INVALIDA", "Clasificación programática inválida",
                        {"clasificacion_programatica_id": "Inválida"})
@@ -96,7 +95,7 @@ def crear(db: Session, actor: ActorCtx, d: dict) -> Programa:
     clave, nombre = vp.validar_clave_nombre(d.get("clave"), d.get("nombre"))
     ejercicio = vp.validar_ejercicio(d.get("ejercicio_fiscal"))
     _validar_refs(db, d.get("centro_gestor_id"), d.get("subtema_id"), d.get("estrategia_id"),
-                  d.get("clasificacion_programatica_id"))
+                  d.get("clasificacion_programatica_id"), d.get("eje_id"))
     _clave_libre(db, ejercicio, clave)
     p = Programa(municipio_id=actor.municipio_id, ejercicio_fiscal=ejercicio, clave=clave, nombre=nombre,
                  centro_gestor_id=d["centro_gestor_id"], subtema_id=d.get("subtema_id"),
@@ -121,9 +120,9 @@ def editar(db: Session, actor: ActorCtx, id: uuid.UUID, cambios: dict) -> Progra
         "centro_gestor_id", "subtema_id", "estrategia_id", "clasificacion_programatica_id")}
     # Solo se re-validan las referencias si se movieron: un programa existente puede seguir
     # colgando de padres que hoy están deshabilitados.
-    if any(k in cambios and cambios[k] != getattr(p, k) for k in nuevo):
+    if any(k in cambios and cambios[k] != getattr(p, k) for k in nuevo) or cambios.get("eje_id"):
         _validar_refs(db, nuevo["centro_gestor_id"], nuevo["subtema_id"], nuevo["estrategia_id"],
-                      nuevo["clasificacion_programatica_id"])
+                      nuevo["clasificacion_programatica_id"], cambios.get("eje_id"))
     _clave_libre(db, ejercicio, clave, p.id)
     antes = p.activo
     p.clave, p.nombre, p.ejercicio_fiscal = clave, nombre, ejercicio

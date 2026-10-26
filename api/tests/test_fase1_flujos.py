@@ -58,7 +58,7 @@ class Mun:
 
     def planeacion(self, sufijo=""):
         a = self.post(self.admin, "/api/centros-gestores", {"clave": "CG" + sufijo, "nombre": "Centro"}).json()
-        e = self.post(self.admin, "/api/ejes", {"clave": "E", "nombre": "Eje", "centro_gestor_id": a["id"]}).json()
+        e = self.post(self.admin, "/api/ejes", {"clave": "E" + sufijo, "nombre": "Eje"}).json()
         s = self.post(self.admin, "/api/subtemas", {"clave": "S", "nombre": "Sub", "eje_id": e["id"]}).json()
         es = self.post(self.admin, "/api/estrategias", {"clave": "ES", "nombre": "Est", "subtema_id": s["id"]}).json()
         return a, e, s, es
@@ -272,11 +272,41 @@ def test_programa_clave_unica_por_ejercicio(m):
 
 
 def test_programa_con_jerarquia_inconsistente(m):
+    """Subtema que no es del eje elegido, o estrategia que no es del subtema → 422 JERARQUIA_INVALIDA."""
+    cg, e, s, es = m.planeacion()
+    e2 = m.post(m.admin, "/api/ejes", {"clave": "E2", "nombre": "Otro eje"}).json()
+    s2 = m.post(m.admin, "/api/subtemas", {"clave": "S2", "nombre": "Otro subtema", "eje_id": e2["id"]}).json()
+    base = {"ejercicio_fiscal": EJ, "clave": "Z", "nombre": "z", "centro_gestor_id": cg["id"]}
+    r = m.post(m.admin, "/api/programas", {**base, "eje_id": e2["id"], "subtema_id": s["id"]})
+    assert (r.status_code, r.json()["codigo"], r.json()["campos"]) == (
+        422, "JERARQUIA_INVALIDA", {"subtema_id": "El subtema no pertenece al eje"})
+    r = m.post(m.admin, "/api/programas", {**base, "subtema_id": s2["id"], "estrategia_id": es["id"]})
+    assert r.status_code == 422 and "estrategia_id" in r.json()["campos"]  # la estrategia es del subtema S, no de S2
+    # eje y subtema coherentes: ok; el eje no se guarda (sale del subtema)
+    ok = m.post(m.admin, "/api/programas", {**base, "eje_id": e["id"], "subtema_id": s["id"], "estrategia_id": es["id"]})
+    assert ok.status_code == 201 and "eje_id" not in ok.json()
+
+
+def test_el_centro_gestor_del_programa_es_independiente_del_eje(m):
+    """Rama aparte: un programa puede usar cualquier centro gestor con cualquier eje/subtema/estrategia."""
     cg, e, s, es = m.planeacion()
     cg2 = m.post(m.admin, "/api/centros-gestores", {"clave": "CG2", "nombre": "Otro"}).json()
-    r = m.post(m.admin, "/api/programas", {"ejercicio_fiscal": EJ, "clave": "Z", "nombre": "z",
-                                           "centro_gestor_id": cg2["id"], "subtema_id": s["id"]})
-    assert (r.status_code, r.json()["codigo"]) == (422, "JERARQUIA_INVALIDA")
+    r = m.post(m.admin, "/api/programas", {"ejercicio_fiscal": EJ, "clave": "Z", "nombre": "z", "centro_gestor_id": cg2["id"],
+                                           "eje_id": e["id"], "subtema_id": s["id"], "estrategia_id": es["id"]})
+    assert r.status_code == 201 and r.json()["centro_gestor_id"] == cg2["id"]
+    # editar: mover el subtema a otro eje distinto del indicado también se valida
+    e2 = m.post(m.admin, "/api/ejes", {"clave": "E2", "nombre": "Otro eje"}).json()
+    r = m.patch(m.admin, f"/api/programas/{r.json()['id']}", {"eje_id": e2["id"]})
+    assert r.status_code == 422 and r.json()["campos"] == {"subtema_id": "El subtema no pertenece al eje"}
+
+
+def test_ejes_son_generales_clave_unica_en_el_municipio_y_sin_centro_gestor(m):
+    cg, e, *_ = m.planeacion()
+    assert "centro_gestor_id" not in e  # el eje ya no pertenece a un centro gestor
+    r = m.post(m.admin, "/api/ejes", {"clave": "E", "nombre": "Repetida", "centro_gestor_id": cg["id"]})
+    assert r.status_code == 409  # mismo clave en el municipio, aunque venga un centro gestor (se ignora)
+    assert m.post(m.admin, "/api/ejes", {"clave": "E9", "nombre": "Nuevo"}).status_code == 201
+    assert all("centro_gestor_id" not in x for x in m.get(m.admin, "/api/ejes").json())
 
 
 def test_clasificacion_programatica_es_tabla_propia_y_se_asigna(m):
@@ -300,7 +330,7 @@ def test_caso9_deshabilitar_en_uso_no_rompe_el_historico(m):
     prog = m.get(m.admin, "/api/programas").json()[0]
     assert (prog["centro_gestor_id"], prog["subtema_id"]) == (cg["id"], s["id"])  # referencias intactas
     # lo deshabilitado no admite colgar cosas nuevas
-    r = m.post(m.admin, "/api/ejes", {"clave": "E2", "nombre": "x", "centro_gestor_id": cg["id"]})
+    r = m.post(m.admin, "/api/subtemas", {"clave": "S2", "nombre": "x", "eje_id": e["id"]})  # el eje está deshabilitado
     assert r.status_code == 422
     r = m.post(m.admin, "/api/programas", {"ejercicio_fiscal": EJ, "clave": "N", "nombre": "x", "centro_gestor_id": cg["id"]})
     assert r.status_code == 422

@@ -122,7 +122,6 @@ class CatalogoIn(BaseModel):
     clave: str | None = None
     nombre: str | None = None
     activo: bool | None = None
-    centro_gestor_id: uuid.UUID | None = None  # ejes
     eje_id: uuid.UUID | None = None            # subtemas
     subtema_id: uuid.UUID | None = None        # estrategias
 
@@ -131,6 +130,7 @@ class ProgramaIn(BaseModel):
     ejercicio_fiscal: int | None = None
     clave: str | None = None
     nombre: str | None = None
+    eje_id: uuid.UUID | None = None  # solo se valida (el subtema debe pertenecer al eje); el eje no se guarda: sale del subtema
     centro_gestor_id: uuid.UUID | None = None
     subtema_id: uuid.UUID | None = None
     estrategia_id: uuid.UUID | None = None
