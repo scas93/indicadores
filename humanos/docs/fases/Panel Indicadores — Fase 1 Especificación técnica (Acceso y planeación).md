@@ -157,6 +157,8 @@ Envío de correo con **Resend**. Complementa a “forzar contraseña” (Fase 0/
 
 ## Pantallas del frontend
 
+**Agrupación en el menú** (verificado en vivo contra el sistema de referencia, 2026-10-01): "Usuarios" no es una sección propia de primer nivel en el menú lateral — vive como item dentro del submenú "Catálogos", junto a Programas, Capitulos, Partidas, Partidas Especificas y Articulos. "Techo Presupuestal" sí es un item de primer nivel independiente. Ver la especificación completa del cascarón y las capturas en [Panel Indicadores — Especificación de diseño: Cascarón y navegación](https://claude.ai/artifact/LDvTcobWW3bszsA16z1DU1).
+
 ### Usuarios
 
 - **Listado.** Tabla: nombre, usuario, tipo, activo, último acceso. Columna o acción para **ver la contraseña** directamente ahí (decisión del cliente) — se recomienda mostrarla oculta con un icono de "ojo" para revelarla en pantalla, y registrar la consulta en bitácora, aunque el requerimiento es que esté visible desde el listado sin pasos adicionales de exportación. Búsqueda y filtro por tipo/activo.
@@ -194,7 +196,7 @@ Pestañas Login (imagen, color de botón, mostrar logos —ya en Fase 0) y Meses
 - `usuario` único dentro del municipio, no globalmente: `unique(municipio_id, usuario)`.
 - `administrador` crea usuarios dentro de su propio municipio; la API rechaza `POST/PATCH /api/usuarios*` de cualquier otro tipo con `403`, independientemente de lo que el front muestre. El super admin, desde `/api/admin/municipios/{id}/usuarios*`, no tiene esa restricción: puede crear o editar administradores y usuarios de cualquier tipo en cualquier municipio.
 - Alta masiva: fila por fila, mismas validaciones que el alta individual (usuario repetido dentro del municipio, email con formato válido, tipo dentro de los 7 permitidos); una fila inválida no bloquea al resto.
-- La contraseña inicial (individual o masiva) se guarda con `debe_cambiar_password=true`; el primer login exitoso la apaga y exige capturar una nueva antes de continuar.
+- La contraseña inicial (individual o masiva, o generada por un reseteo de admin) se guarda con `debe_cambiar_password=true`. **Decisión de producto (2026-10-02): minimizar fricción** — el login nunca obliga a capturar una contraseña nueva, ni en el alta inicial ni después de un reseteo por admin; la persona puede seguir usando la que le dieron indefinidamente. La bandera se apaga solo si la persona cambia su contraseña por su cuenta (pantalla de cambio voluntario, o el flujo de recuperación por email); mientras tanto queda disponible como dato informativo (ej. para que un admin vea qué usuarios siguen con la contraseña original).
 - `programa` único por `(municipio_id, ejercicio_fiscal, clave)`; duplicar a otro ejercicio exige clave nueva (no puede repetir la del ejercicio origen).
 - Catálogos de planeación (`centro_gestor`, `eje`, `subtema`, `estrategia`, `programa`) se deshabilitan, nunca se borran, igual que hoy — `activo=false` los saca de los selectores sin perder el histórico.
 - `usuario_programa`: solo pueden asignarse programas del mismo municipio del usuario (validado en el servidor, no solo en el front del selector).

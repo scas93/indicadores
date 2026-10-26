@@ -1,0 +1,1356 @@
+﻿        <table border="1">
+            <thead>
+                <tr>
+                    <th colspan="38" style="text-align: center; background-color: #bbb;">
+                        ECONÓMICO<br style="mso-data-placement:same-cell;"/>
+                        INDICADORES DE RESULTADOS
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="2" style="background-color: #bbb;">&nbsp;</th>
+                    <th colspan="5" style="text-align: center; background-color: #bbb;">Programa o proyecto de inversión</th>
+                    <th colspan="5" style="text-align: center; background-color: #bbb;">Presupuesto del programa presupuestario</th>
+                    <th colspan="4" style="text-align: center; background-color: #bbb;">MIR</th>
+                    <th colspan="7" style="text-align: center; background-color: #bbb;">Indicadores</th>
+                    <th colspan="15" style="background-color: #bbb;">&nbsp;</th>
+                </tr>
+                <tr>
+                    <th style="vertical-align: middle; background-color: #bbb;">Año</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Ejercicio fiscal</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Clasificación del programa presupuestario</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Clave del programa presupuestario</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Nombre del programa presupuestario</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Clasificación funcional del gasto al que corresponde al programa presupuestario</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Nombre de la dependencia o entendidad que lo ejecuta</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Aprobado</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Modificado</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Devengado</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Ejercido</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Pagado</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Cuenta con MIR (SI/NO)</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Nivel de la MIR del programa</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Descripción del resumen narrativo (FIN, Propósito, Componentes y Actividades)</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">ID del indicador</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Nombre del indicador</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Nivel de la MIR, al que corresponde el indicador</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Fórmula de cálculo</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Descripción de variables de la fórmula</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Meta del indicador programada</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Meta del indicador modficada</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Meta del indicador alcanzada</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Avance / Programado</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">variable</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Unidad de medida</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Enero</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Febrero</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Marzo</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Abril</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Mayo</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Junio</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Julio</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Agosto</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Septiembre</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Octubre</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Noviembre</th>
+                    <th style="vertical-align: middle; background-color: #bbb;">Diciembre</th>
+                </tr>
+            </thead>
+            <tbody>
+                        <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Proposito</td>
+                    <td rowspan="2" style="vertical-align: middle;">LOS HABITANTES DEL MUNICIPIO ENCUENTRAN OPORTUNIDADES LABORALES QUE LES PERMITEN MEJORAR SU CALIDAD DE VIDA Y SU ECONOMÍA FAMILIAR..									
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">411</td>
+                    <td rowspan="2" style="vertical-align: middle;">PORCENTAJE DE LA POBLACIÓN ATENDIDA CON PROGRAMAS DE DESARROLLO ECONÓMICO MUNICIPAL.	
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Proposito</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">(A / B) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">(A: PERSONAS ATENDIDAS LAB: TOTAL DE PERSONAS SIN EMPLEO ECONÓMICAMENTE ACTIVOS DEL MUNICIPIO.ORALMENTE. / B: TOTAL DE PERSONAS SIN EMPLEO ECONÓMICAMENTE ACTIVOS DEL MUNICIPIO.) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">15% PERSONAS ATENDIDAS LABORALMENTE.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">7.98</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">53.2</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>3411</td>
+                    <td>345</td>
+                    <td>1212</td>
+                    <td>1032</td>
+                    <td>345</td>
+                    <td>673</td>
+                    <td>523</td>
+                    <td>345</td>
+                    <td>345</td>
+                    <td>641</td>
+                    <td>456</td>
+                    <td>250</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                    <td>10000</td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Fin</td>
+                    <td rowspan="2" style="vertical-align: middle;">CONTRIBUIR A FORTALECER Y CONSOLIDAR LAS ACTIVIDADES ECONÓMICAS EN EL MUNICIPIO.	
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">410</td>
+                    <td rowspan="2" style="vertical-align: middle;">VARIACIÓN EN LA POBLACIÓN ECONÓMICAMENTE ACTIVO.								
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Fin</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">((A / B) - 1) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">((A: NÚMERO DE AFILIADOS AL IMSS, AÑO ACTUAL. 								
+													
+													
+													
+													
+													
+ / B: NÚMERO DE AFILIADO AL IMSS, AÑO ANTERIOR.) - 1) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">10% INCREMENTO DE AFILIADOS AL IMSS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">9.99</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">99.9</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;">X</td>
+                    <td>110</td>
+                    <td>150</td>
+                    <td>90</td>
+                    <td>250</td>
+                    <td>250</td>
+                    <td>38</td>
+                    <td>250</td>
+                    <td>142</td>
+                    <td>265</td>
+                    <td>35</td>
+                    <td>45</td>
+                    <td>125</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;">X</td>
+                    <td>100</td>
+                    <td>80</td>
+                    <td>70</td>
+                    <td>250</td>
+                    <td>222</td>
+                    <td>25</td>
+                    <td>210</td>
+                    <td>189</td>
+                    <td>240</td>
+                    <td>40</td>
+                    <td>45</td>
+                    <td>120</td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">512</td>
+                    <td rowspan="2" style="vertical-align: middle;">NEGOCIOS APERTURADOS		
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE LICENCIAS MUNICIPALES OTORGADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">2,260 NEGOCIOS APERTURADOS</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">2140.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">53.5</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>120</td>
+                    <td>120</td>
+                    <td>200</td>
+                    <td>120</td>
+                    <td>110</td>
+                    <td>100</td>
+                    <td>140</td>
+                    <td>200</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>625</td>
+                    <td>205</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA PARA INCENTIVAR EL EMPRENDEDURISMO ENTRE LA POBLACIÓN DEL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+							
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">513</td>
+                    <td rowspan="2" style="vertical-align: middle;">DESARROLLO DE EMPRENDEDORES.	
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE FAMILIAS B: ENEFICIADAS CON FOMENTO AL AUTOEMPLEO.</td>
+                    <td rowspan="2" style="vertical-align: middle;">500 FAMILIAS BENEFICIADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">500.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">100</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>50</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>45</td>
+                    <td>45</td>
+                    <td>40</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA PARA IMPULSAR LA PRODUCTIVIDAD Y COMPETITIVIDAD DE LAS EMPRESAS DEL MUNICIPIO.
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">514</td>
+                    <td rowspan="2" style="vertical-align: middle;">IMPULSO A LA COMPETITIVIDAD.						
+													
+													
+													
+													
+													
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: INDICE DE COMPETITIVIDAD DEL IMCO.</td>
+                    <td rowspan="2" style="vertical-align: middle;">1 DOCUMENTO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">100</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA DE FINANCIAMIENTO DIRIGIDO A MICRO, PEQUEÑA Y MEDIANA EMPRESA, IMPLEMENTADO. 
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">582</td>
+                    <td rowspan="2" style="vertical-align: middle;">CRÉDITOS OTORGADOS.				
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE PERSONAS B: ENEFICIADAS CON LOS FINANCIAMIENTOS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">40 PERSONAS BENEFICIADAS CON LOS FINANCIAMIENTOS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">40.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">100</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle;">GENERACIÓN DE BOLSAS DE EMPLEO Y PARTICIPACIÓN EN LA PROMOCIÓN DE LAS FERIAS DE EMPLEO, IMPLEMENTADO.			
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">584</td>
+                    <td rowspan="2" style="vertical-align: middle;">PUBLICACIÓN DE VACANTES									
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Componente</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE B: USCADORES DE EMPLEO VINCULADOS A UNA FUENTE DE TRAB: AJO.</td>
+                    <td rowspan="2" style="vertical-align: middle;">1,500 BUSCADORES DE EMPLEO.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1500.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">100</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>200</td>
+                    <td>200</td>
+                    <td>0</td>
+                    <td>200</td>
+                    <td>200</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>200</td>
+                    <td>200</td>
+                    <td>0</td>
+                    <td>200</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA DE ATRACCIÓN DE INVERSIONES A TRAVÉS DE INCENTIVOS MUNICIPALES PARA EMPRESAS QUE DESEEN ESTABLECERSE EN EL MUNICIPIO.						
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">515</td>
+                    <td rowspan="2" style="vertical-align: middle;">INCENTIVOS MUNICIPALES.			
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE EMPRESAS NUEVAS Y EMPRESAS EN EXPANSIÓN.</td>
+                    <td rowspan="2" style="vertical-align: middle;">10 NUEVAS EMPRESAS</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">24.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">240</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>1</td>
+                    <td>5</td>
+                    <td>7</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>3</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">DIFUSIÓN DE CAMPAÑA MULTIMEDIA DE LAS VENTAJAS QUE TIENE EL MUNICIPIO PARA EL DESARROLLO DE ACTIVIDADES EMPRESARIALES.								
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">574</td>
+                    <td rowspan="2" style="vertical-align: middle;">CAMPAÑA PUBLICITARIA.				
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE CAMPAÑAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">6 CAMPAÑAS REALIZADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">8.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">133.33333333333331</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">PARTICIPACIÓN EN LAS PRINCIPALES FERIAS EMPRESARIALES DEL PAÍS, DANDO PUBLICIDAD AL MUNICIPIO COMO BUEN DESTINO PARA INVERTIR.								
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">575</td>
+                    <td rowspan="2" style="vertical-align: middle;">PARTICIPACIÓN EN FERIAS.						
+													
+													
+													
+													
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE FERIAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">8 PARTICIPACIONES EN FERIAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">10.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">125</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">DEFINICIÓN DE ESTRATEGIA DE MEJORA REGULATORIA PARA FACILITAR LA APERTURA DE EMPRESAS.
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">576</td>
+                    <td rowspan="2" style="vertical-align: middle;">MEJORA REGULATORIA.									
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">(A / B) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">(A: NÚMERO DE EMPRESAS REGULADAS. / B: NÚMERO DE EMPRESAS EXISTENTES EN EL MUNICIPIO.) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">80% DE EMPRESAS REGULADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">36.89</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">46.1125</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>200</td>
+                    <td>521</td>
+                    <td>200</td>
+                    <td>120</td>
+                    <td>254</td>
+                    <td>326</td>
+                    <td>250</td>
+                    <td>320</td>
+                    <td>405</td>
+                    <td>254</td>
+                    <td>120</td>
+                    <td>350</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td>9000</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;"> CONSTITUCIÓN DEL CONSEJO MUNICIPAL REGULATORIA.							
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">577</td>
+                    <td rowspan="2" style="vertical-align: middle;">CONSEJO MUNICIPAL DE MEJORA REGULATORIA.					
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: UN CONSEJO MUNICIPAL DE MEJORA REGULATORIA.</td>
+                    <td rowspan="2" style="vertical-align: middle;">1 CONSEJO MUNICIPAL DE MEJORA REGULATORIA.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">100</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">INCENTIVAR EL ESTABLECIMIENTO DE INCUBADORAS EMPRESARIALES ENTRE LOS ESTUDIANTES DE NIVEL SUPERIOR.			
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">516</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA DE INCUBACIÓN DE EMPRESAS.					
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE PROYECTOS A APOYAR.</td>
+                    <td rowspan="2" style="vertical-align: middle;">100 PROYECTOS A APOYAR.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">127.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">127</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>25</td>
+                    <td>4</td>
+                    <td>3</td>
+                    <td>25</td>
+                    <td>2</td>
+                    <td>7</td>
+                    <td>25</td>
+                    <td>6</td>
+                    <td>5</td>
+                    <td>25</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">GENERAR UN PROGRAMA DE CAPACITACIÓN PARA EMPRESARIOS DE TODOS LOS NIVELES, DESDE LOS MÁS CONSOLIDADOS, HASTA LOS QUE RECIÉN ABRAN SUS EMPRESAS.				
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">517</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMAS DE CAPACITACIÓN EMPRESARIAL.					
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE CAPACITACIONES.</td>
+                    <td rowspan="2" style="vertical-align: middle;">540 CAPACITACIONES EMPRESARIALES.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">275.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">50.92592592592593</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td>25</td>
+                    <td></td>
+                    <td>25</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">REALIZACIÓN DE MESA DE ENCUENTRO ENTRE INSTITUCIONES DE EDUCACIÓN SUPERIOR Y EMPRESAS DE TODO TIPO.		
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">578</td>
+                    <td rowspan="2" style="vertical-align: middle;">REUNIONES EMPRESAS-UNIVERSIDADES.			
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE REUNIONES.</td>
+                    <td rowspan="2" style="vertical-align: middle;">6 REUNIONES REALIZADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">11.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">183.33333333333331</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">MEDIACIÓN PARA LA ATENCIÓN DE QUEJAS ENTRE CONSUMIDORES Y EMPRESAS.						
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">579</td>
+                    <td rowspan="2" style="vertical-align: middle;">MÓDULO DE PROFECO.				
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">(A / B) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">(A: NÚMERO DE QUEJAS RECIB: NÚMERO TOTAL DE QUEJAS, RECIBIDASIDAS, RESUELTAS. / B: NÚMERO TOTAL DE QUEJAS, RECIBIDAS) * 100</td>
+                    <td rowspan="2" style="vertical-align: middle;">80% DE QUEJAS RESUELTAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">93.33</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">116.66250000000001</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>12</td>
+                    <td>10</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>7</td>
+                    <td>5</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>6</td>
+                    <td>2</td>
+                    <td>5</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td>12</td>
+                    <td>11</td>
+                    <td>10</td>
+                    <td>9</td>
+                    <td>7</td>
+                    <td>5</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>9</td>
+                    <td>2</td>
+                    <td>5</td>
+                    <td>3</td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">VINCULACIÓN Y ASESORÍA SOBRE LAS INSTITUCIONES DE FINANCIAMIENTO.                                            									
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">583</td>
+                    <td rowspan="2" style="vertical-align: middle;"> PROCESO DE ANÁLISIS, EVALUACIÓN Y GESTIÓN DE APOYOS FINANCIEROS.							
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE SOLICITUDES APROB: ADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">80 SOLICITUDES APROBADAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">80.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">100</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>5</td>
+                    <td>2</td>
+                    <td>6</td>
+                    <td>5</td>
+                    <td>12</td>
+                    <td>12</td>
+                    <td>12</td>
+                    <td>12</td>
+                    <td>4</td>
+                    <td>4</td>
+                    <td>4</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">COLOCACIÓN DE JÓVENES (18-29 AÑOS) DESEMPLEADOS EN EMPRESAS.									
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">585</td>
+                    <td rowspan="2" style="vertical-align: middle;">PROGRAMA JÓVENES CONSTRUYENDO EL FUTURO.						
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: REGISTRO DE JÓVENES EN EL PROGRAMA.</td>
+                    <td rowspan="2" style="vertical-align: middle;">395 JÓVENES REGISTRADOS EN EL PROGRAMA.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">378.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">95.69620253164557</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>39</td>
+                    <td>42</td>
+                    <td>25</td>
+                    <td>28</td>
+                    <td>32</td>
+                    <td>25</td>
+                    <td>45</td>
+                    <td>20</td>
+                    <td>20</td>
+                    <td>22</td>
+                    <td>49</td>
+                    <td>31</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                                <tr>
+                    <td rowspan="2" style="vertical-align: middle;">2025</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">0000</td>
+                    <td rowspan="2" style="vertical-align: middle;">Específicos</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">1014</td>
+                    <td rowspan="2" style="vertical-align: middle;">FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">ECONÓMICO</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">Si</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle;">IMPLEMENTACIÓN DE APOYO Y PROMOCIÓN A RECLUTAMIENTO.								
+									
+									
+									
+									
+									
+sas</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">586</td>
+                    <td rowspan="2" style="vertical-align: middle;">VINCULACIÓN DE OFERTANTES Y SOLICITANTES DE EMPLEO.								
+										
+										
+										
+										
+										
+</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align:center;">Actividad</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">A</td>
+                    <td rowspan="2" style="vertical-align: middle;">A: NÚMERO DE CONVENIOS CON EMPRESAS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">35 CONVENIOS REALIZADOS.</td>
+                    <td rowspan="2" style="vertical-align: middle;">&nbsp;</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">34.00</td>
+                    <td rowspan="2" style="vertical-align: middle; text-align: center;">97.14285714285714</td>
+                    <td style="text-align: center;">A</td>
+                    <td style="text-align: center;"></td>
+                    <td>6</td>
+                    <td>6</td>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>6</td>
+                    <td>6</td>
+                    <td></td>
+                    <td></td>
+                    <td>4</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">B</td>
+                    <td style="text-align: center;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                            </tbody>
+        </table>
+            
