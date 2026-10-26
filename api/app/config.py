@@ -1,12 +1,30 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def normalizar_database_url(url: str) -> str:
+    """Railway (y Heroku) entregan `postgres://…` o `postgresql://…`; SQLAlchemy con ese esquema busca
+    psycopg2, y aquí solo hay psycopg 3. Los dos esquemas sin driver pasan a `postgresql+psycopg://`;
+    cualquier otro (ya con driver, sqlite…) se deja igual."""
+    url = url.strip()
+    for esquema in ("postgres://", "postgresql://"):
+        if url.startswith(esquema):
+            return "postgresql+psycopg://" + url[len(esquema):]
+    return url
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "postgresql+psycopg://indicadores:indicadores@localhost:5433/indicadores"
+
+    @field_validator("database_url")
+    @classmethod
+    def _normalizar_url(cls, v: str) -> str:  # la usan la API (db.py) y Alembic (env.py) por igual
+        return normalizar_database_url(v)
+
     session_secret: str = "dev-secret-no-usar-en-prod"
     # 32 bytes en base64 (AES-256-GCM). Obligatoria para cifrar/descifrar contraseñas de usuario.
     password_encryption_key: str = ""
