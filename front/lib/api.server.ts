@@ -1,6 +1,5 @@
 import { cookies, headers } from "next/headers";
-
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+import { apiUrl } from "@/lib/api-url";
 
 export type ApiResult<T = any> = { status: number; data: T };
 
@@ -8,7 +7,7 @@ export type ApiResult<T = any> = { status: number; data: T };
 export async function apiServer<T = any>(path: string): Promise<ApiResult<T>> {
   const h = await headers();
   const c = await cookies();
-  const res = await fetch(API_URL + path, {
+  const res = await fetch(apiUrl() + path, {
     cache: "no-store",
     headers: {
       "x-municipio-slug": h.get("x-municipio-slug") ?? "",

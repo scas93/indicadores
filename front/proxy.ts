@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { apiUrl } from "./lib/api-url";
 import { resolverHost } from "./lib/host";
 
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
 const ROOT = process.env.ROOT_DOMAIN ?? "localtest.me";
 const ADMIN_SUB = process.env.SUPER_ADMIN_SUBDOMAIN ?? "admin";
 
@@ -23,7 +23,14 @@ export function proxy(req: NextRequest) {
 
   const { pathname, search } = req.nextUrl;
   if (pathname.startsWith("/api/")) {
-    return NextResponse.rewrite(new URL(pathname + search, API_URL), { request: { headers } });
+    let destino: URL;
+    try {
+      destino = new URL(pathname + search, apiUrl());
+    } catch (e) {
+      console.error(e);
+      return NextResponse.json({ codigo: "API_URL_NO_CONFIGURADA", mensaje: (e as Error).message, campos: {} }, { status: 500 });
+    }
+    return NextResponse.rewrite(destino, { request: { headers } });
   }
   const url = req.nextUrl.clone();
   url.pathname = (r.ambito === "admin" ? "/sa" : "/mun") + (pathname === "/" ? "" : pathname);
