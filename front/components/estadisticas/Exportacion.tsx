@@ -16,6 +16,8 @@ const CONFIG = {
   transparencia: { titulo: "Transparencia", franja: "TRANSPARENCIA", excel: true },
 };
 const celda = (v: string | number | null) => (v === null || v === "" ? "" : v);
+/** Columnas numéricas que el .xlsx formatea 0.00: la vista previa muestra lo mismo. */
+const DOS_DECIMALES = new Set(["Meta del indicador alcanzada", "Avance / Programado", "Avance de las metas"]);
 
 /** Cuenta Pública y Transparencia: año + centro gestor + programa (selección única, solo lo asignado al
  *  usuario). "Buscar" muestra la misma tabla del export; "Exportar" descarga el .xlsx. */
@@ -81,7 +83,7 @@ export function Exportacion({ tipo, op }: { tipo: keyof typeof CONFIG; op: Opcio
                     const segunda = por > 1 && i % por !== 0;
                     return (
                       <tr key={i}>
-                        {fila.map((v, k) => (segunda && k < comb ? null : <td key={k} rowSpan={!segunda && k < comb ? por : 1}>{celda(v)}</td>))}
+                        {fila.map((v, k) => (segunda && k < comb ? null : <td key={k} rowSpan={!segunda && k < comb ? por : 1}>{typeof v === "number" && DOS_DECIMALES.has(tabla.encabezados[k]) ? v.toFixed(2) : celda(v)}</td>))}
                       </tr>
                     );
                   })}

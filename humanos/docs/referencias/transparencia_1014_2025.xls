@@ -1,0 +1,919 @@
+﻿        <table border="1">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Nombre Corto</th>
+                    <th>Descripción</th>
+                    <th colspan="23"></th>
+                </tr>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th colspan="23">&nbsp;</th>
+                </tr>
+                <tr>
+                    <th>Ejercicio</th>
+                    <th>Fecha de inicio del periodo que se informa</th>
+                    <th>Fecha de terminación del periodo que se informa</th>
+                    <th>Nombre del programa</th>
+                    <th>Objetivo institucional (Resumen narrativo)</th>
+                    <th>Nivel de la MIR</th>
+                    <th>ID del indicador</th>
+                    <th>Nombre del indicador</th>
+                    <th>Dimensión a medir</th>
+                    <th>Definición del indicador</th>
+                    <th>Algoritmo</th>
+                    <th>Método de cálculo</th>
+                    <th>Unidad de medida del indicador</th>
+                    <th>Frecuencia de medición</th>
+                    <th>Año línea base</th>
+                    <th>Valor línea base</th>
+                    <th>Metas programadas del año en análisis</th>
+                    <th>Descripción de la meta programada</th>
+                    <th>Metas ajustadas en su caso</th>
+                    <th>Avance de las metas</th>
+                    <th>Sentido del indicador</th>
+                    <th>Fuente de información</th>
+                    <th>Fecha de validación</th>
+                    <th>Área responsable de la información</th>
+                    <th>Fecha de actualización</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody>
+                        <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>LOS HABITANTES DEL MUNICIPIO ENCUENTRAN OPORTUNIDADES LABORALES QUE LES PERMITEN MEJORAR SU CALIDAD DE VIDA Y SU ECONOMÍA FAMILIAR..									
+									
+									
+									
+									
+									
+</td>
+                    <td>Proposito</td>
+                    <td>411</td>
+                    <td>PORCENTAJE DE LA POBLACIÓN ATENDIDA CON PROGRAMAS DE DESARROLLO ECONÓMICO MUNICIPAL.	
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>(A / B) * 100</td>
+                    <td>(A: PERSONAS ATENDIDAS LAB: TOTAL DE PERSONAS SIN EMPLEO ECONÓMICAMENTE ACTIVOS DEL MUNICIPIO.ORALMENTE. / B: TOTAL DE PERSONAS SIN EMPLEO ECONÓMICAMENTE ACTIVOS DEL MUNICIPIO.) * 100</td>
+                    <td>PORCENTAJE</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>15</td>
+                    <td>15</td>
+                    <td>15% PERSONAS ATENDIDAS LABORALMENTE.</td>
+                    <td>&nbsp;</td>
+                    <td>7.98</td>
+                    <td>&nbsp;</td>
+                    <td>REPORTE DOCUMENTAL DE LAS ENTIDADES ECONÓMICAS ATENDIDAS, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.							
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>CONTRIBUIR A FORTALECER Y CONSOLIDAR LAS ACTIVIDADES ECONÓMICAS EN EL MUNICIPIO.	
+									
+									
+									
+									
+</td>
+                    <td>Fin</td>
+                    <td>410</td>
+                    <td>VARIACIÓN EN LA POBLACIÓN ECONÓMICAMENTE ACTIVO.								
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>((A / B) - 1) * 100</td>
+                    <td>((A: NÚMERO DE AFILIADOS AL IMSS, AÑO ACTUAL. 								
+													
+													
+													
+													
+													
+ / B: NÚMERO DE AFILIADO AL IMSS, AÑO ANTERIOR.) - 1) * 100</td>
+                    <td>TASA DE VARIACIÓN.</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10% INCREMENTO DE AFILIADOS AL IMSS.</td>
+                    <td>&nbsp;</td>
+                    <td>9.99</td>
+                    <td>&nbsp;</td>
+                    <td>PUBLICACIÓN EN INEGI, IMSS O OTRAS FUENTES.				
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+</td>
+                    <td>Componente</td>
+                    <td>512</td>
+                    <td>NEGOCIOS APERTURADOS		
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE LICENCIAS MUNICIPALES OTORGADAS.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>2260</td>
+                    <td>4000</td>
+                    <td>2,260 NEGOCIOS APERTURADOS</td>
+                    <td>&nbsp;</td>
+                    <td>2140.00</td>
+                    <td>&nbsp;</td>
+                    <td>REGISTRO DE LICENCIAS OTORGADAS ESPECIFICANDO NÚMERO DE EMPLEOS GENERADOS E INVERSIÓN ESTIMADA, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.				
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA PARA INCENTIVAR EL EMPRENDEDURISMO ENTRE LA POBLACIÓN DEL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+							
+									
+									
+									
+									
+									
+</td>
+                    <td>Componente</td>
+                    <td>513</td>
+                    <td>DESARROLLO DE EMPRENDEDORES.	
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE FAMILIAS B: ENEFICIADAS CON FOMENTO AL AUTOEMPLEO.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>500</td>
+                    <td>500</td>
+                    <td>500 FAMILIAS BENEFICIADAS.</td>
+                    <td>&nbsp;</td>
+                    <td>500.00</td>
+                    <td>&nbsp;</td>
+                    <td>LISTA DE BENEFICIARIOS DE LOS PROGRAMAS DE EMPRENDEDORES, EVIDENCIAS FOTOGRÁFICAS,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.
+										
+										
+										
+										
+									
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA PARA IMPULSAR LA PRODUCTIVIDAD Y COMPETITIVIDAD DE LAS EMPRESAS DEL MUNICIPIO.
+									
+									
+									
+									
+									
+</td>
+                    <td>Componente</td>
+                    <td>514</td>
+                    <td>IMPULSO A LA COMPETITIVIDAD.						
+													
+													
+													
+													
+													
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: INDICE DE COMPETITIVIDAD DEL IMCO.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1 DOCUMENTO</td>
+                    <td>&nbsp;</td>
+                    <td>1.00</td>
+                    <td>&nbsp;</td>
+                    <td>ESTUDIO DEL ÍNDICE DE COMPETITIVIDAD  QUE REALIZA EL IMCO . EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.								
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA DE FINANCIAMIENTO DIRIGIDO A MICRO, PEQUEÑA Y MEDIANA EMPRESA, IMPLEMENTADO. 
+									
+									
+									
+									
+</td>
+                    <td>Componente</td>
+                    <td>582</td>
+                    <td>CRÉDITOS OTORGADOS.				
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE PERSONAS B: ENEFICIADAS CON LOS FINANCIAMIENTOS.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>40</td>
+                    <td>40</td>
+                    <td>40 PERSONAS BENEFICIADAS CON LOS FINANCIAMIENTOS.</td>
+                    <td>&nbsp;</td>
+                    <td>40.00</td>
+                    <td>&nbsp;</td>
+                    <td>INFORME DE ACTIVIDADES DE CRÉDITOS OTORGADOS Y NÚMERO DE PERSONAS BENEFICIADAS, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>GENERACIÓN DE BOLSAS DE EMPLEO Y PARTICIPACIÓN EN LA PROMOCIÓN DE LAS FERIAS DE EMPLEO, IMPLEMENTADO.			
+									
+									
+									
+									
+									
+</td>
+                    <td>Componente</td>
+                    <td>584</td>
+                    <td>PUBLICACIÓN DE VACANTES									
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE B: USCADORES DE EMPLEO VINCULADOS A UNA FUENTE DE TRAB: AJO.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>1500</td>
+                    <td>1500</td>
+                    <td>1,500 BUSCADORES DE EMPLEO.</td>
+                    <td>&nbsp;</td>
+                    <td>1500.00</td>
+                    <td>&nbsp;</td>
+                    <td>NÚMERO DE VACANTES, NÚMERO DE SOLICITUDES, VISITAS DE EMPRESAS A PROMOCIONAR SUS VACANTES, PARTICIPACIÓN EN FERIAS DE EMPLEO. EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.										
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>515</td>
+                    <td>INCENTIVOS MUNICIPALES.			
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE EMPRESAS NUEVAS Y EMPRESAS EN EXPANSIÓN.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>10</td>
+                    <td>10</td>
+                    <td>10 NUEVAS EMPRESAS</td>
+                    <td>&nbsp;</td>
+                    <td>24.00</td>
+                    <td>&nbsp;</td>
+                    <td>REGISTRO DE EMPRESAS NUEVAS O EN EXPANSIÓN BENEFICIADAS CON LOS INCENTIVOS MUNICIPALES, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.						
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>574</td>
+                    <td>CAMPAÑA PUBLICITARIA.				
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE CAMPAÑAS.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>6</td>
+                    <td>6</td>
+                    <td>6 CAMPAÑAS REALIZADAS.</td>
+                    <td>&nbsp;</td>
+                    <td>8.00</td>
+                    <td>&nbsp;</td>
+                    <td>EVIDENCIAS DE PUBLICACIONES,  VIDEOS, VISITAS A MEDIOS DIGITALES, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.									
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>575</td>
+                    <td>PARTICIPACIÓN EN FERIAS.						
+													
+													
+													
+													
+</td>
+                    <td>Eficacia</td>
+                    <td>									
+										
+										
+										
+										
+										
+</td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE FERIAS.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>8</td>
+                    <td>8</td>
+                    <td>8 PARTICIPACIONES EN FERIAS.</td>
+                    <td>&nbsp;</td>
+                    <td>10.00</td>
+                    <td>&nbsp;</td>
+                    <td>EVIDENCIAS FOTOGRÁFICAS, REGISTROS, MATERIAL PUBLICITARIO. EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.						
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>576</td>
+                    <td>MEJORA REGULATORIA.									
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>(A / B) * 100</td>
+                    <td>(A: NÚMERO DE EMPRESAS REGULADAS. / B: NÚMERO DE EMPRESAS EXISTENTES EN EL MUNICIPIO.) * 100</td>
+                    <td>PORCENTAJE</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>80</td>
+                    <td>80</td>
+                    <td>80% DE EMPRESAS REGULADAS.</td>
+                    <td>&nbsp;</td>
+                    <td>36.89</td>
+                    <td>&nbsp;</td>
+                    <td>MEDICIÓN DE IMPACTO REGULATORIO (MIR), REGLAMENTO, MANUALES DE OPERACIÓN, PROCEDIMIENTOS Y FORMATOS,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.						
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA ENCAMINADO A INCREMENTAR EL NÚMERO DE EMPRESAS EN EL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>577</td>
+                    <td>CONSEJO MUNICIPAL DE MEJORA REGULATORIA.					
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: UN CONSEJO MUNICIPAL DE MEJORA REGULATORIA.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1 CONSEJO MUNICIPAL DE MEJORA REGULATORIA.</td>
+                    <td>&nbsp;</td>
+                    <td>1.00</td>
+                    <td>&nbsp;</td>
+                    <td>ACTA DE CONSTITUCIÓN DEL CONSEJO MUNICIPAL DE MEJORA REGULATORIA,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA PARA INCENTIVAR EL EMPRENDEDURISMO ENTRE LA POBLACIÓN DEL MUNICIPIO, IMPLEMENTADO.				
+									
+									
+									
+									
+									
+							
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>516</td>
+                    <td>PROGRAMA DE INCUBACIÓN DE EMPRESAS.					
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE PROYECTOS A APOYAR.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>100</td>
+                    <td>100</td>
+                    <td>100 PROYECTOS A APOYAR.</td>
+                    <td>&nbsp;</td>
+                    <td>127.00</td>
+                    <td>&nbsp;</td>
+                    <td>LIOSTA DE BENEFICIARIOS DE LOS PROGRAMAS DE EMPRENDEDORES, EVIDENCIAS FOTOGRÁFICAS, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA PARA IMPULSAR LA PRODUCTIVIDAD Y COMPETITIVIDAD DE LAS EMPRESAS DEL MUNICIPIO.
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>517</td>
+                    <td>PROGRAMAS DE CAPACITACIÓN EMPRESARIAL.					
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE CAPACITACIONES.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>540</td>
+                    <td>540</td>
+                    <td>540 CAPACITACIONES EMPRESARIALES.</td>
+                    <td>&nbsp;</td>
+                    <td>275.00</td>
+                    <td>&nbsp;</td>
+                    <td>PROGRAMAS DE CAPACITACIÓN, LISTA DE  ASISTENCIA. EVIDENIA FOTOGRÁFICA, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL. 										
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA PARA IMPULSAR LA PRODUCTIVIDAD Y COMPETITIVIDAD DE LAS EMPRESAS DEL MUNICIPIO.
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>578</td>
+                    <td>REUNIONES EMPRESAS-UNIVERSIDADES.			
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE REUNIONES.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>6</td>
+                    <td>6</td>
+                    <td>6 REUNIONES REALIZADAS.</td>
+                    <td>&nbsp;</td>
+                    <td>11.00</td>
+                    <td>&nbsp;</td>
+                    <td>LISTA DE ASISTENCIA, FOTOGRAFÍAS, INVITACIONES, PROGRAMAS DE CAPACITACIÓN, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA PARA IMPULSAR LA PRODUCTIVIDAD Y COMPETITIVIDAD DE LAS EMPRESAS DEL MUNICIPIO.
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>579</td>
+                    <td>MÓDULO DE PROFECO.				
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>(A / B) * 100</td>
+                    <td>(A: NÚMERO DE QUEJAS RECIB: NÚMERO TOTAL DE QUEJAS, RECIBIDASIDAS, RESUELTAS. / B: NÚMERO TOTAL DE QUEJAS, RECIBIDAS) * 100</td>
+                    <td>PORCENTAJE</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>80</td>
+                    <td>80</td>
+                    <td>80% DE QUEJAS RESUELTAS.</td>
+                    <td>&nbsp;</td>
+                    <td>93.33</td>
+                    <td>&nbsp;</td>
+                    <td>NÚMERO DE DENUNCIAS Y SU RESOLUCIÓN, RECIBIDAS EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.						
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>PROGRAMA DE FINANCIAMIENTO DIRIGIDO A MICRO, PEQUEÑA Y MEDIANA EMPRESA, IMPLEMENTADO. 
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>583</td>
+                    <td> PROCESO DE ANÁLISIS, EVALUACIÓN Y GESTIÓN DE APOYOS FINANCIEROS.							
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE SOLICITUDES APROB: ADAS.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>80</td>
+                    <td>80</td>
+                    <td>80 SOLICITUDES APROBADAS.</td>
+                    <td>&nbsp;</td>
+                    <td>80.00</td>
+                    <td>&nbsp;</td>
+                    <td>REGISTRO DE SOLICITUDES EMITIDAS Y SOLICITUDES APROBADAS, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.								
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>GENERACIÓN DE BOLSAS DE EMPLEO Y PARTICIPACIÓN EN LA PROMOCIÓN DE LAS FERIAS DE EMPLEO, IMPLEMENTADO.			
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>585</td>
+                    <td>PROGRAMA JÓVENES CONSTRUYENDO EL FUTURO.						
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: REGISTRO DE JÓVENES EN EL PROGRAMA.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>395</td>
+                    <td>395</td>
+                    <td>395 JÓVENES REGISTRADOS EN EL PROGRAMA.</td>
+                    <td>&nbsp;</td>
+                    <td>378.00</td>
+                    <td>&nbsp;</td>
+                    <td>NÚMERO DE REGISTROS DE JÓVENES AL PROGRAMA. LISTAS DE ASISTENCIA. EVIDENCIA FOTOGRÁFICA,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                            <tr>
+                    <td>2025</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>FORTALECIMIENTO DEL EMPLEO Y LA GESTIÓN EMPRESARIAL</td>
+                    <td>GENERACIÓN DE BOLSAS DE EMPLEO Y PARTICIPACIÓN EN LA PROMOCIÓN DE LAS FERIAS DE EMPLEO, IMPLEMENTADO.			
+									
+									
+									
+									
+									
+</td>
+                    <td>Actividad</td>
+                    <td>586</td>
+                    <td>VINCULACIÓN DE OFERTANTES Y SOLICITANTES DE EMPLEO.								
+										
+										
+										
+										
+										
+</td>
+                    <td>Eficacia</td>
+                    <td></td>
+                    <td>A</td>
+                    <td>A: NÚMERO DE CONVENIOS CON EMPRESAS.</td>
+                    <td>UNIDAD</td>
+                    <td>Mensual</td>
+                    <td>2024</td>
+                    <td>35</td>
+                    <td>35</td>
+                    <td>35 CONVENIOS REALIZADOS.</td>
+                    <td>&nbsp;</td>
+                    <td>34.00</td>
+                    <td>&nbsp;</td>
+                    <td>NÚMERO DE VACANTES, NÚMERO DE SOLICITUDES, VISITAS DE EMPRESAS A PROMOCIONAR SUS VACANTES, PARTICIPANDO EN FERIAS DE EMPLEO. EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.									
+										
+										
+										
+										
+										
+</td>
+                    <td>&nbsp;</td>
+                    <td>ECONÓMICO</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                        </tbody>
+        </table>
+            

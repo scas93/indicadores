@@ -15,6 +15,7 @@ from seed_data import economico_2025 as datos
 from .test_fase1_flujos import m  # noqa: F401  (fixture `m`)
 
 XLS = Path(__file__).parents[2] / "humanos/docs/referencias/indicadores_resultados.xls"
+XLS_TR = Path(__file__).parents[2] / "humanos/docs/referencias/transparencia_1014_2025.xls"
 PW = "pw-demo-1"
 
 
@@ -51,7 +52,7 @@ def test_sembrar_es_idempotente_y_reproduce_los_conteos_de_la_referencia(m, db):
     r = seed.sembrar(db, m.slug, "informes1", PW)
     assert r["indicadores"] == 19
     primera = _cuentas(db)
-    assert primera["Indicador"] == 19 and primera["Programa"] == 1 and primera["MetaAnual"] == 19
+    assert primera["Indicador"] == 19 and primera["Programa"] == 1 and primera["MetaAnual"] == 38  # 2024 (año base) y 2025
     assert primera["ElementoMatriz"] == 2 + 5 + 12 and primera["UsuarioPrograma"] == 1
     ids = {i.nombre: i.id_numerico for i in db.scalars(select(Indicador))}
     assert sorted(ids.values()) == sorted(i["id"] for i in datos.INDICADORES)  # los IDs reales: 410, 411, 512…
@@ -69,7 +70,7 @@ def test_sembrar_es_idempotente_y_reproduce_los_conteos_de_la_referencia(m, db):
             assert len(g) == 1 and g[0]["nombre"] == "ECONÓMICO", (ruta, modo)
             assert {k: g[0][k] for k in esperado} == esperado, (ruta, modo)
     op = m.get(u, "/api/estadisticas/opciones").json()
-    assert op["anios"] == [2025] and [p["clave"] for p in op["programas"]] == ["1014"]
+    assert op["anios"] == [2025, 2024] and [p["clave"] for p in op["programas"]] == ["1014"]
 
 
 def test_recorrer_de_nuevo_corrige_lo_editado_y_cambia_la_contrasena(m, db):  # noqa: F811
@@ -123,3 +124,43 @@ def test_cuenta_publica_del_seed_reproduce_id_formula_y_meta_del_export_de_refer
     filas = re.findall(r"<tr.*?</tr>", XLS.read_text(encoding="utf-8", errors="replace"), re.I | re.S)[3:]
     esperado = {celdas(f)[15]: (celdas(f)[19], celdas(f)[20]) for f in filas[::2]}
     assert generado == esperado and len(esperado) == 19
+
+
+def test_transparencia_2025_del_1014_reproduce_el_export_de_referencia_columna_por_columna(m, db):  # noqa: F811
+    """Los 19 indicadores contra la Transparencia real del 1014: todas las columnas coinciden salvo las diferencias
+    de formato aceptadas (saltos de línea/espacios colapsados por el seed, número en vez de texto) y el orden de filas."""
+    if not XLS_TR.exists():
+        pytest.skip("falta el .xls de referencia")
+    seed.sembrar(db, m.slug, "informes1", PW)
+    u = m.cliente("informes1", PW)
+    op = m.get(u, "/api/estadisticas/opciones").json()
+    t = m.get(u, "/api/estadisticas/transparencia", params={
+        "anio": 2025, "centro_gestor_id": op["centros_gestores"][0]["id"], "programa_id": op["programas"][0]["id"]}).json()
+
+    celdas = lambda r: [re.sub(r"[ \t]+", " ", html.unescape(re.sub(r"<br[^>]*>", "\n", re.sub(r"</?(?!br)[a-z][^>]*>", "", c))).replace("\xa0", " ")).strip()  # noqa: E731
+                        for c in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", r, re.I | re.S)]
+    filas = re.findall(r"<tr.*?</tr>", XLS_TR.read_text(encoding="utf-8", errors="replace"), re.I | re.S)
+    assert celdas(filas[2]) == t["encabezados"]  # las 26 cabeceras, idénticas
+    ref = {c[6]: c for c in map(celdas, filas[3:])}
+    nuestro = {str(f[6]): f for f in t["filas"]}
+    assert sorted(ref) == sorted(nuestro) and len(ref) == 19
+    # orden de la MIR (Fin, Propósito, Componentes, y cada actividad bajo su componente): la referencia es igual salvo que
+    # pone el Propósito (411) antes que el Fin (410)
+    esperado = list(ref)
+    esperado[0], esperado[1] = esperado[1], esperado[0]
+    assert [str(f[6]) for f in t["filas"]] == esperado
+
+    colapsa = lambda v: re.sub(r"\s+", " ", str(v if v is not None else "")).strip()  # noqa: E731
+    diferencias = []
+    for ident, r in ref.items():
+        for k in range(26):
+            a, b = colapsa(r[k]), colapsa(nuestro[ident][k])
+            if a == b:
+                continue
+            try:
+                if abs(float(a) - float(b)) < 1e-9:
+                    continue  # mismo número (la referencia trae texto "2140.00"; aquí es numérico)
+            except ValueError:
+                pass
+            diferencias.append((ident, t["encabezados"][k], a, b))
+    assert diferencias == []

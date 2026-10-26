@@ -8,9 +8,10 @@ Carga, con el alcance del municipio dado:
   * centro gestor ECONÓMICO; eje EJE2 «ECONÓMICO» (general, sin centro gestor), un subtema y una estrategia
     de muestra, y el programa 1014
     "Fortalecimiento del empleo y la gestión empresarial" (ejercicio 2025);
-  * su MIR: Fin, Propósito, 5 Componentes y 12 Actividades, con sus 19 indicadores, la meta anual 2025 y
+  * su MIR: Fin, Propósito, 5 Componentes y 12 Actividades (cada una bajo su componente), con sus 19 indicadores, la meta anual 2025 y
     las capturas A/B mensuales reales (seed_data/economico_2025.py, del export de Cuenta Pública), con su ID
-    real (410, 411, 512…), texto de la meta y descripciones de las variables;
+    real (410, 411, 512…), texto de la meta, descripciones de las variables, unidad de medida, año base (2024) con su
+    meta programada, y los medios de verificación (fuente de información);
   * un usuario tipo Informes asignado al programa 1014.
 Con 2025 deben verse (Dependencias y Ejes): obtenido 7/1/10/1 y (C.O/C.E)×100 14/0/4/1 (total 19).
 
@@ -55,12 +56,13 @@ def _d(x) -> Decimal | None:
 
 
 def _elemento(db: Session, programa: Programa, nivel: str, resumen: str, *, numero: str, orden: int,
-              padre: ElementoMatriz | None) -> ElementoMatriz:
+              padre: ElementoMatriz | None, medios: str = "", supuestos: str = "") -> ElementoMatriz:
     llaves = {"programa_id": programa.id, "nivel": NIVELES[nivel]}
     if nivel in ("componente", "actividad"):
         llaves["resumen_narrativo"] = resumen  # varios por programa: se distinguen por su texto
     return _uno(db, ElementoMatriz, llaves, {"resumen_narrativo": resumen, "numero": numero, "orden": orden,
-                                             "padre_id": padre.id if padre else None})
+                                             "padre_id": padre.id if padre else None, "medios_verificacion": medios,
+                                             "supuestos": supuestos})
 
 
 def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
@@ -83,29 +85,32 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
                 {"nombre": datos.PROGRAMA_NOMBRE, "centro_gestor_id": cg.id, "subtema_id": sub.id,
                  "estrategia_id": est.id, "clasificacion_programatica_id": clasif.id, "activo": True})
 
-    # --- MIR: el export no dice qué actividad cuelga de qué componente: todas van al primero
-    fin = _elemento(db, prog, "fin", next(i["resumen"] for i in datos.INDICADORES if i["nivel"] == "fin"),
-                    numero="", orden=0, padre=None)
-    prop = _elemento(db, prog, "proposito", next(i["resumen"] for i in datos.INDICADORES if i["nivel"] == "proposito"),
-                     numero="", orden=0, padre=None)
+    # --- MIR: la jerarquía de las actividades (`padre_id` del dataset) se dedujo de la Transparencia de referencia
+    # los medios de verificación (= "Fuente de información" de Transparencia) son del elemento; aquí uno por indicador
+    d_fin = next(i for i in datos.INDICADORES if i["nivel"] == "fin")
+    d_prop = next(i for i in datos.INDICADORES if i["nivel"] == "proposito")
+    fin = _elemento(db, prog, "fin", d_fin["resumen"], numero="", orden=0, padre=None, medios=d_fin["medios_verificacion"], supuestos=d_fin["supuestos"])
+    prop = _elemento(db, prog, "proposito", d_prop["resumen"], numero="", orden=0, padre=None, medios=d_prop["medios_verificacion"], supuestos=d_prop["supuestos"])
     elementos: dict[str, ElementoMatriz] = {}
-    componentes: list[ElementoMatriz] = []
-    n_act = 0
+    comp_por_id: dict[int, ElementoMatriz] = {}
     for ind in datos.INDICADORES:
         if ind["nivel"] == "fin":
             elementos[ind["ref"]] = fin
         elif ind["nivel"] == "proposito":
             elementos[ind["ref"]] = prop
         elif ind["nivel"] == "componente":
-            c = _elemento(db, prog, "componente", ind["resumen"], numero=str(len(componentes) + 1),
-                          orden=len(componentes) + 1, padre=None)
-            componentes.append(c)
+            c = _elemento(db, prog, "componente", ind["resumen"], numero=str(len(comp_por_id) + 1),
+                          orden=len(comp_por_id) + 1, padre=None, medios=ind["medios_verificacion"], supuestos=ind["supuestos"])
+            comp_por_id[ind["id"]] = c
             elementos[ind["ref"]] = c
+    hijas: dict[int, int] = {}
     for ind in datos.INDICADORES:
         if ind["nivel"] == "actividad":
-            n_act += 1
-            elementos[ind["ref"]] = _elemento(db, prog, "actividad", ind["resumen"], numero=f"{componentes[0].numero}.{n_act}",
-                                              orden=n_act, padre=componentes[0])
+            padre = comp_por_id[ind["padre_id"]]
+            hijas[ind["padre_id"]] = hijas.get(ind["padre_id"], 0) + 1
+            elementos[ind["ref"]] = _elemento(db, prog, "actividad", ind["resumen"], numero=f"{padre.numero}.{hijas[ind['padre_id']]}",
+                                              orden=hijas[ind["padre_id"]], padre=padre, medios=ind["medios_verificacion"],
+                                              supuestos=ind["supuestos"])
 
     # --- indicadores, meta anual y capturas mensuales
     n_avances = 0
@@ -117,13 +122,18 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
         i = _uno(db, Indicador, {"elemento_matriz_id": elementos[ind["ref"]].id, "nombre": ind["nombre"]}, {
             "tipo": TipoIndicador.estrategico if ind["nivel"] in ("fin", "proposito") else TipoIndicador.gestion,
             "prioritario": False, "interpretacion": "", "dimension": DimensionIndicador.eficacia,
-            "frecuencia_id": frec.id, "unidad_medida": ind["unidad_medida"], "algoritmo": Algoritmo(ind["algoritmo"]),
+            "frecuencia_id": frec.id, "unidad_medida": ind["unidad_medida"], "anio_base": ind["anio_base"],
+            "algoritmo": Algoritmo(ind["algoritmo"]),
             "unidad_a": ind["unidad_a"], "unidad_b": None if solo_a else ind["unidad_b"],
             "descripcion_a": ind["descripcion_a"], "descripcion_b": None if solo_a else ind["descripcion_b"],
             "meta_administracion": ind["meta_texto"],
             "id_numerico": -(k + 1),  # provisional: el ID real se fija abajo sin chocar con la unicidad
             **rangos})
         objetos[ind["ref"]] = i
+        # año base: su resultado programado es el "Valor línea base" de Transparencia (de ahí meta_2024_a/b)
+        _uno(db, MetaAnual, {"indicador_id": i.id, "anio": ind["anio_base"]},
+             {"valor_a_programado": _d(ind["meta_2024_a"]), "valor_b_programado": None if solo_a else _d(ind["meta_2024_b"]),
+              "es_ejercicio_fiscal": False})
         _uno(db, MetaAnual, {"indicador_id": i.id, "anio": anio},
              {"valor_a_programado": _d(ind["meta_a"]), "valor_b_programado": None if solo_a else _d(ind["meta_b"]),
               "es_ejercicio_fiscal": True})
