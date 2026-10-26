@@ -138,12 +138,14 @@ function ModalNodo({ programaId, lado, nodo, padre, solo, onClose, onGuardado }:
   programaId: string; lado: Lado; nodo: NodoArbol | null; padre: NodoArbol | null; solo?: "a" | "b"; onClose: () => void; onGuardado: () => void;
 }) {
   const L = LADOS[lado];
+  // Alta: solo la causa/efecto (el medio/fin queda vacío y se llena después con su lápiz). Edición: solo el lado del lápiz.
+  const campo: "a" | "b" | undefined = nodo ? solo : "a";
   const [f, setF] = useState({ a: nodo?.[L.ca] ?? "", b: nodo?.[L.ob] ?? "" });
   const [errores, setErrores] = useState<Record<string, string>>({});
 
   async function guardar() {
     setErrores({});
-    const json = { ...(solo !== "b" ? { [L.ca]: f.a } : {}), ...(solo !== "a" ? { [L.ob]: f.b } : {}), ...(padre ? { padre_id: padre.id } : {}) };
+    const json = { ...(campo !== "b" ? { [L.ca]: f.a } : {}), ...(campo !== "a" ? { [L.ob]: f.b } : {}), ...(padre ? { padre_id: padre.id } : {}) };
     try {
       await api(nodo ? L.nodo(nodo.id) : L.crear(programaId), { method: nodo ? "PATCH" : "POST", json });
       toast.success(nodo ? "Cambios guardados" : "Agregado");
@@ -152,17 +154,17 @@ function ModalNodo({ programaId, lado, nodo, padre, solo, onClose, onGuardado }:
       if (e instanceof ApiError) { setErrores(e.campos); toast.error(e.message); } else toast.error("Error de conexión");
     }
   }
-  const titulo = nodo ? `Editar ${solo ? (solo === "a" ? L.nombreA : L.nombreB).toLowerCase() : `${L.nombreA.toLowerCase()} / ${L.nombreB.toLowerCase()}`} ${nodo.numero}`
+  const titulo = nodo ? `Editar ${campo ? (campo === "a" ? L.nombreA : L.nombreB).toLowerCase() : `${L.nombreA.toLowerCase()} / ${L.nombreB.toLowerCase()}`} ${nodo.numero}`
     : padre ? `Agregar ${L.hijo.toLowerCase()} a ${padre.numero}` : `Agregar ${L.nombreA.toLowerCase()}`;
   return (
     <Modal titulo={titulo} onClose={onClose} footer={<>
       <button className="btn btn-default" onClick={onClose}>Cancelar</button>
       <button className="btn btn-success" onClick={guardar}>Guardar</button></>}>
-      {!solo && <p className="text-muted">El {L.nombreB.toLowerCase()} es el par espejo: se guarda junto con su {L.nombreA.toLowerCase()} y comparte numeración.</p>}
-      {solo !== "b" && <Campo label={L.nombreA} error={errores[L.ca]}>
+      {!nodo && <p className="text-muted">Se crea el nodo con su {L.nombreA.toLowerCase()}; el {L.nombreB.toLowerCase()} (par espejo) queda vacío y se llena después con su lápiz en el panel de {L.panelB}.</p>}
+      {campo !== "b" && <Campo label={L.nombreA} error={errores[L.ca]}>
         <textarea className="form-control" rows={3} autoFocus value={f.a} onChange={(e) => setF({ ...f, a: e.target.value })} /></Campo>}
-      {solo !== "a" && <Campo label={L.nombreB} error={errores[L.ob]}>
-        <textarea className="form-control" rows={3} autoFocus={solo === "b"} value={f.b} onChange={(e) => setF({ ...f, b: e.target.value })} /></Campo>}
+      {campo !== "a" && <Campo label={L.nombreB} error={errores[L.ob]}>
+        <textarea className="form-control" rows={3} autoFocus={campo === "b"} value={f.b} onChange={(e) => setF({ ...f, b: e.target.value })} /></Campo>}
     </Modal>
   );
 }

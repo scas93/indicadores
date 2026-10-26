@@ -365,3 +365,16 @@ def test_vista_previa_calcula_sin_guardar_y_con_el_mismo_motor(m, ctx, db):
     cero = m.post(m.admin, f"/api/indicadores/{ind['id']}/avances/calcular",
                   {"meses": [{"mes": 1, "valor_a": 1, "valor_b": 0}]}).json()
     assert cero["color"] == "gris" and cero["cumplimiento"] is None
+
+
+def test_arbol_alta_solo_con_causa_o_efecto_y_el_par_se_llena_despues(m, ctx):
+    """Alta desde el + de Causas/Efectos: solo el lado problema; el medio/fin queda vacío y se edita solo después."""
+    p = ctx.pid
+    for ruta, campo_a, campo_b, modelo in (("causas", "texto_causa", "texto_medio", "arbol-causa-medio"),
+                                           ("efectos", "texto_efecto", "texto_fin", "arbol-efecto-fin")):
+        r = m.post(m.admin, f"/api/programas/{p}/arbol/{ruta}", {campo_a: "Solo el problema"})
+        assert r.status_code == 201 and r.json()[campo_a] == "Solo el problema" and r.json()[campo_b] == ""
+        hijo = m.post(m.admin, f"/api/programas/{p}/arbol/{ruta}", {campo_a: "Hijo", "padre_id": r.json()["id"]})
+        assert hijo.status_code == 201 and hijo.json()[campo_b] == "" and hijo.json()["numero"] == "1.1"
+        r2 = m.patch(m.admin, f"/api/{modelo}/{r.json()['id']}", {campo_b: "El par espejo"})  # lápiz de Medios/Fines
+        assert r2.status_code == 200 and r2.json()[campo_b] == "El par espejo" and r2.json()[campo_a] == "Solo el problema"
