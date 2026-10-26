@@ -51,7 +51,7 @@ Los reportes agrupados por dependencia (Dependencias, y cualquier otro que permi
 
 ### Restricción por programas del usuario
 
-Para los 4 conteos y para el detalle de indicadores, el universo de indicadores considerado es: indicadores cuyo `elemento_matriz` pertenece a un `programa` de la dependencia filtrada **Y** ese programa está en `usuario_programa` para el usuario autenticado (ver Fase 1). Un usuario sin programas asignados en una dependencia ve conteo 0 para esa dependencia, no error. Los usuarios `administrador` y `alcalde` (según tipos de Fase 1) pueden tener alcance ampliado si así se configuró su `usuario_programa`; no hay bypass automático por tipo de usuario — el alcance siempre sale de la tabla `usuario_programa`.
+Para los 4 conteos y para el detalle de indicadores, el universo de indicadores considerado es: indicadores cuyo `elemento_matriz` pertenece a un `programa` de la dependencia filtrada **Y** ese programa está en `usuario_programa` para el usuario autenticado (ver Fase 1). Un usuario sin programas asignados en una dependencia ve conteo 0 para esa dependencia, no error. **Actualización:** administrador y alcalde ven todos los programas del municipio, igual que en las demás fases (ver "Decisiones de construcción"); para el resto el alcance sale de `usuario_programa`.
 
 ## Modelo de datos
 
@@ -165,3 +165,16 @@ Análoga a Cuenta Pública: selector de año y dependencias, botón "Exportar" q
 - Dashboards o reportes ejecutivos adicionales no confirmados contra el sistema de referencia.
 
 **Depende de:** Fase 2 (datos de MIR y cálculo de semáforo), Fase 1 (`usuario_programa`, `centro_gestor`, `eje`, `programa`, `clasificacion_pragmatica`).
+
+## Decisiones de construcción (2026-10, verificadas contra el sistema de referencia)
+
+- **Modo "(C.O/C.E)×100":** valor = cumplimiento obtenido (Fase 2) ÷ meta anual numérica × 100, redondeado a 2 decimales; es la misma cifra de "Avance / Programado" del export. La meta anual numérica es el mismo algoritmo aplicado a lo programado del año (`meta_anual` A y B). Meta nula o 0 → gris. **No se prorratea** en el año en curso (pendiente de verificación con datos de año en curso). Ambos modos usan los mismos rangos de color del indicador.
+- **Fuera de los tres rangos = gris** (verificado en la referencia), no "sin color": así verde + amarillo + rojo + gris = total siempre. El detalle de Fase 2 sigue distinguiendo `sin_color` internamente.
+- **Universo:** entran los 4 niveles de la MIR; un indicador entra solo con meta anual programada Y al menos un mes capturado en el año (año sin datos → 0/0/0/0, no todo gris). El caso "con meta pero sin capturas" queda fuera del conteo, **pendiente de verificación**.
+- **Alcance (decisión 2026-10):** la misma regla de las demás fases (`programas.visibles`): administrador y alcalde ven todos los programas del municipio; el resto, solo los de su `usuario_programa`. Una sola función (`programas_en_alcance`) sirve a reportes, detalle, `/opciones` y exportaciones. Conteos: dependencia sin programas del usuario → grupo en 0. Exportaciones: programa fuera de alcance → `403 PROGRAMA_NO_ASIGNADO`. (Reemplaza la regla anterior de "sin bypass por tipo de usuario".)
+- **Permisos de API:** `estadisticas` (informes, alcalde, administrador: Ejes, Cumplimiento de Metas, Consolidado, Cuenta Pública, Transparencia) y `estadisticas_dependencias` (suma presupuestación y control presupuestal: Dependencias, detalle y selectores).
+- **Respuestas:** todos los conteos devuelven `grupos[{id, nombre, verde, amarillo, rojo, gris, total}]`; el % lo calcula el front. Parámetros de lista con `[]` (`centro_gestor_ids[]`, `eje_ids[]`). Se agrega `GET /api/estadisticas/opciones` (años, centros gestores, ejes y programas del alcance del usuario). Programas sin subtema caen en el grupo "Sin eje" de Ejes.
+- **Cuenta Pública y Transparencia** (corrige el texto de arriba): filtros de selección única año + centro gestor + programa (solo los asignados al usuario); una sola hoja. `GET /api/estadisticas/{cuenta-publica|transparencia}` devuelve la tabla (botón Buscar) y `GET /api/estadisticas/exportar/{...}` el `.xlsx` (botón Exportar). Estructura, orden y agrupación tomados de `humanos/docs/referencias/indicadores_resultados.xls` y `transparencia.xls`.
+- **Columnas vacías a propósito** (el sistema de referencia también las deja vacías o no hay dato): ejercicio fiscal, clasificación funcional, Aprobado…Pagado (Fase 4), meta programada (texto), meta modificada, fechas, definición, sentido, metas ajustadas, nota. **Pendientes de decidir:** "ID del indicador" (la referencia usa un id numérico que aquí no existe) y "Valor línea base" (hoy: meta anual numérica del año base, si existe).
+- **Caso 3:** el "105" del criterio 3 no cuadra con la referencia; se usa la fila real de Transparencia (indicador 416, Fin, algoritmo A, meta 100, avance 86.00). Los rangos de color de los 19 indicadores de 2025 en los tests son **inferidos** (solo se conocen los del 410).
+- **Gráficas:** SVG propio, sin librería (número sobre cada barra, tooltip con nombre y 4 conteos, clic a detalle Programa | Indicador | Cumplimiento).
