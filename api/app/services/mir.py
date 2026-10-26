@@ -2,7 +2,7 @@
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,8 @@ from .mir_base import elemento_accesible, indicador_accesible, programa_accesibl
 
 CAMPOS_ELEMENTO = ("resumen_narrativo", "medios_verificacion", "supuestos", "evidencia")
 CAMPOS_FICHA = ("tipo", "prioritario", "nombre", "interpretacion", "dimension", "frecuencia_id",
-                "unidad_medida", "algoritmo", "unidad_a", "unidad_b")
+                "unidad_medida", "algoritmo", "unidad_a", "unidad_b", "descripcion_a", "descripcion_b",
+                "fecha_elaboracion")
 COLORES = ("verde", "amarillo", "rojo")
 _ENUMS = {"tipo": TipoIndicador, "dimension": DimensionIndicador, "algoritmo": Algoritmo}
 
@@ -46,9 +47,11 @@ def indicador_dict(i: Indicador, metas: list[MetaAnual]) -> dict:
             "frecuencia_id": i.frecuencia_id, "unidad_medida": i.unidad_medida,
             "algoritmo": i.algoritmo.value if i.algoritmo else None, "unidad_a": i.unidad_a,
             "unidad_b": None if solo_a else i.unidad_b,
+            "descripcion_a": i.descripcion_a, "descripcion_b": None if solo_a else i.descripcion_b,
+            "fecha_elaboracion": i.fecha_elaboracion.isoformat() if i.fecha_elaboracion else None,
         },
         "metas": {
-            "anio_base": i.anio_base, "meta_administracion": _f(i.meta_administracion),
+            "anio_base": i.anio_base, "meta_administracion": i.meta_administracion,
             "anuales": [{"anio": m.anio, "valor_a_programado": _f(m.valor_a_programado),
                          # con "solo A" la variable B no aparece en ningún lado (aunque haya B guardado)
                          "valor_b_programado": None if solo_a else _f(m.valor_b_programado),
@@ -57,6 +60,23 @@ def indicador_dict(i: Indicador, metas: list[MetaAnual]) -> dict:
         "rangos": {c: {"desde": _f(getattr(i, f"rango_{c}_desde")), "hasta": _f(getattr(i, f"rango_{c}_hasta"))}
                    for c in COLORES},
     }
+
+
+def siguiente_id_numerico(db: Session) -> int:
+    """ID del indicador: consecutivo por municipio (la Session ya está aislada), desde el máximo existente.
+    Se asigna al crear y no cambia nunca; la unicidad (municipio, id_numerico) respalda la carrera."""
+    return (db.scalar(select(func.max(Indicador.id_numerico))) or 0) + 1
+
+
+def resultado_meta(algoritmo: str | None, valor_a, valor_b) -> dict:
+    """Resultado programado de una fila de la tabla de metas: el MISMO algoritmo que el cumplimiento
+    (app.calculo), con 2 decimales; None = no calculable (sin A, sin algoritmo, o B vacía/0)."""
+    if algoritmo is not None and algoritmo not in calculo.ALGORITMOS:
+        raise ApiError(422, "VALIDACION", "Algoritmo inválido", {"algoritmo": "Inválido"})
+    a = vm.normalizar_valor(valor_a, "valor_a")
+    b = vm.normalizar_valor(valor_b, "valor_b")
+    r = calculo.redondear(calculo.cumplimiento_bruto(algoritmo, a, b))
+    return {"resultado": None if r is None else float(r)}
 
 
 def elemento_dict(e: ElementoMatriz) -> dict:
@@ -244,11 +264,14 @@ def _aplicar(db: Session, actor: ActorCtx, i: Indicador, d: dict, *, alta: bool)
                 v = v.strip()
             if c in _ENUMS and v is not None:
                 v = _ENUMS[c](v)
-            if c == "unidad_b" and v == "":
+            if c in ("unidad_b", "descripcion_b") and v == "":
                 v = None
+            if c == "descripcion_a" and v is None:
+                v = ""
             setattr(i, c, v)
     if i.algoritmo == Algoritmo.a:
         i.unidad_b = None  # B bloqueada: no se pide ni se guarda (los B ya capturados no se tocan)
+        i.descripcion_b = None
     algoritmo = i.algoritmo.value if i.algoritmo else None
 
     rangos = d.get("rangos")
@@ -266,8 +289,8 @@ def _aplicar(db: Session, actor: ActorCtx, i: Indicador, d: dict, *, alta: bool)
     metas = d.get("metas") or {}
     if "anio_base" in metas:
         i.anio_base = vm.validar_anio(metas["anio_base"]) if metas["anio_base"] is not None else None
-    if "meta_administracion" in metas:
-        i.meta_administracion = vm.normalizar_valor(metas["meta_administracion"], "meta_administracion")
+    if "meta_administracion" in metas:  # texto libre: "15% PERSONAS ATENDIDAS LABORALMENTE."
+        i.meta_administracion = (metas["meta_administracion"] or "").strip() or None
     anuales = metas.get("anuales")
     if anuales:
         # no se guarda una meta anual si el indicador no tiene algoritmo y frecuencia (422)
@@ -300,7 +323,7 @@ def _aplicar(db: Session, actor: ActorCtx, i: Indicador, d: dict, *, alta: bool)
 def crear_indicador(db: Session, actor: ActorCtx, elemento_id: uuid.UUID, d: dict) -> dict:
     """Alta completa en una operación: M.I.R., ficha técnica, metas por año y rangos."""
     e, _ = elemento_accesible(db, actor, elemento_id)
-    i = Indicador(id=uuid.uuid4(), elemento_matriz_id=e.id, prioritario=False)
+    i = Indicador(id=uuid.uuid4(), elemento_matriz_id=e.id, prioritario=False, id_numerico=siguiente_id_numerico(db))
     _aplicar(db, actor, i, d, alta=True)
     if d.get("mir"):
         _aplicar_elemento(e, d["mir"])

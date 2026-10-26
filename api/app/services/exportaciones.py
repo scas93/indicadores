@@ -3,10 +3,13 @@
 del sistema de referencia (humanos/docs/referencias/*.xls). Son de UN programa y un año.
 
 Vacías a propósito (el sistema de referencia las deja vacías y aquí no hay el dato): ejercicio fiscal,
-clasificación funcional, Aprobado…Pagado (Fase 4), meta programada (texto), meta modificada, fechas,
-definición, sentido, metas ajustadas, nota. PENDIENTES DE DECIDIR: "ID del indicador" (el sistema de
-referencia usa un id numérico que aquí no existe) y "Valor línea base" (se toma la meta anual
-numérica del año base, si existe).
+clasificación funcional, Aprobado…Pagado (Fase 4), meta modificada, fechas del periodo, sentido, metas
+ajustadas, fecha de validación/actualización, nota.
+De la ficha del indicador: ID del indicador = `id_numerico`; meta programada (texto) = Meta administración;
+descripción de variables / método de cálculo = fórmula con las descripciones de A y B; "Fuente de
+información" = medios de verificación (verificado idéntico en la referencia); "Valor línea base" =
+resultado programado del año base (confirmado con la referencia).
+PENDIENTE DE VERIFICACIÓN: "Definición del indicador" = Interpretación del resultado (hipótesis).
 """
 import io
 import uuid
@@ -65,10 +68,10 @@ def _formula(f: est.Fila) -> str:
 
 
 def _variables(f: est.Fila) -> str:
-    alg = f.ind.algoritmo.value if f.ind.algoritmo else None
-    a, b = f"A: {f.ind.unidad_a}", f"B: {f.ind.unidad_b or ''}"
-    return {"a": a, "a_sobre_b_pct": f"({a} / {b}) * 100", "a_sobre_b_menos1_pct": f"(({a} / {b}) - 1) * 100",
-            "a_sobre_b": f"{a} / {b}"}.get(alg, "")
+    """Fórmula con las descripciones de las variables (CP "Descripción de variables de la fórmula" y
+    Transparencia "Método de cálculo"), formato de la referencia."""
+    return ce.formula_con_descripciones(f.ind.algoritmo.value if f.ind.algoritmo else None,
+                                        f.ind.descripcion_a, f.ind.descripcion_b)
 
 
 def _filas_programa(db: Session, actor: ActorCtx, anio: int, centro_gestor_id, programa_id):
@@ -85,8 +88,8 @@ def cuenta_publica(db: Session, actor: ActorCtx, anio: int, centro_gestor_id: uu
     for f in filas:
         valor_ce, _ = f.evaluar(ce.CO_CE)
         comunes = [str(anio), "", clasif.nombre if clasif else "", p.clave, p.nombre, "", cg.nombre,
-                   "", "", "", "", "", "Si", _NIVEL[f.elem.nivel.value], f.elem.resumen_narrativo, "",
-                   f.ind.nombre, _NIVEL[f.elem.nivel.value], _formula(f), _variables(f), "", "",
+                   "", "", "", "", "", "Si", _NIVEL[f.elem.nivel.value], f.elem.resumen_narrativo, f.ind.id_numerico,
+                   f.ind.nombre, _NIVEL[f.elem.nivel.value], _formula(f), _variables(f), f.ind.meta_administracion or "", "",
                    _n(f.res.cumplimiento), _n(valor_ce)]
         usa_b = f.ind.algoritmo is not None and f.ind.algoritmo.value != "a"
         va = [f.avances.get(m, (None, None))[0] for m in range(1, 13)]
@@ -105,11 +108,12 @@ def transparencia(db: Session, actor: ActorCtx, anio: int, centro_gestor_id: uui
     for f in filas:
         frec = db.get(Frecuencia, f.ind.frecuencia_id) if f.ind.frecuencia_id else None
         out.append([
-            str(anio), "", "", p.nombre, f.elem.resumen_narrativo, _NIVEL[f.elem.nivel.value], "",
-            f.ind.nombre, _DIMENSION.get(f.ind.dimension.value, "") if f.ind.dimension else "", "",
+            str(anio), "", "", p.nombre, f.elem.resumen_narrativo, _NIVEL[f.elem.nivel.value], f.ind.id_numerico,
+            f.ind.nombre, _DIMENSION.get(f.ind.dimension.value, "") if f.ind.dimension else "",
+            f.ind.interpretacion,  # "Definición del indicador" = Interpretación: PENDIENTE DE VERIFICACIÓN (hipótesis)
             _formula(f), _variables(f), f.ind.unidad_medida, frec.nombre if frec else "",
             f.ind.anio_base if f.ind.anio_base is not None else "", _n(_valor_linea_base(db, f)),
-            _n(f.meta_num), "", "", _n(f.res.cumplimiento), "", f.elem.medios_verificacion, "",
+            _n(f.meta_num), f.ind.meta_administracion or "", "", _n(f.res.cumplimiento), "", f.elem.medios_verificacion, "",
             cg.nombre, "", ""])
     return {"previas": TR_PREVIAS, "encabezados": TR_ENCABEZADOS, "filas": out,
             "nombre_archivo": f"transparencia_{p.clave}_{anio}.xlsx"}

@@ -76,3 +76,12 @@ def indicador_con_datos(meta_a: Decimal | None, avances: Iterable[tuple[Decimal 
     pero sin capturas" queda fuera del conteo PENDIENTE DE VERIFICACIÓN contra el sistema de
     referencia.)"""
     return meta_a is not None and any(a is not None or b is not None for a, b in avances)
+
+
+def formula_con_descripciones(algoritmo: str | None, descripcion_a: str | None, descripcion_b: str | None) -> str:
+    """La fórmula con la descripción de cada variable, con el formato de la referencia, p. ej.
+    "((A: NÚMERO DE AFILIADOS AL IMSS, AÑO ACTUAL. / B: NÚMERO DE AFILIADO AL IMSS, AÑO ANTERIOR.) - 1) * 100".
+    Con "solo A": "A: <descripción>". Sin algoritmo, vacío."""
+    a, b = f"A: {descripcion_a or ''}", f"B: {descripcion_b or ''}"
+    return {"a": a, "a_sobre_b_pct": f"({a} / {b}) * 100", "a_sobre_b_menos1_pct": f"(({a} / {b}) - 1) * 100",
+            "a_sobre_b": f"{a} / {b}"}.get(algoritmo or "", "")

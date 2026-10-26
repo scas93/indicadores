@@ -201,7 +201,7 @@ def test_rangos_traslapados_se_rechazan_en_servidor(m, ctx):
 def test_alta_de_indicador_completo_en_una_operacion_y_edicion_por_partes(m, ctx):
     ind = ctx.nuevo_indicador(prioritario=True, interpretacion="Mide X", unidad_medida="Porcentaje")
     assert ind["ficha"]["prioritario"] and ind["metas"]["anuales"][0]["es_ejercicio_fiscal"]
-    assert ind["rangos"]["verde"] == {"desde": 8.1, "hasta": 10} and ind["metas"]["meta_administracion"] == 10
+    assert ind["rangos"]["verde"] == {"desde": 8.1, "hasta": 10} and ind["metas"]["meta_administracion"] == "10"  # texto libre (un número se guarda como texto)
     r = m.patch(m.admin, f"/api/indicadores/{ind['id']}", {
         "mir": {"resumen_narrativo": "Contribuir a…", "medios_verificacion": "INEGI"},
         "metas": {"anuales": [{"anio": 2024, "valor_a_programado": 1}, {"anio": 2025, "valor_a_programado": 2}]}})
@@ -378,3 +378,78 @@ def test_arbol_alta_solo_con_causa_o_efecto_y_el_par_se_llena_despues(m, ctx):
         assert hijo.status_code == 201 and hijo.json()[campo_b] == "" and hijo.json()["numero"] == "1.1"
         r2 = m.patch(m.admin, f"/api/{modelo}/{r.json()['id']}", {campo_b: "El par espejo"})  # lápiz de Medios/Fines
         assert r2.status_code == 200 and r2.json()[campo_b] == "El par espejo" and r2.json()[campo_a] == "Solo el problema"
+
+
+# --- campos de la ficha de la referencia (descripciones, meta administración en texto, fecha, ID numérico) ---------
+def _cuerpo(**ficha):
+    return {"ficha": {"tipo": "estrategico", "nombre": "Ind", "dimension": "eficacia", "algoritmo": "a_sobre_b_pct",
+                      "unidad_a": "pers", "unidad_b": "pers", **ficha},
+            "metas": {"anio_base": 2024, "meta_administracion": "15% PERSONAS ATENDIDAS LABORALMENTE.",
+                      "anuales": [{"anio": 2024, "valor_a_programado": 15, "valor_b_programado": 100}]},
+            "rangos": RANGOS}
+
+
+def test_descripciones_de_variables_meta_en_texto_y_fecha_de_elaboracion(m, ctx):
+    cuerpo = _cuerpo(frecuencia_id=ctx.frec, descripcion_a="PERSONAS ATENDIDAS LABORALMENTE.",
+                     descripcion_b="TOTAL DE PERSONAS SIN EMPLEO.", fecha_elaboracion="2025-03-15")
+    r = m.post(m.admin, f"/api/elementos-matriz/{ctx.mat['fin']['id']}/indicadores", cuerpo)
+    assert r.status_code == 201, r.text
+    ind = r.json()
+    assert ind["ficha"]["descripcion_a"] == "PERSONAS ATENDIDAS LABORALMENTE."
+    assert ind["ficha"]["descripcion_b"] == "TOTAL DE PERSONAS SIN EMPLEO." and ind["ficha"]["fecha_elaboracion"] == "2025-03-15"
+    assert ind["metas"]["meta_administracion"] == "15% PERSONAS ATENDIDAS LABORALMENTE."
+    # "solo A": la descripción de B se oculta y se vacía, igual que su unidad
+    r = m.patch(m.admin, f"/api/indicadores/{ind['id']}", {"ficha": {"algoritmo": "a"}})
+    assert r.json()["ficha"]["descripcion_b"] is None and r.json()["ficha"]["unidad_b"] is None
+    assert r.json()["ficha"]["descripcion_a"] == "PERSONAS ATENDIDAS LABORALMENTE."
+    # texto vacío = sin meta; fecha se puede quitar
+    r = m.patch(m.admin, f"/api/indicadores/{ind['id']}", {"metas": {"meta_administracion": "  "}, "ficha": {"fecha_elaboracion": None}})
+    assert r.json()["metas"]["meta_administracion"] is None and r.json()["ficha"]["fecha_elaboracion"] is None
+
+
+def test_id_numerico_consecutivo_por_municipio_no_cambia_y_no_se_expone(m, ctx, admin, db):
+    from app.models import Indicador
+    from .test_fase1_flujos import Mun
+    ids = []
+    for k in range(3):
+        r = m.post(m.admin, f"/api/elementos-matriz/{ctx.mat['fin']['id']}/indicadores", _cuerpo(frecuencia_id=ctx.frec, nombre=f"I{k}"))
+        assert r.status_code == 201 and "id_numerico" not in r.json()["ficha"] and "id_numerico" not in r.json()
+        ids.append(r.json()["id"])
+    por_nombre = lambda: {i.nombre: i.id_numerico for i in db.scalars(select(Indicador))}  # noqa: E731
+    assert por_nombre() == {"I0": 1, "I1": 2, "I2": 3}
+    # editar o borrar no cambia ni reutiliza el ID
+    m.patch(m.admin, f"/api/indicadores/{ids[1]}", {"ficha": {"nombre": "I1 editado"}})
+    assert por_nombre()["I1 editado"] == 2
+    # otro municipio arranca en 1 (el consecutivo es por municipio)
+    m2 = Mun(admin, "otro")
+    c2 = Ctx(m2)
+    m2.post(m2.admin, f"/api/elementos-matriz/{c2.mat['fin']['id']}/indicadores", _cuerpo(frecuencia_id=c2.frec, nombre="X"))
+    db.expire_all()
+    assert por_nombre()["X"] == 1
+    # el consecutivo sigue desde el máximo existente (p. ej. tras cargar IDs reales con el seed)
+    mayor = db.scalar(select(Indicador).where(Indicador.nombre == "I2"))
+    mayor.id_numerico = 411
+    db.commit()
+    m.post(m.admin, f"/api/elementos-matriz/{ctx.mat['fin']['id']}/indicadores", _cuerpo(frecuencia_id=ctx.frec, nombre="I3"))
+    db.expire_all()
+    assert por_nombre()["I3"] == 412
+
+
+def test_resultado_de_la_fila_de_metas_usa_el_mismo_algoritmo(m, ctx):
+    def r(**b): return m.post(m.admin, "/api/metas/resultado", b)
+    assert r(algoritmo="a_sobre_b_pct", valor_a=15, valor_b=100).json() == {"resultado": 15.0}
+    assert r(algoritmo="a_sobre_b_menos1_pct", valor_a=110, valor_b=100).json() == {"resultado": 10.0}
+    assert r(algoritmo="a_sobre_b", valor_a=1, valor_b=3).json() == {"resultado": 0.33}
+    assert r(algoritmo="a", valor_a=4000, valor_b=999).json() == {"resultado": 4000.0}  # solo A ignora B
+    assert r(algoritmo="a_sobre_b_pct", valor_a=1, valor_b=0).json() == {"resultado": None}  # no calculable, sin error
+    assert r(algoritmo="a_sobre_b_pct", valor_a=None, valor_b=5).json() == {"resultado": None}
+    assert r(algoritmo=None, valor_a=1, valor_b=1).json() == {"resultado": None}
+    assert r(algoritmo="otro", valor_a=1, valor_b=1).status_code == 422
+
+
+def test_las_fichas_pdf_muestran_descripciones_y_meta_en_texto(m, ctx):
+    cuerpo = _cuerpo(frecuencia_id=ctx.frec, descripcion_a="PERSONAS ATENDIDAS", descripcion_b="TOTAL DE PERSONAS")
+    ind = m.post(m.admin, f"/api/elementos-matriz/{ctx.mat['fin']['id']}/indicadores", cuerpo).json()
+    for fmt in ("fn", "fa"):
+        r = m.get(m.admin, f"/api/indicadores/{ind['id']}/exportar", params={"formato": fmt, "anio": 2024})
+        assert r.status_code == 200 and r.content[:4] == b"%PDF"

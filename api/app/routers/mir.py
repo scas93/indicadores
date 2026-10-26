@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..deps import ActorCtx, actor_con_tipo
-from ..schemas import AvancesGuardarIn, ElementoIn, IndicadorIn
+from ..schemas import AvancesGuardarIn, ElementoIn, IndicadorIn, ResultadoMetaIn
 from ..services import avances as av
 from ..services import descargas
 from ..services import mir as svc
@@ -76,6 +76,13 @@ def editar_indicador(id: uuid.UUID, body: IndicadorIn, actor: ActorCtx = Depends
 
 
 # --- captura de avances ------------------------------------------------------------
+@router.post("/metas/resultado")
+def resultado_meta(body: ResultadoMetaIn, actor: ActorCtx = Depends(_inicio)):
+    """Resultado programado de una fila de la tabla de metas (columna "Resultado" del modal), con el
+    mismo algoritmo que el cumplimiento: el front no reimplementa ninguna fórmula."""
+    return svc.resultado_meta(body.algoritmo, body.valor_a, body.valor_b)
+
+
 @router.get("/programas/{id}/captura-avances")
 def captura(id: uuid.UUID, actor: ActorCtx = Depends(_inicio), db: Session = Depends(get_db)):
     return av.listar(db, actor, id)

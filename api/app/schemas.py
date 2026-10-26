@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -207,6 +207,9 @@ class FichaIn(BaseModel):
     algoritmo: Algoritmo | None = None
     unidad_a: str | None = None
     unidad_b: str | None = None
+    descripcion_a: str | None = None
+    descripcion_b: str | None = None
+    fecha_elaboracion: date | None = None
 
 
 class MetaAnualIn(BaseModel):
@@ -218,7 +221,12 @@ class MetaAnualIn(BaseModel):
 
 class MetasIn(BaseModel):
     anio_base: int | None = None
-    meta_administracion: Decimal | None = None
+    meta_administracion: str | None = None  # texto libre (antes numérico: un número se acepta y se guarda como texto)
+
+    @field_validator("meta_administracion", mode="before")
+    @classmethod
+    def _numero_a_texto(cls, v):
+        return str(v) if isinstance(v, (int, float, Decimal)) and not isinstance(v, bool) else v
     anuales: list[MetaAnualIn] | None = None  # si viene, reemplaza el conjunto de años
 
 
@@ -243,6 +251,12 @@ class IndicadorIn(BaseModel):
 
 class AvanceMesIn(BaseModel):
     mes: int
+    valor_a: Decimal | None = None
+    valor_b: Decimal | None = None
+
+
+class ResultadoMetaIn(BaseModel):
+    algoritmo: str | None = None
     valor_a: Decimal | None = None
     valor_b: Decimal | None = None
 
