@@ -71,11 +71,15 @@ Restricción: a lo más un `fin` y un `proposito` por `programa_id` (único parc
 | `algoritmo` | enum: `a_sobre_b_pct`, `a_sobre_b_menos1_pct`, `a_sobre_b`, `a` | ver “Reglas de cálculo” |
 | `unidad_a` | text |  |
 | `unidad_b` | text, nullable | nulo/ignorado si `algoritmo = a` |
+| `descripcion_a` | text | descripción de la variable A (ej. "PERSONAS ATENDIDAS LABORALMENTE."). Migración 0005 |
+| `descripcion_b` | text, nullable | descripción de la variable B; nulo/ignorado si `algoritmo = a`, igual que `unidad_b` |
 | `rango_verde_desde` / `rango_verde_hasta` | numeric |  |
 | `rango_amarillo_desde` / `rango_amarillo_hasta` | numeric |  |
 | `rango_rojo_desde` / `rango_rojo_hasta` | numeric |  |
 | `anio_base` | int |  |
-| `meta_administracion` | numeric, nullable | única, no por año |
+| `meta_administracion` | **text**, nullable | texto libre, único (no por año), ej. "15% PERSONAS ATENDIDAS LABORALMENTE.". Antes era numérico; la migración 0005 convirtió los valores existentes a texto sin perderlos. **Ningún cálculo la usa**: la meta numérica sale del resultado programado de `meta_anual` |
+| `fecha_elaboracion` | date, nullable | fecha de elaboración del indicador |
+| `id_numerico` | int | **ID del indicador**: consecutivo por municipio, `unique(municipio_id, id_numerico)`. Se asigna al crear (máximo existente + 1), no cambia nunca y **no se muestra en pantallas, solo en los exports de Fase 3**. La migración 0005 numeró los existentes por orden de creación; el seed puede fijar uno explícito (los IDs reales de la referencia) |
 
 ### `meta_anual`
 
@@ -188,10 +192,10 @@ Tabla en 4 niveles (Fin, Propósito, Componentes, Actividades) con columnas Tipo
 
 &#91;image: Referencia real: Matriz de indicadores, sistema actual\]
 
-- **M.I.R.** — resumen narrativo, medios de verificación, supuestos, evidencia (del elemento).
-- **Ficha técnica** — tipo, prioritario, nombre, interpretación, dimensión, frecuencia, unidad de medida, algoritmo, variables A y B con sus unidades. Elegir `algoritmo = a` oculta/deshabilita el campo de la variable B en el resto del formulario.
-- **Determinación de metas** — año base, meta de la administración, y una fila por año con A, B y el resultado programado; casilla para marcar el año fiscal vigente.
-- **Parametrización** — rangos del semáforo verde/amarillo/rojo (de/hasta).
+- **M.I.R.** — resumen narrativo, supuestos, fecha de elaboración (del indicador) y evidencia (del elemento).
+- **Ficha técnica** — tipo, prioritario, nombre, interpretación, dimensión, frecuencia, unidad de medida, algoritmo, "Variable de cálculo (A)" con su texto y su unidad (y lo mismo para B) y **medios de verificación** (se capturan aquí; se siguen guardando en el elemento de la MIR). Elegir `algoritmo = a` oculta/deshabilita la variable B (descripción y unidad) en el resto del formulario.
+- **Determinación de metas** — año base (editable), "Meta administración" (texto libre) y una fila por año con Var A, Var B y **Resultado** (solo lectura, fondo gris; lo calcula la API con el mismo algoritmo del cumplimiento, `POST /api/metas/resultado`, y se actualiza al teclear); casilla para marcar el año fiscal vigente.
+- **Parametrización** — rangos del semáforo verde/amarillo/rojo ("De:" / "Hasta:").
 
 La pestaña de metas y la de parámetros quedan deshabilitadas hasta que se hayan elegido algoritmo y frecuencia en Ficha técnica (regla de negocio, abajo).
 
@@ -241,3 +245,7 @@ Lista de indicadores del programa. Cada uno abre un modal con los datos generale
 ## Dependencias hacia Fase 3
 
 Fase 3 necesita de esta fase: `indicador` con su algoritmo y rangos, `meta_anual` y `avance_mensual` con datos capturados, y el mismo cálculo de sumatoria → cumplimiento → color documentado arriba —las estadísticas no recalculan nada distinto, solo agrupan y presentan estos mismos números por centro gestor, eje o programa.
+
+## Actualización: campos de la ficha del indicador de la referencia (migración 0005)
+
+El modal "Edición del indicador" se alineó con la ficha de la referencia: descripciones de las variables A y B, "Meta administración" en texto libre, fecha de elaboración y un ID numérico por indicador (ver tabla `indicador` y las pestañas arriba). Las fichas PDF (FN y FA) muestran las descripciones de variables, la fecha de elaboración (FN) y la meta administración en texto. Verificado: ninguna regla de cálculo usaba `meta_administracion`.
