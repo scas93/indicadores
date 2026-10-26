@@ -11,12 +11,12 @@ type Lado = "causa" | "efecto";
 /** Cada nodo es un par espejo: lado "problema" (causa/efecto) y lado "objetivo" (medio/fin). */
 const LADOS = {
   causa: {
-    clave: "causas" as const, ca: "texto_causa", ob: "texto_medio", titulo: "Causas y medios", panelA: "Causas", panelB: "Medios",
+    clave: "causas" as const, ca: "texto_causa", ob: "texto_medio", titulo: "Causas y medios", panelA: "Causas", panelB: "Medios", colA: "Causas", colB: "Medio",
     nombreA: "Causa", nombreB: "Medio", hijo: "Subcausa",
     crear: (p: string) => `/api/programas/${p}/arbol/causas`, nodo: (id: string) => `/api/arbol-causa-medio/${id}`,
   },
   efecto: {
-    clave: "efectos" as const, ca: "texto_efecto", ob: "texto_fin", titulo: "Efectos y fines", panelA: "Efectos", panelB: "Fines",
+    clave: "efectos" as const, ca: "texto_efecto", ob: "texto_fin", titulo: "Efectos y fines", panelA: "Efectos", panelB: "Fines", colA: "Efectos", colB: "Fin",
     nombreA: "Efecto", nombreB: "Fin", hijo: "Subefecto",
     crear: (p: string) => `/api/programas/${p}/arbol/efectos`, nodo: (id: string) => `/api/arbol-efecto-fin/${id}`,
   },
@@ -66,7 +66,7 @@ export function ArbolTab({ programaId }: { programaId: string }) {
           onChange={(e) => setEnc({ ...enc, objetivo: e.target.value })} />
       </div>
       <div className="text-center" style={{ margin: "14px 0 22px" }}>
-        <button className="btn btn-success" onClick={guardarEncabezado}><i className="fa fa-save" /> Guardar</button>
+        <button className="btn btn-success btn-guardar" onClick={guardarEncabezado}>Guardar</button>
       </div>
 
       {/* Cuadrícula 2×2: Causas | Medios arriba, Efectos | Fines abajo; cada fila de Medios/Fines queda a la altura de su causa/efecto */}
@@ -96,7 +96,7 @@ function Par({ lado, nodos, onAgregar, onEditar, onEliminar }: {
   const filas: { n: NodoArbol; hijo: boolean }[] = nodos.flatMap((n) => [{ n, hijo: false }, ...n.hijos.map((h) => ({ n: h, hijo: true }))]);
   const Nodo = ({ n, hijo }: { n: NodoArbol; hijo: boolean }) => (
     <div className={`arbol-nodo ${hijo ? "hijo" : "padre"}`}>
-      <i className={hijo ? "fa fa-file-text-o icono-hijo" : "fa fa-th-large icono-padre"} /> {n.numero}
+      <i className={hijo ? "fa fa-file icono-hijo" : "fa fa-th-large icono-padre"} /> : {n.numero}
     </div>
   );
   const Texto = ({ n, lado: l }: { n: NodoArbol; lado: "a" | "b" }) => (
@@ -109,18 +109,18 @@ function Par({ lado, nodos, onAgregar, onEditar, onEliminar }: {
     <div className="arbol-par">
       <div className="barra-verde arbol-celda-a">{L.panelA}</div><div className="arbol-sep" /><div className="barra-verde arbol-celda-b">{L.panelB}</div>
       <div className="arbol-cab arbol-celda-a">
-        <div className="acciones"><button className="btn btn-xs btn-default" title={`Agregar ${L.nombreA.toLowerCase()}`} onClick={() => onAgregar(null)}><i className="fa fa-plus" /></button></div>
-        <div>Nodo</div><div>{L.nombreA}</div>
+        <div className="acciones"><button className="icono-btn mas-cab" title={`Agregar ${L.nombreA.toLowerCase()}`} onClick={() => onAgregar(null)}><i className="fa fa-plus" /></button></div>
+        <div>Nodo</div><div>{L.colA}</div>
       </div>
       <div className="arbol-sep" />
-      <div className="arbol-cab arbol-celda-b"><div className="acciones" /><div>Nodo</div><div>{L.nombreB}</div></div>
+      <div className="arbol-cab arbol-celda-b"><div className="acciones" /><div>Nodo</div><div>{L.colB}</div></div>
       {!filas.length && <><div className="arbol-vacio arbol-celda-a">Sin registros</div><div className="arbol-sep" /><div className="arbol-vacio arbol-celda-b">Sin registros</div></>}
       {filas.map(({ n, hijo }) => (
         <div key={n.id} className="arbol-fila">
           <div className="arbol-celda-a arbol-reg">
             <div className="acciones">
-              <button className="btn btn-xs btn-danger" title="Eliminar" onClick={() => onEliminar(n)}><i className="fa fa-trash" /></button>
-              {!hijo && <button className="btn btn-xs btn-success" title={`Agregar ${L.hijo.toLowerCase()}`} onClick={() => onAgregar(n)}><i className="fa fa-plus" /></button>}
+              <button className="icono-btn borrar" title="Eliminar" onClick={() => onEliminar(n)}><i className="fa fa-trash" /></button>
+              {!hijo && <button className="icono-btn agregar" title={`Agregar ${L.hijo.toLowerCase()}`} onClick={() => onAgregar(n)}><i className="fa fa-plus" /></button>}
             </div>
             <Nodo n={n} hijo={hijo} /><Texto n={n} lado="a" />
           </div>
