@@ -4,7 +4,7 @@ import { Campo } from "@/components/Campo";
 import { Modal } from "@/components/Modal";
 import { toast } from "@/components/Toasts";
 import { ApiError, api } from "@/lib/api.client";
-import { ALGORITMOS, DIMENSIONES, NIVEL_NOMBRE, TIPOS_INDICADOR, num, str, type Elemento, type Indicador, type ProgramaInfo } from "@/lib/mir";
+import { ALGORITMOS, DIMENSIONES, NIVEL_NOMBRE, TIPOS_INDICADOR, fmt, num, str, type Elemento, type Indicador, type ProgramaInfo } from "@/lib/mir";
 
 type Pestana = "mir" | "ficha" | "metas" | "params";
 type Frecuencia = { id: string; clave: string; nombre: string; activo: boolean };
@@ -13,13 +13,15 @@ const COLORES = [["verde", "Verde"], ["amarillo", "Amarillo"], ["rojo", "Rojo"]]
 
 function estadoInicial(e: Elemento, i: Indicador | null) {
   return {
+    // "Medios de verificación" se guarda en el elemento de la MIR, pero se captura en la pestaña Ficha técnica
     mir: { resumen_narrativo: e.resumen_narrativo, medios_verificacion: e.medios_verificacion, supuestos: e.supuestos, evidencia: e.evidencia ?? "" },
     ficha: {
       tipo: i?.ficha.tipo ?? "gestion", prioritario: i?.ficha.prioritario ?? false, nombre: i?.ficha.nombre ?? "",
       interpretacion: i?.ficha.interpretacion ?? "", dimension: i?.ficha.dimension ?? "", frecuencia_id: i?.ficha.frecuencia_id ?? "",
       unidad_medida: i?.ficha.unidad_medida ?? "", algoritmo: i?.ficha.algoritmo ?? "", unidad_a: i?.ficha.unidad_a ?? "", unidad_b: i?.ficha.unidad_b ?? "",
+      descripcion_a: i?.ficha.descripcion_a ?? "", descripcion_b: i?.ficha.descripcion_b ?? "", fecha_elaboracion: i?.ficha.fecha_elaboracion ?? "",
     },
-    anio_base: str(i?.metas.anio_base), meta_administracion: str(i?.metas.meta_administracion),
+    anio_base: str(i?.metas.anio_base), meta_administracion: i?.metas.meta_administracion ?? "",
     metas: (i?.metas.anuales ?? []).map((m): MetaFila => ({ anio: String(m.anio), a: str(m.valor_a_programado), b: str(m.valor_b_programado), fiscal: m.es_ejercicio_fiscal })),
     rangos: Object.fromEntries(COLORES.map(([c]) => [c, { desde: str(i?.rangos[c].desde), hasta: str(i?.rangos[c].hasta) }])) as Record<string, { desde: string; hasta: string }>,
   };
@@ -39,6 +41,26 @@ export function IndicadorModal({ programa, elemento, indicador, onClose, onGuard
 
   const usaB = f.ficha.algoritmo !== "a";
   const habilitado = !!f.ficha.algoritmo && !!f.ficha.frecuencia_id;
+
+  // Columna "Resultado" de la tabla de metas: solo lectura; la calcula la API (mismo algoritmo que el cumplimiento) al teclear
+  const [resultados, setResultados] = useState<string[]>([]);
+  const llave = JSON.stringify([f.ficha.algoritmo, f.metas.map((m) => [m.a, m.b])]);
+  useEffect(() => {
+    if (tab !== "metas" || !habilitado) return;
+    let vigente = true;
+    const t = setTimeout(async () => {
+      const r = await Promise.all(f.metas.map(async (m) => {
+        if (num(m.a) === null) return "";
+        try {
+          const x = await api<{ resultado: number | null }>("/api/metas/resultado", { method: "POST",
+            json: { algoritmo: f.ficha.algoritmo || null, valor_a: num(m.a), valor_b: usaB ? num(m.b) : null } });
+          return x.resultado === null ? "" : fmt(x.resultado);
+        } catch { return ""; }
+      }));
+      if (vigente) setResultados(r);
+    }, 250);
+    return () => { vigente = false; clearTimeout(t); };
+  }, [llave, tab, habilitado]); // eslint-disable-line react-hooks/exhaustive-deps
   const setFicha = (k: keyof typeof f.ficha, v: string | boolean) => setF((x) => ({ ...x, ficha: { ...x.ficha, [k]: v } }));
   const setMeta = (idx: number, p: Partial<MetaFila>) => setF((x) => ({
     ...x, metas: x.metas.map((m, j) => (j === idx ? { ...m, ...p } : p.fiscal ? { ...m, fiscal: false } : m)) }));
@@ -51,9 +73,10 @@ export function IndicadorModal({ programa, elemento, indicador, onClose, onGuard
       ficha: {
         ...f.ficha, dimension: f.ficha.dimension || null, frecuencia_id: f.ficha.frecuencia_id || null,
         algoritmo: f.ficha.algoritmo || null, unidad_b: usaB ? f.ficha.unidad_b || null : null,
+        descripcion_b: usaB ? f.ficha.descripcion_b || null : null, fecha_elaboracion: f.ficha.fecha_elaboracion || null,
       },
       metas: {
-        anio_base: num(f.anio_base), meta_administracion: num(f.meta_administracion),
+        anio_base: num(f.anio_base), meta_administracion: f.meta_administracion.trim() || null,
         anuales: f.metas.filter((m) => m.anio.trim() !== "").map((m) => ({
           anio: Number(m.anio), valor_a_programado: num(m.a), valor_b_programado: usaB ? num(m.b) : null, es_ejercicio_fiscal: m.fiscal })),
       },
@@ -104,10 +127,18 @@ export function IndicadorModal({ programa, elemento, indicador, onClose, onGuard
         <Tab id="params" nombre="Parametrización" bloqueada={!habilitado} />
       </ul>
 
-      {tab === "mir" && (["resumen_narrativo", "medios_verificacion", "supuestos", "evidencia"] as const).map((k) => (
-        <Campo key={k} label={{ resumen_narrativo: "Resumen narrativo", medios_verificacion: "Medios de verificación", supuestos: "Supuestos", evidencia: "Evidencia" }[k]}>
-          <textarea className="form-control" rows={3} value={f.mir[k]} onChange={(e) => setF({ ...f, mir: { ...f.mir, [k]: e.target.value } })} /></Campo>
-      ))}
+      {tab === "mir" && (<>
+        {(["resumen_narrativo", "supuestos"] as const).map((k) => (
+          <Campo key={k} label={{ resumen_narrativo: "Resumen narrativo", supuestos: "Supuestos" }[k]}>
+            <textarea className="form-control" rows={3} value={f.mir[k]} onChange={(e) => setF({ ...f, mir: { ...f.mir, [k]: e.target.value } })} /></Campo>
+        ))}
+        <div className="row">
+          <div className="col-sm-4"><Campo label="Fecha de elaboración">
+            <input type="date" className="form-control" value={f.ficha.fecha_elaboracion} onChange={(e) => setFicha("fecha_elaboracion", e.target.value)} /></Campo></div>
+        </div>
+        <Campo label="Evidencia">
+          <textarea className="form-control" rows={2} value={f.mir.evidencia} onChange={(e) => setF({ ...f, mir: { ...f.mir, evidencia: e.target.value } })} /></Campo>
+      </>)}
 
       {tab === "ficha" && (<>
         <div className="row">
@@ -134,30 +165,37 @@ export function IndicadorModal({ programa, elemento, indicador, onClose, onGuard
               <option value="">— Seleccione —</option>{ALGORITMOS.map((a) => <option key={a.valor} value={a.valor}>{a.nombre}</option>)}</select></Campo></div>
         </div>
         <div className="row">
-          <div className="col-sm-6"><Campo label="Variable A — unidad"><input className="form-control" value={f.ficha.unidad_a} onChange={(e) => setFicha("unidad_a", e.target.value)} /></Campo></div>
-          {usaB && <div className="col-sm-6"><Campo label="Variable B — unidad"><input className="form-control" value={f.ficha.unidad_b} onChange={(e) => setFicha("unidad_b", e.target.value)} /></Campo></div>}
+          <div className="col-sm-9"><Campo label="Variable de cálculo (A)"><input className="form-control" value={f.ficha.descripcion_a} onChange={(e) => setFicha("descripcion_a", e.target.value)} /></Campo></div>
+          <div className="col-sm-3"><Campo label="Unidad (A)"><input className="form-control" value={f.ficha.unidad_a} onChange={(e) => setFicha("unidad_a", e.target.value)} /></Campo></div>
         </div>
+        {usaB && <div className="row">
+          <div className="col-sm-9"><Campo label="Variable de cálculo (B)"><input className="form-control" value={f.ficha.descripcion_b} onChange={(e) => setFicha("descripcion_b", e.target.value)} /></Campo></div>
+          <div className="col-sm-3"><Campo label="Unidad (B)"><input className="form-control" value={f.ficha.unidad_b} onChange={(e) => setFicha("unidad_b", e.target.value)} /></Campo></div>
+        </div>}
+        <Campo label="Medios de verificación">
+          <textarea className="form-control" rows={2} value={f.mir.medios_verificacion} onChange={(e) => setF({ ...f, mir: { ...f.mir, medios_verificacion: e.target.value } })} /></Campo>
       </>)}
 
       {tab === "metas" && habilitado && (<>
         <div className="row">
           <div className="col-sm-3"><Campo label="Año base"><input type="number" className="form-control" value={f.anio_base} onChange={(e) => setF({ ...f, anio_base: e.target.value })} /></Campo></div>
-          <div className="col-sm-3"><Campo label="Meta de la administración"><input type="number" step="any" className="form-control" value={f.meta_administracion} onChange={(e) => setF({ ...f, meta_administracion: e.target.value })} /></Campo></div>
+          <div className="col-sm-9"><Campo label="Meta administración"><input className="form-control" value={f.meta_administracion} onChange={(e) => setF({ ...f, meta_administracion: e.target.value })} /></Campo></div>
         </div>
         {(errores.metas || errores.anio) && <p className="text-danger">{errores.metas || errores.anio}</p>}
         <table className="table table-condensed">
-          <thead><tr><th style={{ width: 110 }}>Año</th><th>Variable A (programado)</th>{usaB && <th>Variable B (programado)</th>}<th style={{ width: 130 }}>Ejercicio fiscal</th><th style={{ width: 50 }} /></tr></thead>
+          <thead><tr><th style={{ width: 110 }}>Año</th><th>Variable A (programado)</th>{usaB && <th>Variable B (programado)</th>}<th style={{ width: 130 }}>Resultado</th><th style={{ width: 130 }}>Ejercicio fiscal</th><th style={{ width: 50 }} /></tr></thead>
           <tbody>
             {f.metas.map((m, idx) => (
               <tr key={idx}>
                 <td><input type="number" className="form-control input-sm" value={m.anio} onChange={(e) => setMeta(idx, { anio: e.target.value })} /></td>
                 <td><input type="number" step="any" className="form-control input-sm" value={m.a} onChange={(e) => setMeta(idx, { a: e.target.value })} /></td>
                 {usaB && <td><input type="number" step="any" className="form-control input-sm" value={m.b} onChange={(e) => setMeta(idx, { b: e.target.value })} /></td>}
+                <td><input className="form-control input-sm campo-calculado" readOnly tabIndex={-1} aria-label="Resultado calculado" value={resultados[idx] ?? ""} /></td>
                 <td><label style={{ margin: 0 }}><input type="checkbox" checked={m.fiscal} onChange={(e) => setMeta(idx, { fiscal: e.target.checked })} /> Año vigente</label></td>
                 <td><button className="btn btn-xs btn-danger" title="Quitar año" onClick={() => setF((x) => ({ ...x, metas: x.metas.filter((_, j) => j !== idx) }))}><i className="fa fa-trash" /></button></td>
               </tr>
             ))}
-            {!f.metas.length && <tr><td colSpan={5} className="text-center text-muted">Sin metas anuales</td></tr>}
+            {!f.metas.length && <tr><td colSpan={6} className="text-center text-muted">Sin metas anuales</td></tr>}
           </tbody>
         </table>
         <button className="btn btn-sm btn-success" onClick={() => setF((x) => ({ ...x, metas: [...x.metas, { anio: String((Math.max(0, ...x.metas.map((m) => Number(m.anio) || 0)) || new Date().getFullYear() - 1) + 1), a: "", b: "", fiscal: false }] }))}>
@@ -169,9 +207,9 @@ export function IndicadorModal({ programa, elemento, indicador, onClose, onGuard
         {COLORES.map(([c, nombre]) => (
           <div className="row" key={c}>
             <div className="col-sm-2" style={{ paddingTop: 28 }}><span className={`semaforo semaforo-${c}`} /> {nombre}</div>
-            <div className="col-sm-3"><Campo label="De" error={errores[`rango_${c}`]}><input type="number" step="any" className="form-control" value={f.rangos[c].desde}
+            <div className="col-sm-3"><Campo label="De:" error={errores[`rango_${c}`]}><input type="number" step="any" className="form-control" value={f.rangos[c].desde}
               onChange={(e) => setF({ ...f, rangos: { ...f.rangos, [c]: { ...f.rangos[c], desde: e.target.value } } })} /></Campo></div>
-            <div className="col-sm-3"><Campo label="A"><input type="number" step="any" className="form-control" value={f.rangos[c].hasta}
+            <div className="col-sm-3"><Campo label="Hasta:"><input type="number" step="any" className="form-control" value={f.rangos[c].hasta}
               onChange={(e) => setF({ ...f, rangos: { ...f.rangos, [c]: { ...f.rangos[c], hasta: e.target.value } } })} /></Campo></div>
           </div>
         ))}

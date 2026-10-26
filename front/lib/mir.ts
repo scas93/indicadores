@@ -39,8 +39,10 @@ export type Indicador = {
   ficha: {
     tipo: string; prioritario: boolean; nombre: string; interpretacion: string; dimension: string | null;
     frecuencia_id: string | null; unidad_medida: string; algoritmo: Algoritmo | null; unidad_a: string; unidad_b: string | null;
+    descripcion_a: string; descripcion_b: string | null; fecha_elaboracion: string | null;
   };
-  metas: { anio_base: number | null; meta_administracion: number | null; anuales: MetaAnual[] };
+  /** `meta_administracion` es texto libre ("15% PERSONAS ATENDIDAS LABORALMENTE."). El ID numérico del indicador no se muestra. */
+  metas: { anio_base: number | null; meta_administracion: string | null; anuales: MetaAnual[] };
   rangos: { verde: Rango; amarillo: Rango; rojo: Rango };
 };
 export type Elemento = {
