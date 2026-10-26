@@ -8,11 +8,9 @@ import { ApiError, api } from "@/lib/api.client";
 import { puede } from "@/lib/permisos";
 
 type Fila = { id: string; clave: string; nombre: string; activo: boolean; [k: string]: any };
-/** `sinFiltro`: el padre se muestra y se elige al capturar, pero no hay desplegable de filtro (p. ej. Ejes).
- *  `abuelo`: filtro previo en dos desplegables (p. ej. Estrategias: primero Eje, luego Subtema); `campo` es el
- *  campo del padre que apunta al abuelo (subtema.eje_id). */
-export type Padre = { campo: string; ruta: string; label: string; sinFiltro?: boolean;
-  abuelo?: { campo: string; ruta: string; label: string } };
+/** `abuelo`: nivel previo en dos desplegables (p. ej. Estrategias: primero Eje, luego Subtema), tanto en el filtro
+ *  como en el alta; `campo` es el campo del padre que apunta al abuelo (subtema.eje_id). */
+export type Padre = { campo: string; ruta: string; label: string; abuelo?: { campo: string; ruta: string; label: string } };
 
 /** Tabla + modal para un nivel de planeación (centros gestores, ejes, subtemas, estrategias,
  *  frecuencias). Nunca borra: "Deshabilitar" pone activo=false y lo saca de los selectores. */
@@ -35,6 +33,9 @@ export function CatalogoCrud({ titulo, ruta, padre }: { titulo: string; ruta: st
   useEffect(() => { cargar().catch((e) => toast.error(mensajeError(e))); }, [cargar]);
 
   const nombrePadre = useMemo(() => new Map(padres.map((p) => [p.id, `${p.clave} — ${p.nombre}`])), [padres]);
+  const nombreAbuelo = useMemo(() => new Map(abuelos.map((a) => [a.id, `${a.clave} — ${a.nombre}`])), [abuelos]);
+  // Estrategias: la columna Eje sale del subtema (padre) de cada fila
+  const abueloDe = (f: Fila) => padre?.abuelo ? nombreAbuelo.get(padres.find((p) => p.id === f[padre.campo])?.[padre.abuelo.campo]) : undefined;
   // opciones del segundo desplegable: solo los padres del abuelo elegido (Subtemas del Eje)
   const padresFiltro = useMemo(() => !padre?.abuelo ? padres
     : padres.filter((p) => !!filtroAbuelo && p[padre.abuelo!.campo] === filtroAbuelo), [padres, padre, filtroAbuelo]);
@@ -65,7 +66,7 @@ export function CatalogoCrud({ titulo, ruta, padre }: { titulo: string; ruta: st
               {abuelos.map((a) => <option key={a.id} value={a.id}>{a.clave} — {a.nombre}</option>)}
             </select>
           )}
-          {padre && !padre.sinFiltro && (
+          {padre && (
             <select className="form-control" style={{ maxWidth: 300 }} value={filtroPadre} disabled={!!padre.abuelo && !filtroAbuelo}
               title={padre.abuelo && !filtroAbuelo ? `Elige primero ${padre.abuelo.label.toLowerCase()}` : undefined}
               onChange={(e) => setFiltroPadre(e.target.value)}>
@@ -79,15 +80,16 @@ export function CatalogoCrud({ titulo, ruta, padre }: { titulo: string; ruta: st
         <div className="table-responsive">
           <table className="table table-hover">
             <thead><tr>
-              <th style={{ width: 120 }}>Clave</th><th>Nombre</th>{padre && <th>{padre.label}</th>}
+              <th style={{ width: 120 }}>Clave</th><th>Nombre</th>{padre?.abuelo && <th>{padre.abuelo.label}</th>}{padre && <th>{padre.label}</th>}
               <th style={{ width: 100 }}>Estado</th>{editable && <th style={{ width: 110 }}>Acciones</th>}
             </tr></thead>
             <tbody>
-              {lista === null && <tr><td colSpan={5} className="text-center text-muted">Cargando…</td></tr>}
-              {lista && !filtrada.length && <tr><td colSpan={5} className="text-center text-muted">Sin registros</td></tr>}
+              {lista === null && <tr><td colSpan={6} className="text-center text-muted">Cargando…</td></tr>}
+              {lista && !filtrada.length && <tr><td colSpan={6} className="text-center text-muted">Sin registros</td></tr>}
               {filtrada.map((f) => (
                 <tr key={f.id} className={f.activo ? "" : "text-muted"}>
                   <td>{f.clave}</td><td>{f.nombre}</td>
+                  {padre?.abuelo && <td>{abueloDe(f) ?? "—"}</td>}
                   {padre && <td>{nombrePadre.get(f[padre.campo]) ?? "—"}</td>}
                   <td><span className={`label label-${f.activo ? "success" : "default"}`}>{f.activo ? "Activo" : "Deshabilitado"}</span></td>
                   {editable && <td>
@@ -102,17 +104,20 @@ export function CatalogoCrud({ titulo, ruta, padre }: { titulo: string; ruta: st
           </table>
         </div>
       </div></div>
-      {modal && <ModalCatalogo titulo={titulo} ruta={ruta} padre={padre} padres={padres.filter((p) => p.activo)}
+      {modal && <ModalCatalogo titulo={titulo} ruta={ruta} padre={padre} padres={padres.filter((p) => p.activo)} abuelos={abuelos.filter((a) => a.activo)}
         fila={modal === "alta" ? null : modal} onClose={() => setModal(null)}
         onGuardado={() => { setModal(null); cargar(); }} />}
     </>
   );
 }
 
-function ModalCatalogo({ titulo, ruta, padre, padres, fila, onClose, onGuardado }: {
-  titulo: string; ruta: string; padre?: Padre; padres: Fila[]; fila: Fila | null; onClose: () => void; onGuardado: () => void;
+function ModalCatalogo({ titulo, ruta, padre, padres, abuelos, fila, onClose, onGuardado }: {
+  titulo: string; ruta: string; padre?: Padre; padres: Fila[]; abuelos: Fila[]; fila: Fila | null; onClose: () => void; onGuardado: () => void;
 }) {
-  const [f, setF] = useState({ clave: fila?.clave ?? "", nombre: fila?.nombre ?? "", padre: padre ? (fila?.[padre.campo] ?? "") : "" });
+  const padreInicial = padre ? (fila?.[padre.campo] ?? "") : "";
+  // Estrategias: Eje (abuelo) -> Subtema (padre); al editar, el eje sale del subtema actual
+  const abueloInicial = padre?.abuelo ? (padres.find((p) => p.id === padreInicial)?.[padre.abuelo.campo] ?? "") : "";
+  const [f, setF] = useState({ clave: fila?.clave ?? "", nombre: fila?.nombre ?? "", padre: padreInicial, abuelo: abueloInicial });
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
 
@@ -135,10 +140,15 @@ function ModalCatalogo({ titulo, ruta, padre, padres, fila, onClose, onGuardado 
     <Modal titulo={`${fila ? "Editar" : "Nuevo"} — ${titulo}`} onClose={onClose} footer={<>
       <button className="btn btn-default" onClick={onClose}>Cancelar</button>
       <button className="btn btn-success" onClick={guardar} disabled={ocupado}>Guardar</button></>}>
-      {padre && <Campo label={padre.label} error={errores[padre.campo]}>
-        <select className="form-control" value={f.padre} onChange={(e) => setF({ ...f, padre: e.target.value })}>
+      {padre?.abuelo && <Campo label={padre.abuelo.label}>
+        <select className="form-control" value={f.abuelo} onChange={(e) => setF({ ...f, abuelo: e.target.value, padre: "" })}>
           <option value="">— Seleccione —</option>
-          {padres.map((p) => <option key={p.id} value={p.id}>{p.clave} — {p.nombre}</option>)}
+          {abuelos.map((a) => <option key={a.id} value={a.id}>{a.clave} — {a.nombre}</option>)}
+        </select></Campo>}
+      {padre && <Campo label={padre.label} error={errores[padre.campo]}>
+        <select className="form-control" value={f.padre} disabled={!!padre.abuelo && !f.abuelo} onChange={(e) => setF({ ...f, padre: e.target.value })}>
+          <option value="">— Seleccione —</option>
+          {padres.filter((p) => !padre.abuelo || p[padre.abuelo.campo] === f.abuelo).map((p) => <option key={p.id} value={p.id}>{p.clave} — {p.nombre}</option>)}
         </select></Campo>}
       <div className="row">
         <div className="col-sm-4"><Campo label="Clave" error={errores.clave}>
