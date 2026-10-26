@@ -1,9 +1,15 @@
+from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import create_engine
 
 from app.config import get_settings
 from app.models import Base
 
+# Logging de alembic.ini: sin esto `alembic upgrade head` no imprime nada y el log del despliegue no
+# muestra qué migraciones corrieron ("Running upgrade 0003 -> 0004").
+if context.config.config_file_name:
+    fileConfig(context.config.config_file_name, disable_existing_loggers=False)
 target_metadata = Base.metadata
 url = get_settings().database_url
 

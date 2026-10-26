@@ -25,13 +25,14 @@ def test_ejercicio():
 
 
 def _ok():
-    return (vp.Ref(CG, True), vp.Ref(ST, True, EJE, CG), vp.Ref(ES, True, ST))
+    return (vp.Ref(CG, True), vp.Ref(ST, True, EJE), vp.Ref(ES, True, ST))
 
 
 def test_jerarquia_valida():
     c, s, e = _ok()
     vp.validar_referencias_programa(c, s, e, True, True)
-    vp.validar_referencias_programa(c, None, None)  # subtema y estrategia son opcionales
+    vp.validar_referencias_programa(c, s, e, True, True, eje=vp.Ref(EJE, True), eje_pedido=True)
+    vp.validar_referencias_programa(c, None, None)  # eje, subtema y estrategia son opcionales
 
 
 def test_jerarquia_centro_deshabilitado_o_inexistente():
@@ -42,11 +43,29 @@ def test_jerarquia_centro_deshabilitado_o_inexistente():
     assert e.value.campos["centro_gestor_id"] == "Centro gestor deshabilitado"
 
 
-def test_jerarquia_subtema_de_otro_centro_gestor():
+def test_el_centro_gestor_es_independiente_de_eje_y_subtema():
+    """Ya no existe la regla "el subtema pertenece al centro gestor": cualquier centro gestor activo sirve."""
+    _, s, _ = _ok()
+    for centro in (vp.Ref(CG, True), vp.Ref(uuid.uuid4(), True)):
+        vp.validar_referencias_programa(centro, s, None, True, eje=vp.Ref(EJE, True), eje_pedido=True)
+
+
+def test_jerarquia_subtema_de_otro_eje():
     c, _, _ = _ok()
     with pytest.raises(ApiError) as e:
-        vp.validar_referencias_programa(c, vp.Ref(ST2, True, EJE, uuid.uuid4()), None, True)
-    assert "subtema_id" in e.value.campos
+        vp.validar_referencias_programa(c, vp.Ref(ST2, True, uuid.uuid4()), None, True,
+                                        eje=vp.Ref(EJE, True), eje_pedido=True)
+    assert e.value.campos == {"subtema_id": "El subtema no pertenece al eje"}
+
+
+def test_jerarquia_eje_inexistente_o_deshabilitado():
+    c, s, _ = _ok()
+    with pytest.raises(ApiError) as e:
+        vp.validar_referencias_programa(c, s, None, True, eje=None, eje_pedido=True)
+    assert e.value.campos["eje_id"] == "Eje inválido"
+    with pytest.raises(ApiError) as e:
+        vp.validar_referencias_programa(c, s, None, True, eje=vp.Ref(EJE, False), eje_pedido=True)
+    assert e.value.campos["eje_id"] == "Eje deshabilitado"
 
 
 def test_jerarquia_estrategia_de_otro_subtema():
@@ -59,7 +78,7 @@ def test_jerarquia_estrategia_de_otro_subtema():
 def test_jerarquia_estrategia_o_subtema_deshabilitados():
     c, s, e = _ok()
     with pytest.raises(ApiError):
-        vp.validar_referencias_programa(c, vp.Ref(ST, False, EJE, CG), None, True)
+        vp.validar_referencias_programa(c, vp.Ref(ST, False, EJE), None, True)
     with pytest.raises(ApiError):
         vp.validar_referencias_programa(c, s, vp.Ref(ES, False, ST), True, True)
 

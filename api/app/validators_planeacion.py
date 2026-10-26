@@ -31,26 +31,33 @@ class Ref:
     """Lo mínimo que la jerarquía necesita saber de un registro ya cargado."""
     id: uuid.UUID
     activo: bool
-    padre_id: uuid.UUID | None = None      # eje->centro_gestor; subtema->eje; estrategia->subtema
-    abuelo_id: uuid.UUID | None = None     # subtema: centro_gestor de su eje
+    padre_id: uuid.UUID | None = None      # subtema->eje; estrategia->subtema (eje y centro gestor no tienen padre)
 
 
 def validar_referencias_programa(centro: Ref | None, subtema: Ref | None, estrategia: Ref | None,
-                                 subtema_pedido: bool = False, estrategia_pedida: bool = False) -> None:
-    """centro gestor → eje → subtema → estrategia → programa. Cada referencia debe existir y estar
-    activa (lo deshabilitado sale de los selectores) y colgar de la anterior."""
+                                 subtema_pedido: bool = False, estrategia_pedida: bool = False,
+                                 eje: Ref | None = None, eje_pedido: bool = False) -> None:
+    """Dos ramas independientes: (1) eje → subtema → estrategia, y (2) centro gestor. El centro gestor
+    solo debe existir y estar activo; el eje (si se indica), el subtema y la estrategia deben existir,
+    estar activos y colgar del anterior (subtema del eje, estrategia del subtema). Lo deshabilitado
+    sale de los selectores."""
     err = {}
     if centro is None:
         err["centro_gestor_id"] = "Centro gestor inválido"
     elif not centro.activo:
         err["centro_gestor_id"] = "Centro gestor deshabilitado"
+    if eje_pedido:
+        if eje is None:
+            err["eje_id"] = "Eje inválido"
+        elif not eje.activo:
+            err["eje_id"] = "Eje deshabilitado"
     if subtema_pedido:
         if subtema is None:
             err["subtema_id"] = "Subtema inválido"
         elif not subtema.activo:
             err["subtema_id"] = "Subtema deshabilitado"
-        elif centro is not None and subtema.abuelo_id != centro.id:
-            err["subtema_id"] = "El subtema no pertenece al centro gestor"
+        elif eje_pedido and eje is not None and subtema.padre_id != eje.id:
+            err["subtema_id"] = "El subtema no pertenece al eje"
     if estrategia_pedida:
         if estrategia is None:
             err["estrategia_id"] = "Estrategia inválida"

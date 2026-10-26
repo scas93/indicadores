@@ -267,9 +267,11 @@ class CentroGestor(_Catalogo, Base):
 
 
 class Eje(_Catalogo, Base):
+    """Los ejes son generales: no pertenecen a ningún centro gestor (rama Eje → Subtema → Estrategia →
+    Programa, independiente de Centro gestor → Programa)."""
+
     __tablename__ = "eje"
-    __table_args__ = (UniqueConstraint("municipio_id", "centro_gestor_id", "clave"),)
-    centro_gestor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("centro_gestor.id"), index=True)
+    __table_args__ = (UniqueConstraint("municipio_id", "clave", name="uq_eje_municipio_clave"),)
 
 
 class Subtema(_Catalogo, Base):
