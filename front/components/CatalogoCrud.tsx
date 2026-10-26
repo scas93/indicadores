@@ -8,7 +8,11 @@ import { ApiError, api } from "@/lib/api.client";
 import { puede } from "@/lib/permisos";
 
 type Fila = { id: string; clave: string; nombre: string; activo: boolean; [k: string]: any };
-export type Padre = { campo: string; ruta: string; label: string };
+/** `sinFiltro`: el padre se muestra y se elige al capturar, pero no hay desplegable de filtro (p. ej. Ejes).
+ *  `abuelo`: filtro previo en dos desplegables (p. ej. Estrategias: primero Eje, luego Subtema); `campo` es el
+ *  campo del padre que apunta al abuelo (subtema.eje_id). */
+export type Padre = { campo: string; ruta: string; label: string; sinFiltro?: boolean;
+  abuelo?: { campo: string; ruta: string; label: string } };
 
 /** Tabla + modal para un nivel de planeación (centros gestores, ejes, subtemas, estrategias,
  *  frecuencias). Nunca borra: "Deshabilitar" pone activo=false y lo saca de los selectores. */
@@ -17,20 +21,28 @@ export function CatalogoCrud({ titulo, ruta, padre }: { titulo: string; ruta: st
   const editable = puede.editarPlaneacion(tipo);
   const [lista, setLista] = useState<Fila[] | null>(null);
   const [padres, setPadres] = useState<Fila[]>([]);
+  const [abuelos, setAbuelos] = useState<Fila[]>([]);
   const [q, setQ] = useState("");
+  const [filtroAbuelo, setFiltroAbuelo] = useState("");
   const [filtroPadre, setFiltroPadre] = useState("");
   const [modal, setModal] = useState<null | "alta" | Fila>(null);
 
   const cargar = useCallback(async () => {
     setLista(await api(`/api/${ruta}`));
     if (padre) setPadres(await api(`/api/${padre.ruta}`));
+    if (padre?.abuelo) setAbuelos(await api(`/api/${padre.abuelo.ruta}`));
   }, [ruta, padre]);
   useEffect(() => { cargar().catch((e) => toast.error(mensajeError(e))); }, [cargar]);
 
   const nombrePadre = useMemo(() => new Map(padres.map((p) => [p.id, `${p.clave} — ${p.nombre}`])), [padres]);
-  const filtrada = useMemo(() => (lista ?? []).filter((f) =>
-    (!filtroPadre || f[padre!.campo] === filtroPadre) &&
-    `${f.clave} ${f.nombre}`.toLowerCase().includes(q.toLowerCase())), [lista, q, filtroPadre, padre]);
+  // opciones del segundo desplegable: solo los padres del abuelo elegido (Subtemas del Eje)
+  const padresFiltro = useMemo(() => !padre?.abuelo ? padres
+    : padres.filter((p) => !!filtroAbuelo && p[padre.abuelo!.campo] === filtroAbuelo), [padres, padre, filtroAbuelo]);
+  const filtrada = useMemo(() => (lista ?? []).filter((f) => {
+    if (padre && filtroPadre && f[padre.campo] !== filtroPadre) return false;
+    if (padre?.abuelo && filtroAbuelo && !filtroPadre && !padresFiltro.some((p) => p.id === f[padre.campo])) return false;
+    return `${f.clave} ${f.nombre}`.toLowerCase().includes(q.toLowerCase());
+  }), [lista, q, filtroPadre, filtroAbuelo, padre, padresFiltro]);
 
   async function alternar(f: Fila) {
     try {
@@ -46,10 +58,19 @@ export function CatalogoCrud({ titulo, ruta, padre }: { titulo: string; ruta: st
       <div className="panel"><div className="panel-body">
         <div className="toolbar">
           <input className="form-control" style={{ maxWidth: 260 }} placeholder="Buscar" value={q} onChange={(e) => setQ(e.target.value)} />
-          {padre && (
-            <select className="form-control" style={{ maxWidth: 300 }} value={filtroPadre} onChange={(e) => setFiltroPadre(e.target.value)}>
+          {padre?.abuelo && (
+            <select className="form-control" style={{ maxWidth: 260 }} value={filtroAbuelo}
+              onChange={(e) => { setFiltroAbuelo(e.target.value); setFiltroPadre(""); }}>
+              <option value="">{padre.abuelo.label}: todos</option>
+              {abuelos.map((a) => <option key={a.id} value={a.id}>{a.clave} — {a.nombre}</option>)}
+            </select>
+          )}
+          {padre && !padre.sinFiltro && (
+            <select className="form-control" style={{ maxWidth: 300 }} value={filtroPadre} disabled={!!padre.abuelo && !filtroAbuelo}
+              title={padre.abuelo && !filtroAbuelo ? `Elige primero ${padre.abuelo.label.toLowerCase()}` : undefined}
+              onChange={(e) => setFiltroPadre(e.target.value)}>
               <option value="">{padre.label}: todos</option>
-              {padres.map((p) => <option key={p.id} value={p.id}>{p.clave} — {p.nombre}</option>)}
+              {padresFiltro.map((p) => <option key={p.id} value={p.id}>{p.clave} — {p.nombre}</option>)}
             </select>
           )}
           <span className="spacer" />

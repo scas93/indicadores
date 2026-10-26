@@ -5,6 +5,7 @@ import { toast } from "@/components/Toasts";
 import { useTipo } from "@/components/TipoContext";
 import { api } from "@/lib/api.client";
 import type { Programa } from "@/lib/mir";
+import { useDescargas } from "@/components/shell/Descargas";
 import { ArbolTab } from "./ArbolTab";
 import { CapturaTab } from "./CapturaTab";
 import { MatrizTab } from "./MatrizTab";
@@ -23,7 +24,7 @@ export function Inicio() {
   const [programas, setProgramas] = useState<Programa[] | null>(null);
   const [pid, setPid] = useState("");
   const [tab, setTab] = useState<Pestana>("arbol");
-  const [descargas, setDescargas] = useState(false);
+  const { setItems } = useDescargas();
 
   useEffect(() => {
     if (tipo === "padron") return;
@@ -35,49 +36,45 @@ export function Inicio() {
     }).catch((e) => { setProgramas([]); toast.error(mensajeError(e)); });
   }, [tipo]);
 
+  // Las descargas viven en el ícono de nube del encabezado; dependen del programa elegido
+  useEffect(() => {
+    if (!pid) { setItems([]); return; }
+    const g = (ruta: string) => `/api/programas/${pid}/${ruta}`;
+    setItems([
+      { label: "Árbol de problemas y objetivos", href: g("arbol/descarga?tipo=completo") },
+      { label: "Árbol de problemas", href: g("arbol/descarga?tipo=problemas") },
+      { label: "Árbol de objetivos", href: g("arbol/descarga?tipo=objetivos") },
+      { label: "Matriz de Indicadores de Resultados", href: g("matriz/descarga?tipo=resultados") },
+      { label: "Matriz de Cumplimiento de Indicadores", href: g("matriz/descarga?tipo=cumplimiento") },
+    ]);
+    return () => setItems([]);
+  }, [pid, setItems]);
+
   if (tipo === "padron") return <p className="text-muted">Tu tipo de usuario no tiene acceso al módulo Inicio.</p>;
-  const g = (ruta: string) => `/api/programas/${pid}/${ruta}`;
+  // Solo el nombre; si dos programas se llaman igual (mismo programa en varios ejercicios) se desambigua
+  // agregando ejercicio y clave solo a esos, para no dejar opciones indistinguibles.
+  const repetidos = new Set((programas ?? []).map((p) => p.nombre).filter((n, i, a) => a.indexOf(n) !== i));
+  const etiqueta = (p: Programa) => (repetidos.has(p.nombre) ? `${p.nombre} (${p.ejercicio_fiscal} · ${p.clave})` : p.nombre);
 
   return (
     <>
-      <h3 className="page-heading">Inicio</h3>
       <div className="inicio-selector">
-        <label className="control-label" style={{ margin: 0 }}>Programa</label>
-        <select className="form-control" style={{ maxWidth: 520 }} value={pid} onChange={(e) => setPid(e.target.value)}>
+        <select className="form-control" aria-label="Programa" value={pid} onChange={(e) => setPid(e.target.value)}>
           {programas === null && <option>Cargando…</option>}
           {programas?.length === 0 && <option value="">Sin programas asignados</option>}
-          {(programas ?? []).map((p) => <option key={p.id} value={p.id}>{p.ejercicio_fiscal} · {p.clave} — {p.nombre}</option>)}
+          {(programas ?? []).map((p) => <option key={p.id} value={p.id}>{etiqueta(p)}</option>)}
         </select>
-        <span className="spacer" style={{ flex: 1 }} />
-        {pid && (
-          <div className="descargas-menu">
-            <button className="btn btn-default" title="Descargas" onClick={() => setDescargas((x) => !x)}>
-              <i className="fa fa-cloud-download" /> Descargas
-            </button>
-            {descargas && (
-              <ul onClick={() => setDescargas(false)}>
-                <li><a href={g("arbol/descarga?tipo=completo")}><i className="fa fa-file-pdf-o" /> Árbol de problemas y objetivos</a></li>
-                <li><a href={g("arbol/descarga?tipo=problemas")}><i className="fa fa-file-pdf-o" /> Árbol de problemas</a></li>
-                <li><a href={g("arbol/descarga?tipo=objetivos")}><i className="fa fa-file-pdf-o" /> Árbol de objetivos</a></li>
-                <li><a href={g("matriz/descarga?tipo=resultados")}><i className="fa fa-file-pdf-o" /> Matriz de Indicadores de Resultados</a></li>
-                <li><a href={g("matriz/descarga?tipo=cumplimiento")}><i className="fa fa-file-pdf-o" /> Matriz de Cumplimiento de Indicadores</a></li>
-              </ul>
-            )}
-          </div>
-        )}
       </div>
       {pid && (
-        <div className="panel">
-          <div className="panel-heading">
-            <ul className="nav nav-tabs">
-              {PESTANAS.map((p) => (
-                <li key={p.id} className={tab === p.id ? "active" : ""}>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setTab(p.id); }}>{p.nombre}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="panel-body">
+        <div className="inicio-panel">
+          <ul className="nav nav-tabs inicio-tabs">
+            {PESTANAS.map((p) => (
+              <li key={p.id} className={tab === p.id ? "active" : ""}>
+                <a href="#" onClick={(e) => { e.preventDefault(); setTab(p.id); }}>{p.nombre}</a>
+              </li>
+            ))}
+          </ul>
+          <div className="inicio-panel-cuerpo">
             {tab === "arbol" && <ArbolTab key={pid} programaId={pid} />}
             {tab === "matriz" && <MatrizTab key={pid} programaId={pid} />}
             {tab === "captura" && <CapturaTab key={pid} programaId={pid} />}

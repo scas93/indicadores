@@ -5,6 +5,7 @@ import { ApiError, api } from "@/lib/api.client";
 import { Campo } from "../Campo";
 import { Modal } from "../Modal";
 import { toast } from "../Toasts";
+import { DescargasProvider, useDescargas } from "./Descargas";
 import type { Item, Menu } from "./menu";
 
 export type ShellProps = {
@@ -82,8 +83,20 @@ function CambiarPassword({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function AppShell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0, marca, cambiarPassword, children }: ShellProps) {
+export function AppShell(props: ShellProps) {
+  return <DescargasProvider><Shell {...props} /></DescargasProvider>;
+}
+
+function Shell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0, marca, cambiarPassword, children }: ShellProps) {
   const router = useRouter();
+  const { items: descargas } = useDescargas();
+  const [menuDescargas, setMenuDescargas] = useState(false);
+  useEffect(() => { // cierra el menú de descargas al hacer clic en cualquier otro lado
+    if (!menuDescargas) return;
+    const fuera = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest(".header-notif")) setMenuDescargas(false); };
+    document.addEventListener("mousedown", fuera);
+    return () => document.removeEventListener("mousedown", fuera);
+  }, [menuDescargas]);
   const path = usePathname().replace(/^\/(sa|mun)/, "") || "/";
   const [colapsado, setColapsado] = useState(false);
   const [movil, setMovil] = useState(false);
@@ -120,8 +133,17 @@ export function AppShell({ menu, etiquetaUsuario, logoutUrl, notificaciones = 0,
         <button className="toggle-btn" aria-label="Menú" onClick={() => {
           if (window.innerWidth < 992) setMovil(!movil); else { setColapsado(!colapsado); setAbierto(null); }
         }}><i className="fa fa-outdent" /></button>
-        <div className="header-notif" title="Notificaciones">
-          <i className="fa fa-cloud-download" />
+        <div className="header-notif" title={descargas.length ? "Descargas" : "Notificaciones"}>
+          {descargas.length > 0 ? (
+            <>
+              <button className="header-notif-btn" aria-label="Descargas" onClick={() => setMenuDescargas(!menuDescargas)}><i className="fa fa-cloud-download" /></button>
+              {menuDescargas && (
+                <ul className="header-descargas">
+                  {descargas.map((d) => <li key={d.href}><a href={d.href}><i className="fa fa-file-pdf-o" /> {d.label}</a></li>)}
+                </ul>
+              )}
+            </>
+          ) : <i className="fa fa-cloud-download" />}
           {notificaciones > 0 && <span className="badge-notif">{notificaciones}</span>}
         </div>
         {marca && (

@@ -229,17 +229,47 @@ body.app-body { background: var(--c-body); }
 .error-page p { color: #777; }
 
 /* ---------- Fase 2: módulo Inicio (árbol, matriz, captura) */
-.inicio-selector { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
+.inicio-selector { margin-bottom: 15px; }
+.inicio-selector select { width: 100%; }
+/* pestañas claras: la activa en blanco (unida al cuerpo), las demás sobre gris */
+.inicio-tabs { border-bottom: 1px solid #ddd; margin-bottom: 0; }
+.inicio-tabs > li > a { background: #e9e9e9; color: #666; border: 1px solid #ddd; border-radius: 0; margin-right: 2px; padding: 10px 16px; }
+.inicio-tabs > li > a:hover { background: #f1f1f1; color: #333; border-color: #ddd; }
+.inicio-tabs > li.active > a, .inicio-tabs > li.active > a:hover, .inicio-tabs > li.active > a:focus {
+  background: #fff; color: var(--c-text); border: 1px solid #ddd; border-bottom-color: #fff; }
+.inicio-panel-cuerpo { background: #fff; border: 1px solid #ddd; border-top: 0; padding: 20px; }
+/* árbol: bloques con barra verde y cuadrícula 2×2 (problema | objetivo) */
+.barra-verde { background: var(--c-btn-success); color: #fff; padding: 8px 14px; font-weight: 600; }
+.arbol-bloque { margin-bottom: 14px; }
+.arbol-bloque textarea { resize: vertical; border-top: 0; }
+.arbol-par { display: grid; grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr); margin-bottom: 22px; }
+.arbol-fila { display: contents; }
+.arbol-sep { background: transparent; }
+.arbol-cab { background: var(--c-btn-success); color: #fff; font-weight: 600; border-top: 1px solid #fff; }
+.arbol-reg, .arbol-cab { display: grid; grid-template-columns: 62px 64px minmax(0, 1fr); align-items: start; }
+.arbol-cab > div, .arbol-reg > div { padding: 7px 8px; }
+.arbol-reg { border: 1px solid #e3e3e3; border-top: 0; background: #fff; }
+.arbol-reg .acciones, .arbol-cab .acciones { display: flex; gap: 3px; align-items: flex-start; min-height: 1px; }
+.arbol-nodo { white-space: nowrap; }
+.arbol-nodo.hijo { padding-left: 14px !important; }
+.icono-padre { color: var(--c-btn-primary); }
+.icono-hijo { color: var(--c-btn-success); }
+.arbol-texto { display: flex; gap: 8px; align-items: flex-start; }
+.arbol-texto span { white-space: pre-wrap; overflow-wrap: anywhere; }
+.arbol-vacio { text-align: center; color: #999; padding: 10px; border: 1px solid #e3e3e3; border-top: 0; }
+/* descargas en el ícono de nube del encabezado */
+.header-notif-btn { background: none; border: 0; color: inherit; font-size: inherit; width: 100%; height: 100%; cursor: pointer; padding: 0; }
+.header-notif-btn:hover { color: var(--c-accent); }
+.header-descargas { position: absolute; left: 0; top: 100%; z-index: 1100; list-style: none; margin: 0; padding: 4px 0; background: #fff; border: 1px solid #ddd;
+  min-width: 300px; text-align: left; line-height: 20px; font-size: 14px; box-shadow: 0 3px 8px rgba(0,0,0,.15); }
+.header-descargas li a { display: block; padding: 8px 16px; color: var(--c-text); }
+.header-descargas li a:hover { background: #f3f3f3; }
 .semaforo { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: middle; border: 1px solid rgba(0,0,0,.15); }
 .semaforo-verde { background: var(--c-btn-success); }
 .semaforo-amarillo { background: var(--c-btn-warning); }
 .semaforo-rojo { background: var(--c-btn-danger); }
 .semaforo-gris { background: #bdbdbd; }
 .semaforo-sin_color { background: #fff; border-color: #999; }
-.arbol-encabezado textarea { resize: vertical; }
-.arbol-tabla td { vertical-align: top !important; white-space: pre-wrap; }
-.arbol-tabla tr.nodo-hijo td.texto { padding-left: 32px; }
-.arbol-tabla tr.nodo-raiz td { font-weight: 600; background: #fcfcfc; }
 .matriz-tabla td { vertical-align: top !important; white-space: pre-wrap; }
 .matriz-tabla tr.nivel-fin td, .matriz-tabla tr.nivel-proposito td { background: #f7f7f7; }
 .matriz-tabla tr.nivel-actividad td:first-child { padding-left: 28px; }
@@ -250,10 +280,6 @@ body.app-body { background: var(--c-body); }
 .dato-solo-lectura { background: #f7f7f7; border: 1px solid var(--c-field-border); padding: 6px 10px; min-height: 34px; }
 .tabs-modal { margin-bottom: 15px; }
 .tabs-modal > li.deshabilitado > a { color: #bbb; cursor: not-allowed; }
-.descargas-menu { position: relative; display: inline-block; }
-.descargas-menu ul { position: absolute; right: 0; top: 100%; z-index: 20; background: #fff; border: 1px solid #ddd; padding: 4px 0; margin: 2px 0 0; list-style: none; min-width: 270px; box-shadow: 0 3px 8px rgba(0,0,0,.15); }
-.descargas-menu li a { display: block; padding: 7px 16px; color: var(--c-text); }
-.descargas-menu li a:hover { background: #f3f3f3; }
 
 /* ---------- Estadísticas (Fase 3) */
 .btn-excel { background: var(--c-btn-primary); border-color: var(--c-btn-primary); color: #fff; }
