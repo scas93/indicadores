@@ -23,7 +23,7 @@ Un solo repo (monorepo) `indicadores`, con `/front` y `/api` como carpetas indep
 
 **Base de datos:** un solo Postgres en Railway, compartido entre todos los municipios (aislado por `municipio_id`, no por esquema ni por base). Migraciones con Alembic.
 
-**Entornos:** `dev` (local), `staging` (rama `main`, Vercel/Railway preview) y `prod`. `demo.<dominio>` vive en `staging` y es el municipio de prueba para el método de paridad de todas las fases.
+**Entornos:** `dev` (local), `staging` (en Railway despliega la rama `stag`; Vercel/Railway) y `prod`. `demo.<dominio>` vive en `staging` y es el municipio de prueba para el método de paridad de todas las fases.
 
 **Variables de entorno clave para esta fase:**
 
@@ -34,8 +34,30 @@ Un solo repo (monorepo) `indicadores`, con `/front` y `/api` como carpetas indep
 | `PASSWORD_ENCRYPTION_KEY` | API | Cifrado reversible de contraseñas de usuario (ver Autenticación y sesión) |
 | `ROOT_DOMAIN` | Front y API | Dominio raíz para resolver subdominios (p. ej. `insadisa.mx`) |
 | `SUPER_ADMIN_SUBDOMAIN` | Front y API | Fijo en `admin` |
+| `API_URL` | Front | URL pública de la API (Railway). Obligatoria en producción: sin valor por defecto; si falta, el servidor de Next falla con un mensaje claro |
 
 **CI/CD:** despliegue automático a `staging` en cada push a `main`; a `prod` manual, por ahora (no hay aún múltiples municipios en producción).
+
+### Configuración de Railway (servicio de la API)
+
+**No hay `railway.json` en el repo** (se eliminó): Railway deprecó "Config as Code" y, además, ese archivo no sigue el *root directory* del servicio (hay que darle ruta absoluta desde la raíz del repo), por lo que nunca se aplicó. **La configuración vive en el propio servicio de Railway** (Settings → Deploy, o por CLI/API), por entorno. Valores vigentes en `staging`, servicio de la API:
+
+| Ajuste | Valor |
+| --- | --- |
+| Source | repo `scas93/indicadores`, rama `stag`, root directory `/api` |
+| Builder | Railpack (detecta Python; instala `requirements.txt`) |
+| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` (sin él, Railpack falla con "No start command detected": la app está en `app/main.py`) |
+| Pre-deploy command | `alembic upgrade head && alembic current` |
+| Pre-deploy timeout | 300 s |
+| Healthcheck path | `/api/health` |
+| Variables | `DATABASE_URL` (se normaliza a `postgresql+psycopg://`), `PASSWORD_ENCRYPTION_KEY`, `SESSION_SECRET`, `ROOT_DOMAIN` |
+
+- **Migraciones automáticas:** el pre-deploy corre en un contenedor aparte, con las variables del servicio, antes de arrancar la API. Si falla, el despliegue falla y la versión anterior sigue activa. `alembic.ini` deja el logger en `WARN`, así que `alembic upgrade head` **no imprime nada** al migrar; por eso el comando termina en `alembic current`, que deja en el log del despliegue la revisión aplicada (p. ej. `0003 (head)`).
+- **Cómo verlo o cambiarlo sin entrar al panel** (con la CLI de Railway ligada al proyecto; todo con `-e staging` para no tocar producción):
+  - Ver: `railway environment config --environment staging --json` (busca el servicio por su ID) y `railway deployment list -s <servicio> -e staging --json` (la configuración con la que corrió cada despliegue está en `meta.serviceManifest.deploy`).
+  - Cambiar: `railway environment edit --service-config …` respondió "No changes to apply" en la CLI 5.47; funcionó la mutación GraphQL `serviceInstanceUpdate` con `railway api` (campos `startCommand`, `preDeployCommand` —arreglo de 1—, `preDeployTimeoutSeconds`, `healthcheckPath`) y `serviceInstanceDeployV2` para redesplegar.
+  - Logs: `railway logs -s <servicio> -e staging -d <id-del-despliegue>`.
+- **Base sin acceso público:** el Postgres de staging no expone `DATABASE_PUBLIC_URL`; los seeds (`seed.py`, `seed_estadisticas.py`) se corren dentro del contenedor de la API con `railway ssh -s <servicio> -e staging -- '<comando>'`.
 
 ## Modelo de datos de esta fase
 

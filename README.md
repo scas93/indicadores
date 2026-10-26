@@ -48,4 +48,4 @@ Fase 1 (recuperación de contraseña por email, vía Resend): `RESEND_API_KEY`, 
 Front: `API_URL`, `ROOT_DOMAIN`, `SUPER_ADMIN_SUBDOMAIN`.
 
 `DATABASE_URL` puede venir como la entrega Railway (`postgresql://…` o `postgres://…`): se normaliza a `postgresql+psycopg://`.
-En Railway las migraciones corren solas antes de cada despliegue (`preDeployCommand` en `api/railway.json`).
+En Railway las migraciones corren solas antes de cada despliegue (pre-deploy del servicio; ver "Configuración de Railway" en el doc de Fase 0). No hay `railway.json` en el repo.
