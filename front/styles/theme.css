@@ -238,7 +238,6 @@ body.app-body { background: var(--c-body); }
 .inicio-tabs > li.active > a, .inicio-tabs > li.active > a:hover, .inicio-tabs > li.active > a:focus {
   background: #fff; color: var(--c-text); border: 1px solid #d8d8d8; border-bottom-color: #fff; }
 .inicio-panel-cuerpo { background: #fff; border: 1px solid #d8d8d8; border-top: 0; padding: 40px 38px 30px; }
-.inicio-selector select { height: 42px; font-size: 15px; border-color: #c5c5c5; }
 /* árbol: bloques con barra verde y cuadrícula 2×2 (problema | objetivo) */
 .barra-verde { background: #6abc89; color: #fff; padding: 4px 6px; font-size: 15px; line-height: 22px; }
 .arbol-bloque { margin-bottom: 8px; }
@@ -313,3 +312,22 @@ body.app-body { background: var(--c-body); }
 .stat-tabla-ancha table { margin: 0; white-space: nowrap; font-size: 12px; }
 .stat-tabla-ancha th { background: #bbb; text-align: center; vertical-align: middle !important; white-space: normal; min-width: 110px; }
 .stat-tabla-ancha td { vertical-align: middle !important; }
+
+/* ---------- SelectBuscable: selector con buscador y grupos (estilo de la referencia; sin librerías) */
+.sb { position: relative; }
+.sb-boton { width: 100%; height: 42px; display: flex; align-items: center; justify-content: space-between; text-align: left; background: #fff; font-size: 15px; color: #444; border-color: #c5c5c5; }
+.sb-abierto .sb-boton { border-color: #8caac6; box-shadow: 0 0 4px rgba(140, 170, 198, .6); }
+.sb-placeholder { color: #555; }
+.sb-flecha { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #868686; margin-right: 6px; }
+.sb-panel { position: absolute; left: 0; right: 0; top: 100%; z-index: 1100; background: #fff; border: 1px solid #8caac6; border-top: 0; padding: 4px 6px 6px; box-shadow: 0 4px 8px rgba(0,0,0,.12); }
+.sb-buscar { position: relative; }
+.sb-buscar input { width: 100%; height: 34px; padding: 4px 34px 4px 8px; border: 1px solid #cdcdcd; outline: none; font-size: 15px; color: #333; }
+.sb-buscar input:focus { border-color: #8caac6; }
+.sb-buscar .fa { position: absolute; right: 10px; top: 9px; color: #777; font-size: 16px; pointer-events: none; }
+.sb-lista { list-style: none; margin: 6px 0 0; padding: 0; max-height: 300px; overflow-y: auto; }
+.sb-opciones { list-style: none; margin: 0; padding: 0; }
+.sb-grupo { font-weight: 700; color: #111; padding: 6px 6px 4px; cursor: default; user-select: none; }
+.sb-op { padding: 6px 8px; cursor: pointer; color: #222; font-size: 15px; }
+.sb-op-grupo { padding-left: 22px; }
+.sb-op.sb-activa { background: #5589c5; color: #fff; }
+.sb-vacio { padding: 8px; color: #888; text-align: center; }

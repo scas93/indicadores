@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { mensajeError } from "@/components/Campo";
+import { SelectBuscable, type GrupoSelect } from "@/components/SelectBuscable";
 import { toast } from "@/components/Toasts";
 import { useTipo } from "@/components/TipoContext";
 import { api } from "@/lib/api.client";
@@ -21,19 +22,19 @@ const PESTANAS: { id: Pestana; nombre: string }[] = [
  *  La 4a pestaña (Presupuestación) llega en Fase 4. */
 export function Inicio() {
   const tipo = useTipo();
-  const [programas, setProgramas] = useState<Programa[] | null>(null);
+  const [programas, setProgramas] = useState<(Programa & { centro_gestor_id?: string })[] | null>(null);
+  const [centros, setCentros] = useState<{ id: string; clave: string; nombre: string }[]>([]);
   const [pid, setPid] = useState("");
   const [tab, setTab] = useState<Pestana>("arbol");
   const { setItems } = useDescargas();
 
   useEffect(() => {
     if (tipo === "padron") return;
-    // /api/programas ya filtra por usuario_programa (administrador y alcalde ven todos)
-    api<Programa[]>("/api/programas?activo=true").then((l) => {
-      setProgramas(l);
-      const reciente = Math.max(0, ...l.map((p) => p.ejercicio_fiscal));
-      setPid((l.find((p) => p.ejercicio_fiscal === reciente) ?? l[0])?.id ?? "");
-    }).catch((e) => { setProgramas([]); toast.error(mensajeError(e)); });
+    // /api/programas ya filtra por usuario_programa (administrador y alcalde ven todos). Al entrar no se
+    // elige ningún programa: no se carga ninguna pestaña hasta que la persona elija uno.
+    Promise.all([api<Programa[]>("/api/programas?activo=true"), api<typeof centros>("/api/centros-gestores")])
+      .then(([l, c]) => { setProgramas(l); setCentros(c); })
+      .catch((e) => { setProgramas([]); toast.error(mensajeError(e)); });
   }, [tipo]);
 
   // Las descargas viven en el ícono de nube del encabezado; dependen del programa elegido
@@ -55,15 +56,20 @@ export function Inicio() {
   // agregando ejercicio y clave solo a esos, para no dejar opciones indistinguibles.
   const repetidos = new Set((programas ?? []).map((p) => p.nombre).filter((n, i, a) => a.indexOf(n) !== i));
   const etiqueta = (p: Programa) => (repetidos.has(p.nombre) ? `${p.nombre} (${p.ejercicio_fiscal} · ${p.clave})` : p.nombre);
+  // agrupados por centro gestor: grupos por clave del centro gestor y programas por clave
+  const grupos: GrupoSelect[] = centros.slice().sort((a, b) => a.clave.localeCompare(b.clave, "es", { numeric: true }))
+    .map((c) => ({
+      etiqueta: c.nombre,
+      opciones: (programas ?? []).filter((p) => p.centro_gestor_id === c.id)
+        .sort((a, b) => a.clave.localeCompare(b.clave, "es", { numeric: true }) || b.ejercicio_fiscal - a.ejercicio_fiscal)
+        .map((p) => ({ valor: p.id, etiqueta: etiqueta(p) })),
+    })).filter((g) => g.opciones.length > 0);
 
   return (
     <>
       <div className="inicio-selector">
-        <select className="form-control" aria-label="Programa" value={pid} onChange={(e) => setPid(e.target.value)}>
-          {programas === null && <option>Cargando…</option>}
-          {programas?.length === 0 && <option value="">Sin programas asignados</option>}
-          {(programas ?? []).map((p) => <option key={p.id} value={p.id}>{etiqueta(p)}</option>)}
-        </select>
+        <SelectBuscable grupos={grupos} valor={pid} onChange={setPid} placeholder="--Selecciona el programa--" ariaLabel="Programa" />
+        {programas?.length === 0 && <p className="text-muted" style={{ marginTop: 8 }}>No tienes programas asignados.</p>}
       </div>
       {pid && (
         <div className="inicio-panel">
