@@ -53,10 +53,12 @@ export const MENU_MUNICIPIO: Menu = [
   {
     label: "Estadísticas", icon: "fa-bar-chart",
     tipos: ["informes", "padron", "presupuestacion", "control_presupuestal", "alcalde"], hijos: [
-      { label: "Dependencias", tipos: [...mir, ...T.presup, ...T.ctrl] },
-      { label: "Ejes", tipos: mir }, { label: "Cumplimiento de Metas", tipos: mir },
-      { label: "Consolidado", tipos: mir }, { label: "Cuenta Pública", tipos: mir },
-      { label: "Transparencia", tipos: mir },
+      { label: "Dependencias", href: "/estadisticas/dependencias", tipos: [...mir, ...T.presup, ...T.ctrl] },
+      { label: "Ejes", href: "/estadisticas/ejes", tipos: mir },
+      { label: "Cumplimiento de Metas", href: "/estadisticas/cumplimiento-metas", tipos: mir },
+      { label: "Consolidado", href: "/estadisticas/consolidado", tipos: mir },
+      { label: "Cuenta Pública", href: "/estadisticas/cuenta-publica", tipos: mir },
+      { label: "Transparencia", href: "/estadisticas/transparencia", tipos: mir },
       { label: "PbR", tipos: [...T.presup, ...T.ctrl, ...T.alc] },
       { label: "Estadísticas del padrón", tipos: T.padron },
     ],

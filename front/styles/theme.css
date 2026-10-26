@@ -254,3 +254,25 @@ body.app-body { background: var(--c-body); }
 .descargas-menu ul { position: absolute; right: 0; top: 100%; z-index: 20; background: #fff; border: 1px solid #ddd; padding: 4px 0; margin: 2px 0 0; list-style: none; min-width: 270px; box-shadow: 0 3px 8px rgba(0,0,0,.15); }
 .descargas-menu li a { display: block; padding: 7px 16px; color: var(--c-text); }
 .descargas-menu li a:hover { background: #f3f3f3; }
+
+/* ---------- Estadísticas (Fase 3) */
+.btn-excel { background: var(--c-btn-primary); border-color: var(--c-btn-primary); color: #fff; }
+.btn-excel:hover, .btn-excel:focus { background: #9a66c4; border-color: #9a66c4; color: #fff; }
+.stat-filtros { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.stat-filtros .form-group { margin: 0; min-width: 160px; }
+.stat-filtros > .btn { margin-top: 25px; }
+.stat-nota { font-size: 12px; color: #777; margin: 4px 0 0; }
+.stat-grafica { overflow-x: auto; }
+.stat-grafica svg text { font-family: inherit; }
+.stat-barra { cursor: pointer; }
+.stat-barra:hover { opacity: .8; }
+.stat-tooltip { position: fixed; z-index: 2000; background: rgba(50,50,58,.95); color: #fff; padding: 8px 12px;
+  font-size: 12px; pointer-events: none; border-radius: 2px; line-height: 18px; }
+.stat-leyenda { display: flex; justify-content: center; gap: 18px; margin: 6px 0 12px; }
+.stat-leyenda span.cuadro { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle; }
+.stat-detalle-titulo { display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 16px 0 8px; }
+.stat-franja { background: var(--c-btn-success); color: #fff; text-align: center; font-size: 18px; padding: 10px; margin-top: 18px; }
+.stat-tabla-ancha { overflow-x: auto; border: 1px solid var(--c-header-border); }
+.stat-tabla-ancha table { margin: 0; white-space: nowrap; font-size: 12px; }
+.stat-tabla-ancha th { background: #bbb; text-align: center; vertical-align: middle !important; white-space: normal; min-width: 110px; }
+.stat-tabla-ancha td { vertical-align: middle !important; }
