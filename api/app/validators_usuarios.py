@@ -26,6 +26,13 @@ PERMISOS: dict[str, frozenset[str]] = {
     # "Inicio" en su menú; además cada endpoint filtra por los programas asignados (usuario_programa).
     "inicio": frozenset({"informes", "presupuestacion", "control_presupuestal", "indicadores",
                          "alcalde", ADMIN}),
+    # Fase 3: módulo Estadísticas. "estadisticas" = Ejes, Cumplimiento de Metas, Consolidado, Cuenta
+    # Pública, Transparencia (informes y alcalde); "estadisticas_dependencias" suma a presupuestación
+    # y control presupuestal, que solo tienen Dependencias en su menú. Además todo se acota por el
+    # mismo alcance de programas del resto de las fases (administrador y alcalde ven todos).
+    "estadisticas": frozenset({"informes", "alcalde", ADMIN}),
+    "estadisticas_dependencias": frozenset({"informes", "presupuestacion", "control_presupuestal",
+                                            "alcalde", ADMIN}),
     # Configuración
     "config_ver": frozenset({"informes", "alcalde", ADMIN}),
 }
