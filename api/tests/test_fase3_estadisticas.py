@@ -260,3 +260,59 @@ def test_administrador_y_alcalde_ven_todos_los_programas_como_en_programas_visib
     m.usuario("normal1", "informes")
     n = stats(m, m.cliente("normal1", "pw"), "dependencias", anio=2025).json()["grupos"]
     assert n == []
+
+
+# =========================================================== campos de la ficha en los exports (indicador 411, 2025)
+def _indicador_411(m, db):
+    """El 411 (Propósito) del programa 1014 con los datos de la referencia: A/B de 2025, meta 15% (texto), año base 2024
+    con su resultado programado 15, y medios de verificación. Su ID real (411) se fija como lo hace el seed."""
+    from sqlalchemy import select
+
+    from app.models import Indicador
+    ctx = Ctx(m)
+    d = next(i for i in datos.INDICADORES if i["id"] == 411)
+    cuerpo = {"mir": {"medios_verificacion": "REGISTROS DE LA DIRECCIÓN DE DESARROLLO ECONÓMICO."},
+              "ficha": {"tipo": "estrategico", "nombre": d["nombre"], "interpretacion": "Mide la población atendida", "dimension": "eficacia",
+                        "frecuencia_id": ctx.frec, "unidad_medida": "PORCENTAJE", "algoritmo": d["algoritmo"],
+                        "unidad_a": "pers", "unidad_b": "pers", "descripcion_a": "PERSONAS ATENDIDAS LABORALMENTE.",
+                        "descripcion_b": "TOTAL DE PERSONAS SIN EMPLEO ECONÓMICAMENTE ACTIVOS DEL MUNICIPIO."},
+              "metas": {"anio_base": 2024, "meta_administracion": d["meta_texto"], "anuales": [
+                  {"anio": 2024, "valor_a_programado": 15, "valor_b_programado": 100},
+                  {"anio": 2025, "valor_a_programado": d["meta_a"], "valor_b_programado": d["meta_b"], "es_ejercicio_fiscal": True}]},
+              "rangos": datos.rangos_de(d)}
+    r = m.post(m.admin, f"/api/elementos-matriz/{ctx.mat['proposito']['id']}/indicadores", cuerpo)
+    assert r.status_code == 201, r.text
+    pares = [{"mes": k, "valor_a": a, "valor_b": b} for k, (a, b) in enumerate(zip(d["A"], d["B"]), 1) if a is not None or b is not None]
+    assert ctx.put(r.json(), pares, anio=2025).status_code == 200
+    ind = db.scalar(select(Indicador).where(Indicador.nombre == d["nombre"]))
+    ind.id_numerico = 411
+    db.commit()
+    return ctx, usuario_con(m, [ctx.pid], "info1", tipo="informes")
+
+
+def test_transparencia_indicador_411_2025_con_los_campos_de_la_ficha(m, db):
+    ctx, u = _indicador_411(m, db)
+    t = stats(m, u, "transparencia", anio=2025, centro_gestor_id=ctx.cg["id"], programa_id=ctx.pid).json()
+    assert len(t["filas"]) == 1
+    fila = dict(zip(t["encabezados"], t["filas"][0]))
+    assert fila["ID del indicador"] == 411
+    assert fila["Año línea base"] == 2024 and fila["Valor línea base"] == 15  # resultado programado del año base
+    assert fila["Metas programadas del año en análisis"] == 15
+    assert fila["Descripción de la meta programada"] == "15% PERSONAS ATENDIDAS LABORALMENTE."
+    assert fila["Avance de las metas"] == 7.98
+    assert fila["Fuente de información"] == "REGISTROS DE LA DIRECCIÓN DE DESARROLLO ECONÓMICO."  # = medios de verificación
+    assert fila["Definición del indicador"] == "Mide la población atendida"  # = interpretación (PENDIENTE de verificación)
+    assert fila["Método de cálculo"] == ("(A: PERSONAS ATENDIDAS LABORALMENTE. / B: TOTAL DE PERSONAS SIN EMPLEO "
+                                         "ECONÓMICAMENTE ACTIVOS DEL MUNICIPIO.) * 100")
+    assert fila["Algoritmo"] == "(A / B) * 100" and fila["Nivel de la MIR"] == "Proposito"
+
+
+def test_cuenta_publica_indicador_411_2025_con_id_formula_y_meta_en_texto(m, db):
+    ctx, u = _indicador_411(m, db)
+    t = stats(m, u, "cuenta-publica", anio=2025, centro_gestor_id=ctx.cg["id"], programa_id=ctx.pid).json()
+    assert len(t["filas"]) == 2  # una fila por variable (A y B)
+    a = dict(zip(t["encabezados"], t["filas"][0]))
+    assert a["ID del indicador"] == 411
+    assert a["Descripción de variables de la fórmula"].startswith("(A: PERSONAS ATENDIDAS LABORALMENTE. / B: TOTAL DE PERSONAS SIN EMPLEO")
+    assert a["Meta del indicador programada"] == "15% PERSONAS ATENDIDAS LABORALMENTE."  # texto, no el número
+    assert a["Meta del indicador alcanzada"] == 7.98 and a["Avance / Programado"] == 53.2

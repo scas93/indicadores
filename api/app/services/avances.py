@@ -39,8 +39,9 @@ def _datos_generales(db: Session, i: Indicador, e: ElementoMatriz) -> dict:
             "algoritmo": i.algoritmo.value if i.algoritmo else None, "usa_b": vm.usa_b(
                 i.algoritmo.value if i.algoritmo else None), "unidad_a": i.unidad_a,
             "unidad_b": None if solo_a else i.unidad_b,
+            "descripcion_a": i.descripcion_a, "descripcion_b": None if solo_a else i.descripcion_b,
             "nivel": e.nivel.value, "numero": e.numero, "resumen_narrativo": e.resumen_narrativo,
-            "anio_base": i.anio_base, "meta_administracion": _f(i.meta_administracion)}
+            "anio_base": i.anio_base, "meta_administracion": i.meta_administracion}
 
 
 def _anio_por_defecto(db: Session, i: Indicador, programa_ejercicio: int) -> int:

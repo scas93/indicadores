@@ -184,6 +184,11 @@ def _rangos_texto(rangos: dict) -> str:
     return f"Verde: {t('verde')}   Amarillo: {t('amarillo')}   Rojo: {t('rojo')}"
 
 
+def _variable(descripcion: str | None, unidad: str | None) -> str:
+    """Texto de una variable en la ficha: su descripción y, si hay, su unidad entre paréntesis."""
+    return f"{descripcion or ''}{f' ({unidad})' if unidad else ''}" or '—'
+
+
 def ficha_narrativa_pdf(programa: dict, elemento: dict, indicador: dict, frecuencias: dict) -> bytes:
     """Ficha Narrativa: resumen del indicador + MIR del elemento al que pertenece."""
     f, m = indicador["ficha"], indicador["metas"]
@@ -200,11 +205,12 @@ def ficha_narrativa_pdf(programa: dict, elemento: dict, indicador: dict, frecuen
              [_p("Frecuencia", CELB), _p(freq)],
              [_p("Unidad de medida", CELB), _p(f["unidad_medida"])],
              [_p("Algoritmo", CELB), _p(ALGORITMO_TEXTO.get(f["algoritmo"] or "", "—"))],
-             [_p("Variable A", CELB), _p(f["unidad_a"])]]
+             [_p("Variable de cálculo (A)", CELB), _p(_variable(f["descripcion_a"], f["unidad_a"]))]]
     if f["algoritmo"] != "a":
-        ficha.append([_p("Variable B", CELB), _p(f["unidad_b"])])
-    ficha += [[_p("Año base", CELB), _p(m["anio_base"] if m["anio_base"] is not None else "—")],
-              [_p("Meta de la administración", CELB), _p(_num(m["meta_administracion"]))],
+        ficha.append([_p("Variable de cálculo (B)", CELB), _p(_variable(f["descripcion_b"], f["unidad_b"]))])
+    ficha += [[_p("Fecha de elaboración", CELB), _p(f["fecha_elaboracion"] or "—")],
+              [_p("Año base", CELB), _p(m["anio_base"] if m["anio_base"] is not None else "—")],
+              [_p("Meta de la administración", CELB), _p(m["meta_administracion"] or "—")],
               [_p("Semáforo", CELB), _p(_rangos_texto(indicador["rangos"]))]]
     w = [5.5 * cm, ANCHO - 5.5 * cm]
     return _construir("Ficha Narrativa", programa,
@@ -228,7 +234,7 @@ def ficha_avance_pdf(programa: dict, elemento: dict, rejilla: dict) -> bytes:
                [_p("Nivel", CELB), _p(_etiqueta_nivel({"nivel": ind["nivel"], "numero": ind["numero"]}))],
                [_p("Fórmula", CELB), _p(ALGORITMO_TEXTO.get(ind["algoritmo"] or "", "—"))],
                [_p("Línea base / meta administración", CELB),
-                _p(f"{ind['anio_base'] if ind['anio_base'] is not None else '—'} / {_num(ind['meta_administracion'])}")],
+                _p(f"{ind['anio_base'] if ind['anio_base'] is not None else '—'} / {ind['meta_administracion'] or '—'}")],
                [_p(f"Meta {rejilla['anio']}", CELB),
                 _p(f"A: {_num(meta.get('valor_a_programado'))}" + (f"   B: {_num(meta.get('valor_b_programado'))}" if usa_b else ""))],
                [_p("Semáforo", CELB), _p(_rangos_texto(rejilla["rangos"]))]]

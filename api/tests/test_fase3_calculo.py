@@ -82,3 +82,24 @@ def test_los_datos_de_referencia_son_coherentes_con_el_calculo():
 
 def _d(x):
     return None if x is None else D(str(x))
+
+
+# --- fórmula con las descripciones de las variables (exports: formato de la referencia) -----------
+def test_formula_con_descripciones_formato_de_la_referencia():
+    f = ce.formula_con_descripciones
+    assert f("a_sobre_b_menos1_pct", "NÚMERO DE AFILIADOS AL IMSS, AÑO ACTUAL.", "NÚMERO DE AFILIADO AL IMSS, AÑO ANTERIOR.") == (
+        "((A: NÚMERO DE AFILIADOS AL IMSS, AÑO ACTUAL. / B: NÚMERO DE AFILIADO AL IMSS, AÑO ANTERIOR.) - 1) * 100")
+    assert f("a_sobre_b_pct", "PERSONAS ATENDIDAS LABORALMENTE.", "TOTAL DE PERSONAS.") == (
+        "(A: PERSONAS ATENDIDAS LABORALMENTE. / B: TOTAL DE PERSONAS.) * 100")
+    assert f("a_sobre_b", "x", "y") == "A: x / B: y"
+    assert f("a", "NÚMERO DE LICENCIAS MUNICIPALES OTORGADAS.", "ignorada") == "A: NÚMERO DE LICENCIAS MUNICIPALES OTORGADAS."  # solo A
+    assert f(None, "x", "y") == "" and f("algo_raro", "x", "y") == ""
+
+
+def test_el_dataset_de_la_referencia_trae_formulas_identicas_a_las_del_export():
+    """Las 19 fórmulas con descripciones del export de Cuenta Pública se reproducen desde A/B sin perder un carácter."""
+    from seed_data.economico_2025 import INDICADORES
+    por_id = {i["id"]: i for i in INDICADORES}
+    assert ce.formula_con_descripciones(por_id[410]["algoritmo"], por_id[410]["descripcion_a"], por_id[410]["descripcion_b"]).startswith(
+        "((A: NÚMERO DE AFILIADOS AL IMSS, AÑO ACTUAL. / B: NÚMERO DE AFILIADO AL IMSS")
+    assert por_id[512]["descripcion_b"] is None and por_id[411]["meta_texto"] == "15% PERSONAS ATENDIDAS LABORALMENTE."

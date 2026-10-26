@@ -10,8 +10,9 @@ import { Semaforo } from "./Semaforo";
 
 type General = {
   id: string; nombre: string; interpretacion: string; tipo: string; dimension: string | null; unidad_medida: string;
-  algoritmo: string | null; usa_b: boolean; unidad_a: string; unidad_b: string | null; nivel: string; numero: string;
-  anio_base: number | null; meta_administracion: number | null;
+  algoritmo: string | null; usa_b: boolean; unidad_a: string; unidad_b: string | null;
+  descripcion_a: string; descripcion_b: string | null; nivel: string; numero: string;
+  anio_base: number | null; meta_administracion: string | null;
 };
 type FilaLista = General & Resultado & { anio: number };
 type Rejilla = Resultado & {
@@ -112,11 +113,11 @@ function AvanceModal({ indicadorId, onClose }: { indicadorId: string; onClose: (
       </div>
       <div className="row" style={{ marginTop: 8 }}>
         {dato("Interpretación", i.interpretacion)}{dato("Algoritmo", nombreAlgoritmo(i.algoritmo))}
-        {dato("Unidad de medida", i.unidad_medida)}{dato("Variable A", i.unidad_a)}
+        {dato("Unidad de medida", i.unidad_medida)}{dato("Variable A", [i.descripcion_a, i.unidad_a && `(${i.unidad_a})`].filter(Boolean).join(" "))}
       </div>
       <div className="row" style={{ marginTop: 8 }}>
-        {i.usa_b && dato("Variable B", i.unidad_b)}
-        {dato("Línea base (año)", i.anio_base)}{dato("Meta de la administración", fmt(i.meta_administracion))}
+        {i.usa_b && dato("Variable B", [i.descripcion_b, i.unidad_b && `(${i.unidad_b})`].filter(Boolean).join(" "))}
+        {dato("Línea base (año)", i.anio_base)}{dato("Meta de la administración", i.meta_administracion)}
         {dato(`Meta ${rej.anio}`, rej.meta ? `A: ${fmt(rej.meta.valor_a_programado)}${i.usa_b ? `   B: ${fmt(rej.meta.valor_b_programado)}` : ""}` : "Sin meta")}
       </div>
       <div className="toolbar" style={{ marginTop: 16 }}>

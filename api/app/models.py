@@ -1,9 +1,9 @@
 import enum
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Index,
+from sqlalchemy import (JSON, Boolean, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index,
                         Integer, Numeric, String, Text, TypeDecorator, UniqueConstraint, Uuid, text)
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
@@ -421,6 +421,7 @@ class ElementoMatriz(TenantMixin, Base):
 
 class Indicador(TenantMixin, Base):
     __tablename__ = "indicador"
+    __table_args__ = (UniqueConstraint("municipio_id", "id_numerico", name="uq_indicador_municipio_id_numerico"),)
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     elemento_matriz_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("elemento_matriz.id"), index=True)
@@ -434,6 +435,8 @@ class Indicador(TenantMixin, Base):
     algoritmo: Mapped[Algoritmo | None] = mapped_column(_enum(Algoritmo))
     unidad_a: Mapped[str] = mapped_column(Text, default="")
     unidad_b: Mapped[str | None] = mapped_column(Text)
+    descripcion_a: Mapped[str] = mapped_column(Text, default="")        # "PERSONAS ATENDIDAS LABORALMENTE."
+    descripcion_b: Mapped[str | None] = mapped_column(Text)             # NULL con el algoritmo "solo A"
     rango_verde_desde: Mapped[Decimal | None] = mapped_column(_VALOR)
     rango_verde_hasta: Mapped[Decimal | None] = mapped_column(_VALOR)
     rango_amarillo_desde: Mapped[Decimal | None] = mapped_column(_VALOR)
@@ -441,7 +444,11 @@ class Indicador(TenantMixin, Base):
     rango_rojo_desde: Mapped[Decimal | None] = mapped_column(_VALOR)
     rango_rojo_hasta: Mapped[Decimal | None] = mapped_column(_VALOR)
     anio_base: Mapped[int | None] = mapped_column(Integer)
-    meta_administracion: Mapped[Decimal | None] = mapped_column(_VALOR)
+    meta_administracion: Mapped[str | None] = mapped_column(Text)  # texto libre: "15% PERSONAS ATENDIDAS LABORALMENTE."
+    fecha_elaboracion: Mapped[date | None] = mapped_column(Date)
+    # ID del indicador: consecutivo por municipio, se asigna al crear y no cambia nunca. Solo sale en los
+    # exports (no se muestra en pantallas). El seed puede fijar uno explícito.
+    id_numerico: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
 
 

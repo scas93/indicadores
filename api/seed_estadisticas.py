@@ -9,7 +9,8 @@ Carga, con el alcance del municipio dado:
     de muestra, y el programa 1014
     "Fortalecimiento del empleo y la gestión empresarial" (ejercicio 2025);
   * su MIR: Fin, Propósito, 5 Componentes y 12 Actividades, con sus 19 indicadores, la meta anual 2025 y
-    las capturas A/B mensuales reales (seed_data/economico_2025.py, del export de Cuenta Pública);
+    las capturas A/B mensuales reales (seed_data/economico_2025.py, del export de Cuenta Pública), con su ID
+    real (410, 411, 512…), texto de la meta y descripciones de las variables;
   * un usuario tipo Informes asignado al programa 1014.
 Con 2025 deben verse (Dependencias y Ejes): obtenido 7/1/10/1 y (C.O/C.E)×100 14/0/4/1 (total 19).
 
@@ -108,7 +109,8 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
 
     # --- indicadores, meta anual y capturas mensuales
     n_avances = 0
-    for ind in datos.INDICADORES:
+    objetos: dict[str, Indicador] = {}
+    for k, ind in enumerate(datos.INDICADORES):
         r = datos.rangos_de(ind)
         rangos = {f"rango_{c}_{k}": _d(r.get(c, {}).get(k)) for c in ("verde", "amarillo", "rojo") for k in ("desde", "hasta")}
         solo_a = ind["algoritmo"] == "a"
@@ -116,7 +118,12 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
             "tipo": TipoIndicador.estrategico if ind["nivel"] in ("fin", "proposito") else TipoIndicador.gestion,
             "prioritario": False, "interpretacion": "", "dimension": DimensionIndicador.eficacia,
             "frecuencia_id": frec.id, "unidad_medida": ind["unidad_medida"], "algoritmo": Algoritmo(ind["algoritmo"]),
-            "unidad_a": ind["unidad_a"], "unidad_b": None if solo_a else ind["unidad_b"], **rangos})
+            "unidad_a": ind["unidad_a"], "unidad_b": None if solo_a else ind["unidad_b"],
+            "descripcion_a": ind["descripcion_a"], "descripcion_b": None if solo_a else ind["descripcion_b"],
+            "meta_administracion": ind["meta_texto"],
+            "id_numerico": -(k + 1),  # provisional: el ID real se fija abajo sin chocar con la unicidad
+            **rangos})
+        objetos[ind["ref"]] = i
         _uno(db, MetaAnual, {"indicador_id": i.id, "anio": anio},
              {"valor_a_programado": _d(ind["meta_a"]), "valor_b_programado": None if solo_a else _d(ind["meta_b"]),
               "es_ejercicio_fiscal": True})
@@ -126,6 +133,16 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
                 continue  # mes sin captura: no se crea fila
             _uno(db, AvanceMensual, {"indicador_id": i.id, "anio": anio, "mes": mes}, {"valor_a": _d(a), "valor_b": _d(b)})
             n_avances += 1
+
+    # --- ID real del indicador (el de la referencia: 410, 411, 512…); el consecutivo automático sigue desde el máximo
+    reales = {ind["id"] for ind in datos.INDICADORES}
+    ajeno = db.scalar(select(Indicador.id_numerico).where(
+        Indicador.id_numerico.in_(reales), Indicador.id.notin_([o.id for o in objetos.values()])))
+    if ajeno is not None:
+        raise ValueError(f"El ID {ajeno} ya lo usa otro indicador del municipio; no se puede fijar el ID real de la referencia")
+    for ind in datos.INDICADORES:
+        objetos[ind["ref"]].id_numerico = ind["id"]
+    db.flush()
 
     # --- usuario Informes asignado al programa (la contraseña se fija en cada corrida)
     u = db.scalar(select(Usuario).where(Usuario.usuario == usuario))

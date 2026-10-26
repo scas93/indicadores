@@ -331,3 +331,6 @@ body.app-body { background: var(--c-body); }
 .sb-op-grupo { padding-left: 22px; }
 .sb-op.sb-activa { background: #5589c5; color: #fff; }
 .sb-vacio { padding: 8px; color: #888; text-align: center; }
+
+/* campos calculados de solo lectura (p. ej. columna Resultado de la tabla de metas) */
+.campo-calculado { background: #eee !important; color: #444; cursor: default; }
