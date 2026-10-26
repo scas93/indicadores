@@ -2,7 +2,7 @@
 Los casos 4 y 5 (estructura exacta de columnas de las exportaciones) son verificación manual contra el
 sistema de referencia; aquí solo hay un humo de que existen y tienen 38 / 26 columnas.
 
-Datos reales: los 19 indicadores del programa 1014 (ECONÓMICO) 2025 salen del export de Cuenta Pública
+Datos reales (seed_data/economico_2025.py): los 19 indicadores del programa 1014 (ECONÓMICO) 2025 salen del export de Cuenta Pública
 del sistema de referencia (A/B mensuales, resultado alcanzado y avance/programado). Los rangos de color
 NO vienen en el export (solo los del 410): son INFERIDOS para reproducir los conteos verificados en vivo
 — RANGOS INFERIDOS, PENDIENTES DE VERIFICACIÓN."""
@@ -12,53 +12,9 @@ import pytest
 
 from app import calculo
 from app import calculo_estadisticas as ce
+from seed_data.economico_2025 import REF_2025
 
 D = Decimal
-R410 = {"verde": {"desde": 8.1, "hasta": 10}, "amarillo": {"desde": 6.1, "hasta": 8},
-        "rojo": {"desde": -50, "hasta": 6}}
-
-# (id de referencia, algoritmo, meta A programada, meta B programada, A mensual, B mensual,
-#  color esperado en modo obtenido, color esperado en C.O/C.E, alcanzada, avance/programado)
-REF_2025 = [
-    ("411", "a_sobre_b_pct", 15, 100, [3411, 345, 1212, 1032, 345, 673, 523, 345, 345, 641, 456, 250],
-     [10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000], "rojo", "rojo", 7.98, 53.2),
-    ("410", "a_sobre_b_menos1_pct", 110, 100, [110, 150, 90, 250, 250, 38, 250, 142, 265, 35, 45, 125],
-     [100, 80, 70, 250, 222, 25, 210, 189, 240, 40, 45, 120], "verde", "gris", 9.99, 99.9),
-    ("512", "a", 4000, None, [120, 120, 200, 120, 110, 100, 140, 200, 100, 100, 625, 205],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "gris", "rojo", 2140.0, 53.5),
-    ("513", "a", 500, None, [40, 40, 40, 40, 40, 40, 50, 40, 40, 45, 45, 40],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "verde", 500.0, 100.0),
-    ("514", "a", 1, None, [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "verde", "verde", 1.0, 100.0),
-    ("582", "a", 40, None, [10, 0, 0, 10, 0, 0, 10, 0, 0, 10, 0, 0],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "verde", "verde", 40.0, 100.0),
-    ("584", "a", 1500, None, [200, 200, 0, 200, 200, 0, 0, 200, 200, 0, 200, 100],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "verde", 1500.0, 100.0),
-    ("515", "a", 10, None, [1, 5, 7, 2, 2, 2, 0, 1, 1, None, 3, None],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "verde", 24.0, 240.0),
-    ("574", "a", 6, None, [1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 2],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "verde", 8.0, 133.33),
-    ("575", "a", 8, None, [2, 2, 0, 2, 0, 0, 1, 2, 1, 0, 0, 0],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "verde", 10.0, 125.0),
-    ("576", "a_sobre_b_pct", 80, 100, [200, 521, 200, 120, 254, 326, 250, 320, 405, 254, 120, 350],
-     [9000, None, None, None, None, None, None, None, None, None, None, None], "rojo", "rojo", 36.89, 46.11),
-    ("577", "a", 1, None, [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "verde", "verde", 1.0, 100.0),
-    ("516", "a", 100, None, [25, 4, 3, 25, 2, 7, 25, 6, 5, 25, 0, 0],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "verde", "verde", 127.0, 127.0),
-    ("517", "a", 540, None, [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, None, 25],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "rojo", 275.0, 50.93),
-    ("578", "a", 6, None, [2, 0, 1, 1, 2, 1, 0, 1, 2, 0, 1, 0],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "rojo", "verde", 11.0, 183.33),
-    ("579", "a_sobre_b_pct", 80, 100, [12, 10, 8, 9, 7, 5, 8, 9, 6, 2, 5, 3],
-     [12, 11, 10, 9, 7, 5, 8, 9, 9, 2, 5, 3], "rojo", "verde", 93.33, 116.66),
-    ("583", "a", 80, None, [5, 2, 6, 5, 12, 12, 12, 12, 4, 4, 4, 2],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "verde", "verde", 80.0, 100.0),
-    ("585", "a", 395, None, [39, 42, 25, 28, 32, 25, 45, 20, 20, 22, 49, 31],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "verde", "verde", 378.0, 95.7),
-    ("586", "a", 35, None, [6, 6, 6, None, None, None, 6, 6, None, None, 4, None],
-     [None, None, None, None, None, None, None, None, None, None, None, None], "amarillo", "verde", 34.0, 97.14),
-]
 
 
 def test_modo_co_ce_divide_entre_la_meta_y_redondea_a_dos_decimales():

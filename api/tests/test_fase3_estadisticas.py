@@ -10,39 +10,29 @@ import pytest
 
 from .test_fase1_flujos import m  # noqa: F401  (fixture `m`)
 from .test_fase2_flujos import Ctx, hoy_fijo, usuario_con  # noqa: F401  (hoy_fijo es autouse)
-from .test_fase3_calculo import R410, REF_2025
+from seed_data import economico_2025 as datos
 
-ESPERADO = {"obtenido": dict(verde=7, amarillo=1, rojo=10, gris=1, total=19),
-            "co_ce": dict(verde=14, amarillo=0, rojo=4, gris=1, total=19)}
-
-
-def rangos_inferidos(pares: list[tuple[float, str]]) -> dict:
-    """Un intervalo por color (±1 alrededor de los valores que deben caer ahí); gris = ningún intervalo."""
-    out: dict = {}
-    for color in ("verde", "amarillo", "rojo"):
-        vals = [v for v, c in pares if c == color]
-        if vals:
-            out[color] = {"desde": min(vals) - 1, "hasta": max(vals) + 1}
-    return out
+ESPERADO = datos.CONTEOS_2025
 
 
 def meses(valores):
     return [{"mes": i, "valor_a": v, "valor_b": None} for i, v in enumerate(valores, 1) if v is not None]
 
 
+def _crear(ctx: Ctx, ind: dict, anio=2025) -> dict:
+    """Crea un indicador del dataset real con su meta, rangos (reales/inferidos) y avances del año."""
+    nuevo = ctx.nuevo_indicador(algoritmo=ind["algoritmo"], nombre=ind["ref"], rangos=datos.rangos_de(ind), anuales=[
+        {"anio": anio, "valor_a_programado": ind["meta_a"], "valor_b_programado": ind["meta_b"], "es_ejercicio_fiscal": True}])
+    pares = [{"mes": i, "valor_a": a, "valor_b": b if ind["algoritmo"] != "a" else None}
+             for i, (a, b) in enumerate(zip(ind["A"], ind["B"]), 1) if a is not None or b is not None]
+    r = ctx.put(nuevo, pares, anio=anio)
+    assert r.status_code == 200, r.text
+    return nuevo
+
+
 def cargar_2025(ctx: Ctx, anio=2025) -> dict[str, dict]:
     """Crea los 19 indicadores con sus metas, rangos y avances 2025; devuelve {id_ref: indicador}."""
-    inds = {}
-    for ref, alg, ma, mb, A, B, c_obt, c_ce, alc, av in REF_2025:
-        rangos = R410 if ref == "410" else rangos_inferidos([(alc, c_obt), (av, c_ce)])
-        ind = ctx.nuevo_indicador(algoritmo=alg, nombre=ref, rangos=rangos, anuales=[
-            {"anio": anio, "valor_a_programado": ma, "valor_b_programado": mb, "es_ejercicio_fiscal": True}])
-        pares = [{"mes": i, "valor_a": a, "valor_b": b if alg != "a" else None}
-                 for i, (a, b) in enumerate(zip(A, B), 1) if a is not None or b is not None]
-        r = ctx.put(ind, pares, anio=anio)
-        assert r.status_code == 200, r.text
-        inds[ref] = ind
-    return inds
+    return {ind["ref"]: _crear(ctx, ind, anio) for ind in datos.INDICADORES}
 
 
 def stats(m, c, ruta, **params):
@@ -162,8 +152,8 @@ def test_caso6_exportar_sin_programa_asignado_es_403_y_con_programa_asignado_es_
 def test_caso7_seleccion_multiple_equivale_a_sumar_cada_dependencia(m):
     a, b = Ctx(m, "A"), Ctx(m, "B")
     cargar_2025(a)
-    for ref in REF_2025[:6]:  # un subconjunto distinto en la segunda dependencia
-        _crear(b, ref)
+    for ind in datos.INDICADORES[:6]:  # un subconjunto distinto en la segunda dependencia
+        _crear(b, ind)
     u = usuario_con(m, [a.pid, b.pid], "info1", tipo="informes")
     ids = [a.cg["id"], b.cg["id"]]
     multi = stats(m, u, "consolidado", anio=2025, tipo_cumplimiento="co_ce", **{"centro_gestor_ids[]": ids}).json()["grupos"]
@@ -174,15 +164,6 @@ def test_caso7_seleccion_multiple_equivale_a_sumar_cada_dependencia(m):
     # y "ninguna seleccionada" = todas las del alcance, sin duplicados
     todas = stats(m, u, "dependencias", anio=2025, tipo_cumplimiento="co_ce").json()["grupos"]
     assert sorted(g["id"] for g in todas) == sorted(ids) and totales(todas) == totales(multi)
-
-
-def _crear(ctx: Ctx, ref):
-    rid, alg, ma, mb, A, B, c_obt, c_ce, alc, av = ref
-    rangos = R410 if rid == "410" else rangos_inferidos([(alc, c_obt), (av, c_ce)])
-    ind = ctx.nuevo_indicador(algoritmo=alg, nombre=rid, rangos=rangos, anuales=[
-        {"anio": 2025, "valor_a_programado": ma, "valor_b_programado": mb, "es_ejercicio_fiscal": True}])
-    ctx.put(ind, [{"mes": i, "valor_a": a, "valor_b": b if alg != "a" else None}
-                  for i, (a, b) in enumerate(zip(A, B), 1) if a is not None or b is not None], anio=2025)
 
 
 # =========================================================== caso 3 y exportaciones (humo)
@@ -261,8 +242,8 @@ def test_administrador_y_alcalde_ven_todos_los_programas_como_en_programas_visib
     municipio en reportes, detalle, selectores y exportaciones; un tipo normal sin asignar no ve nada."""
     a, b = Ctx(m, "A"), Ctx(m, "B")
     cargar_2025(a)
-    for ref in REF_2025[:6]:
-        _crear(b, ref)
+    for ind in datos.INDICADORES[:6]:
+        _crear(b, ind)
     if tipo == "administrador":
         c = m.admin  # el administrador del municipio, sin ninguna fila en usuario_programa
     else:
