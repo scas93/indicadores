@@ -85,7 +85,8 @@ def test_detalle_clic_en_color_muestra_valores_del_modo_activo(m, eco):
     assert [i["nombre"] for i in gris] == ["410"] and gris[0]["cumplimiento"] == 99.9
     assert gris[0]["cumplimiento_obtenido"] == 9.99 and gris[0]["meta_anual"] == 10.0
     amar = stats(m, u, "indicadores", anio=2025, tipo_cumplimiento="obtenido", color="amarillo").json()["indicadores"]
-    assert [i["nombre"] for i in amar] == ["586"] and amar[0]["cumplimiento"] == 34.0
+    esperado = [i for i in datos.INDICADORES if i["color_obtenido"] == "amarillo"]  # colores inferidos (ver el dataset)
+    assert [i["nombre"] for i in amar] == [e["ref"] for e in esperado] and amar[0]["cumplimiento"] == esperado[0]["alcanzada"]
     todos = stats(m, u, "indicadores", anio=2025, tipo_cumplimiento="obtenido").json()["indicadores"]
     assert len(todos) == 19 and {"programa", "dependencia", "eje", "algoritmo", "sumatoria_a", "color"} <= set(todos[0])
     eje_id = stats(m, u, "opciones").json()["ejes"][0]["id"]

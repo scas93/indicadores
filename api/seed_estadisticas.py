@@ -9,11 +9,11 @@ Carga, con el alcance del municipio dado:
     de muestra, y el programa 1014
     "Fortalecimiento del empleo y la gestión empresarial" (ejercicio 2025);
   * su MIR: Fin, Propósito, 5 Componentes y 12 Actividades (cada una bajo su componente), con sus 19 indicadores, la meta anual 2025 y
-    las capturas A/B mensuales reales (seed_data/economico_2025.py, del export de Cuenta Pública), con su ID
+    las capturas A/B mensuales reales de 2025 y 2024 (seed_data/economico_2025.py, de los exports de Cuenta Pública), con su ID
     real (410, 411, 512…), texto de la meta, descripciones de las variables, unidad de medida, año base (2024) con su
     meta programada, y los medios de verificación (fuente de información);
   * un usuario tipo Informes asignado al programa 1014.
-Con 2025 deben verse (Dependencias y Ejes): obtenido 7/1/10/1 y (C.O/C.E)×100 14/0/4/1 (total 19).
+Con 2025 deben verse (Dependencias y Ejes): obtenido 7/1/10/1 y (C.O/C.E)×100 14/0/4/1; con 2024: 6/2/10/1 y 17/1/0/1 (total 19).
 
 Re-correr corrige a los valores del seed lo que se haya editado a mano en esos mismos registros (el
 indicador se identifica por elemento + nombre); no borra nada que el seed no cree.
@@ -137,12 +137,13 @@ def sembrar(db: Session, municipio: str, usuario: str, password: str) -> dict:
         _uno(db, MetaAnual, {"indicador_id": i.id, "anio": anio},
              {"valor_a_programado": _d(ind["meta_a"]), "valor_b_programado": None if solo_a else _d(ind["meta_b"]),
               "es_ejercicio_fiscal": True})
-        for mes in range(1, 13):
-            a, b = ind["A"][mes - 1], (None if solo_a else ind["B"][mes - 1])
-            if a is None and b is None:
-                continue  # mes sin captura: no se crea fila
-            _uno(db, AvanceMensual, {"indicador_id": i.id, "anio": anio, "mes": mes}, {"valor_a": _d(a), "valor_b": _d(b)})
-            n_avances += 1
+        for anio_av, serie_a, serie_b in ((anio, ind["A"], ind["B"]), (ind["anio_base"], ind["A_2024"], ind["B_2024"])):
+            for mes in range(1, 13):
+                a, b = serie_a[mes - 1], (None if solo_a else serie_b[mes - 1])
+                if a is None and b is None:
+                    continue  # mes sin captura: no se crea fila
+                _uno(db, AvanceMensual, {"indicador_id": i.id, "anio": anio_av, "mes": mes}, {"valor_a": _d(a), "valor_b": _d(b)})
+                n_avances += 1
 
     # --- ID real del indicador (el de la referencia: 410, 411, 512…); el consecutivo automático sigue desde el máximo
     reales = {ind["id"] for ind in datos.INDICADORES}

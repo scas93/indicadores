@@ -16,6 +16,7 @@ from .test_fase1_flujos import m  # noqa: F401  (fixture `m`)
 
 XLS = Path(__file__).parents[2] / "humanos/docs/referencias/indicadores_resultados.xls"
 XLS_TR = Path(__file__).parents[2] / "humanos/docs/referencias/transparencia_1014_2025.xls"
+XLS_2024 = Path(__file__).parents[2] / "humanos/docs/referencias/indicadores_resultados_2024.xls"
 PW = "pw-demo-1"
 
 
@@ -164,3 +165,53 @@ def test_transparencia_2025_del_1014_reproduce_el_export_de_referencia_columna_p
                 pass
             diferencias.append((ident, t["encabezados"][k], a, b))
     assert diferencias == []
+
+
+def test_estadisticas_2024_reproducen_los_conteos_de_la_referencia(m, db):  # noqa: F811
+    """Con los avances reales de 2024 (Cuenta Pública 2024 del 1014): 6/2/10/1 en Cumplimiento Obtenido y 17/1/0/1 en
+    (C.O/C.E)×100, en Dependencias y en Ejes; y los hechos de 2024 conocidos de la referencia."""
+    seed.sembrar(db, m.slug, "informes1", PW)
+    u = m.cliente("informes1", PW)
+    for modo, esperado in datos.CONTEOS_2024.items():
+        for ruta in ("dependencias", "ejes"):
+            g = m.get(u, f"/api/estadisticas/{ruta}", params={"anio": 2024, "tipo_cumplimiento": modo}).json()["grupos"]
+            assert len(g) == 1 and g[0]["nombre"] == "ECONÓMICO", (ruta, modo)
+            assert {k: g[0][k] for k in esperado} == esperado, (ruta, modo)
+
+    def detalle(modo, color):
+        r = m.get(u, "/api/estadisticas/indicadores", params={"anio": 2024, "tipo_cumplimiento": modo, "color": color}).json()["indicadores"]
+        return sorted((i["nombre"], i["cumplimiento"]) for i in r)
+    # hechos verificados en la referencia, 2024, Cumplimiento Obtenido
+    nombre = {i["id"]: i["nombre"] for i in datos.INDICADORES}
+    assert nombre[579] == "MÓDULO DE PROFECO." and nombre[512] == "NEGOCIOS APERTURADOS"
+    assert detalle("obtenido", "amarillo") == sorted([(nombre[579], 79.07), (nombre[583], 75.0)])  # "Módulo de PROFECO" y "Proceso de análisis…"
+    assert detalle("obtenido", "gris") == [(nombre[512], 2080.0)]                                   # "Negocios aperturados"
+    assert detalle("co_ce", "gris") == [(nombre[410], 11.8)]                                        # el 410 queda fuera de sus rangos
+    # y 2025 sigue igual con los rangos que ahora también cubren 2024
+    for modo, esperado in datos.CONTEOS_2025.items():
+        g = m.get(u, "/api/estadisticas/dependencias", params={"anio": 2025, "tipo_cumplimiento": modo}).json()["grupos"][0]
+        assert {k: g[k] for k in esperado} == esperado, modo
+
+
+def test_cuenta_publica_2024_del_seed_reproduce_los_avances_y_resultados_del_export_de_referencia(m, db):  # noqa: F811
+    """Los 19 indicadores de 2024: los 12 meses de A y B, "Meta alcanzada" y "Avance / Programado" (redondeado a 2 decimales)."""
+    if not XLS_2024.exists():
+        pytest.skip("falta el .xls de referencia")
+    seed.sembrar(db, m.slug, "informes1", PW)
+    u = m.cliente("informes1", PW)
+    op = m.get(u, "/api/estadisticas/opciones").json()
+    t = m.get(u, "/api/estadisticas/cuenta-publica", params={
+        "anio": 2024, "centro_gestor_id": op["centros_gestores"][0]["id"], "programa_id": op["programas"][0]["id"]}).json()
+    celdas = lambda r: [re.sub(r"\s+", " ", html.unescape(re.sub("<[^>]+>", "", c))).strip()  # noqa: E731
+                        for c in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", r, re.I | re.S)]
+    filas = re.findall(r"<tr.*?</tr>", XLS_2024.read_text(encoding="utf-8", errors="replace"), re.I | re.S)[3:]
+    ref = {celdas(a)[15]: (celdas(a), celdas(b)) for a, b in zip(filas[::2], filas[1::2])}
+    nuestro = {str(a[15]): (a, b) for a, b in zip(t["filas"][::2], t["filas"][1::2])}
+    assert sorted(ref) == sorted(nuestro) and len(ref) == 19
+    num = lambda v: None if v in (None, "") else float(v)  # noqa: E731
+    for ident, (ra, rb) in ref.items():
+        na, nb = nuestro[ident]
+        assert num(ra[22]) == num(na[22]), (ident, "alcanzada")
+        assert round(num(ra[23]), 2) == num(na[23]), (ident, "avance")
+        assert [num(x) for x in ra[26:]] == [num(x) for x in na[26:]], (ident, "A por mes")
+        assert [num(x) for x in rb[2:]] == [num(x) for x in nb[26:]], (ident, "B por mes")
