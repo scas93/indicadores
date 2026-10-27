@@ -92,8 +92,11 @@ def universo(db: Session, actor: ActorCtx, anio: int, *, centro_gestor_ids: list
         algoritmo = ind.algoritmo.value if ind.algoritmo else None
         out.append(Fila(ind, elem, prog, cg, eje, meta, meses, cump.evaluar_indicador(ind, meses),
                         ce.meta_numerica(algoritmo, meta.valor_a_programado, meta.valor_b_programado)))
-    out.sort(key=lambda f: (f.cg.clave, f.prog.clave, _NIVEL_ORDEN[f.elem.nivel], f.elem.orden,
-                            f.ind.created_at))
+    # Orden de la MIR: Fin, Propósito, Componentes y, después, las Actividades agrupadas por su componente
+    padres = {e.padre_id for _, e, *_ in filas if e.padre_id}
+    orden_padre = {e.id: e.orden for e in db.scalars(select(ElementoMatriz).where(ElementoMatriz.id.in_(padres)))} if padres else {}
+    out.sort(key=lambda f: (f.cg.clave, f.prog.clave, _NIVEL_ORDEN[f.elem.nivel], orden_padre.get(f.elem.padre_id, 0),
+                            f.elem.orden, f.ind.created_at))
     return out
 
 

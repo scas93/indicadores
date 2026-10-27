@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 
 from .. import calculo_estadisticas as ce
 from ..deps import ActorCtx
-from ..models import ClasificacionProgramatica, Frecuencia, MetaAnual
+from ..models import ClasificacionProgramatica, ElementoMatriz, Frecuencia, MetaAnual, NivelMatriz
 from . import estadisticas as est
 
 CP_GRUPOS = [("", 2), ("Programa o proyecto de inversión", 5),
@@ -101,6 +101,16 @@ def cuenta_publica(db: Session, actor: ActorCtx, anio: int, centro_gestor_id: uu
             "columnas_combinadas": CP_COMBINADAS, "nombre_archivo": f"cuenta_publica_{p.clave}_{anio}.xlsx"}
 
 
+def _objetivo_institucional(db: Session, f: est.Fila) -> str:
+    """Transparencia "Objetivo institucional (Resumen narrativo)": el resumen del propio elemento y, en una ACTIVIDAD,
+    el de su componente (verificado en la referencia: 12 de 12 actividades del 1014)."""
+    if f.elem.nivel == NivelMatriz.actividad and f.elem.padre_id:
+        padre = db.get(ElementoMatriz, f.elem.padre_id)
+        if padre is not None:
+            return padre.resumen_narrativo
+    return f.elem.resumen_narrativo
+
+
 def transparencia(db: Session, actor: ActorCtx, anio: int, centro_gestor_id: uuid.UUID,
                   programa_id: uuid.UUID) -> dict:
     p, cg, filas = _filas_programa(db, actor, anio, centro_gestor_id, programa_id)
@@ -108,7 +118,7 @@ def transparencia(db: Session, actor: ActorCtx, anio: int, centro_gestor_id: uui
     for f in filas:
         frec = db.get(Frecuencia, f.ind.frecuencia_id) if f.ind.frecuencia_id else None
         out.append([
-            str(anio), "", "", p.nombre, f.elem.resumen_narrativo, _NIVEL[f.elem.nivel.value], f.ind.id_numerico,
+            str(anio), "", "", p.nombre, _objetivo_institucional(db, f), _NIVEL[f.elem.nivel.value], f.ind.id_numerico,
             f.ind.nombre, _DIMENSION.get(f.ind.dimension.value, "") if f.ind.dimension else "",
             f.ind.interpretacion,  # "Definición del indicador" = Interpretación: PENDIENTE DE VERIFICACIÓN (hipótesis)
             _formula(f), _variables(f), f.ind.unidad_medida, frec.nombre if frec else "",
@@ -142,6 +152,18 @@ def _valor(v):
     return None if v == "" else v
 
 
+FORMATO_2_DECIMALES = "0.00"
+
+
+def _formato_decimales(ws, columnas: list[int], desde_fila: int) -> None:
+    """"Meta alcanzada", "Avance / Programado" y "Avance de las metas": siguen siendo celdas NUMÉRICAS, con formato 0.00."""
+    for col in columnas:
+        for fila in range(desde_fila, ws.max_row + 1):
+            c = ws.cell(fila, col)
+            if isinstance(c.value, (int, float)) and not isinstance(c.value, bool):
+                c.number_format = FORMATO_2_DECIMALES
+
+
 def cuenta_publica_xlsx(t: dict) -> bytes:
     wb = Workbook()
     ws = wb.active
@@ -171,6 +193,8 @@ def cuenta_publica_xlsx(t: dict) -> bytes:
         if i % t["filas_por_indicador"] == t["filas_por_indicador"] - 1:  # cierra el par A/B
             for k in range(1, t["columnas_combinadas"] + 1):
                 ws.merge_cells(start_row=r - 1, start_column=k, end_row=r, end_column=k)
+    _formato_decimales(ws, [CP_ENCABEZADOS.index("Meta del indicador alcanzada") + 1,
+                            CP_ENCABEZADOS.index("Avance / Programado") + 1], 4)
     _anchos(ws, n)
     ws.freeze_panes = "A4"
     return _bytes(wb)
@@ -194,6 +218,7 @@ def transparencia_xlsx(t: dict) -> bytes:
         ws.append([_valor(v) for v in fila])
         for c in ws[ws.max_row]:
             c.border, c.alignment = _BORDE, Alignment(vertical="center", wrap_text=True)
+    _formato_decimales(ws, [TR_ENCABEZADOS.index("Avance de las metas") + 1], len(t["previas"]) + 2)
     _anchos(ws, n)
     ws.freeze_panes = ws.cell(len(t["previas"]) + 2, 1)
     return _bytes(wb)

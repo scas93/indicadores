@@ -85,7 +85,8 @@ def test_detalle_clic_en_color_muestra_valores_del_modo_activo(m, eco):
     assert [i["nombre"] for i in gris] == ["410"] and gris[0]["cumplimiento"] == 99.9
     assert gris[0]["cumplimiento_obtenido"] == 9.99 and gris[0]["meta_anual"] == 10.0
     amar = stats(m, u, "indicadores", anio=2025, tipo_cumplimiento="obtenido", color="amarillo").json()["indicadores"]
-    assert [i["nombre"] for i in amar] == ["586"] and amar[0]["cumplimiento"] == 34.0
+    esperado = [i for i in datos.INDICADORES if i["color_obtenido"] == "amarillo"]  # colores inferidos (ver el dataset)
+    assert [i["nombre"] for i in amar] == [e["ref"] for e in esperado] and amar[0]["cumplimiento"] == esperado[0]["alcanzada"]
     todos = stats(m, u, "indicadores", anio=2025, tipo_cumplimiento="obtenido").json()["indicadores"]
     assert len(todos) == 19 and {"programa", "dependencia", "eje", "algoritmo", "sumatoria_a", "color"} <= set(todos[0])
     eje_id = stats(m, u, "opciones").json()["ejes"][0]["id"]
@@ -316,3 +317,63 @@ def test_cuenta_publica_indicador_411_2025_con_id_formula_y_meta_en_texto(m, db)
     assert a["Descripción de variables de la fórmula"].startswith("(A: PERSONAS ATENDIDAS LABORALMENTE. / B: TOTAL DE PERSONAS SIN EMPLEO")
     assert a["Meta del indicador programada"] == "15% PERSONAS ATENDIDAS LABORALMENTE."  # texto, no el número
     assert a["Meta del indicador alcanzada"] == 7.98 and a["Avance / Programado"] == 53.2
+
+
+# =========================================================== formato de los exports y saltos de línea
+def _celdas_xlsx(r):
+    from io import BytesIO
+
+    from openpyxl import load_workbook
+    return load_workbook(BytesIO(r.content)).active
+
+
+def test_xlsx_meta_alcanzada_avance_y_avance_de_las_metas_son_numericos_con_formato_0_00(m, db):
+    ctx, u = _indicador_411(m, db)
+    q = dict(anio=2025, centro_gestor_id=ctx.cg["id"], programa_id=ctx.pid)
+    ws = _celdas_xlsx(stats(m, u, "exportar/cuenta-publica", **q))
+    encab = {c.value: c.column for c in ws[3]}
+    for nombre in ("Meta del indicador alcanzada", "Avance / Programado"):
+        c = ws.cell(4, encab[nombre])  # fila A del 411 (las 24 primeras columnas están combinadas con la fila B)
+        assert isinstance(c.value, (int, float)) and c.data_type == "n" and c.number_format == "0.00", nombre
+    assert ws.cell(4, encab["Meta del indicador alcanzada"]).value == 7.98 and ws.cell(4, encab["Avance / Programado"]).value == 53.2
+    assert ws.cell(4, encab["ID del indicador"]).number_format == "General"  # el formato no se extiende a otras columnas
+    ws = _celdas_xlsx(stats(m, u, "exportar/transparencia", **q))
+    encab = {c.value: c.column for c in ws[3]}
+    c = ws.cell(4, encab["Avance de las metas"])
+    assert c.value == 7.98 and c.data_type == "n" and c.number_format == "0.00"
+
+
+def test_el_export_conserva_los_saltos_de_linea_del_texto_capturado(m, db):
+    """Resumen narrativo y descripción de variables con saltos de línea (y líneas en blanco): el export los deja tal cual."""
+    ctx = Ctx(m)
+    resumen = "LINEA 1 DEL RESUMEN\nLINEA 2\n\nLINEA 4 TRAS UNA LINEA EN BLANCO"
+    desc_a = "PERSONAS ATENDIDAS\nLABORALMENTE."
+    desc_b = "TOTAL DE PERSONAS\n\nSIN EMPLEO."
+    cuerpo = {"mir": {"resumen_narrativo": resumen},
+              "ficha": {"tipo": "estrategico", "nombre": "Ind con saltos", "dimension": "eficacia", "frecuencia_id": ctx.frec,
+                        "algoritmo": "a_sobre_b_pct", "descripcion_a": desc_a, "descripcion_b": desc_b},
+              "metas": {"anuales": [{"anio": 2025, "valor_a_programado": 15, "valor_b_programado": 100}]}, "rangos": {}}
+    r = m.post(m.admin, f"/api/elementos-matriz/{ctx.mat['proposito']['id']}/indicadores", cuerpo)
+    assert r.status_code == 201, r.text
+    assert ctx.put(r.json(), [{"mes": 1, "valor_a": 10, "valor_b": 100}], anio=2025).status_code == 200
+    u = usuario_con(m, [ctx.pid], "info1", tipo="informes")
+    q = dict(anio=2025, centro_gestor_id=ctx.cg["id"], programa_id=ctx.pid)
+    formula = f"(A: {desc_a} / B: {desc_b}) * 100"
+
+    # vista previa (JSON) y .xlsx de Cuenta Pública
+    t = stats(m, u, "cuenta-publica", **q).json()
+    fila = dict(zip(t["encabezados"], t["filas"][0]))
+    assert fila["Descripción del resumen narrativo (FIN, Propósito, Componentes y Actividades)"] == resumen
+    assert fila["Descripción de variables de la fórmula"] == formula
+    ws = _celdas_xlsx(stats(m, u, "exportar/cuenta-publica", **q))
+    encab = {c.value: c.column for c in ws[3]}
+    assert ws.cell(4, encab["Descripción del resumen narrativo (FIN, Propósito, Componentes y Actividades)"]).value == resumen
+    assert ws.cell(4, encab["Descripción de variables de la fórmula"]).value == formula
+    # Transparencia: Objetivo institucional (resumen) y Método de cálculo
+    t = stats(m, u, "transparencia", **q).json()
+    fila = dict(zip(t["encabezados"], t["filas"][0]))
+    assert fila["Objetivo institucional (Resumen narrativo)"] == resumen and fila["Método de cálculo"] == formula
+    ws = _celdas_xlsx(stats(m, u, "exportar/transparencia", **q))
+    encab = {c.value: c.column for c in ws[3]}
+    assert ws.cell(4, encab["Objetivo institucional (Resumen narrativo)"]).value == resumen
+    assert ws.cell(4, encab["Método de cálculo"]).value == formula
