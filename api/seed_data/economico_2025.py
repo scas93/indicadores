@@ -6,9 +6,9 @@ captura), unidades A/B, metas anuales numéricas y capturas A/B por mes.
 
 Los usan el seed de staging (`seed_estadisticas.py`) y los tests de Fase 3: una sola fuente.
 
-`resumen` es el resumen narrativo SIN el " sas" que la columna de Cuenta Pública trae al final (la Transparencia, que
-lee el resumen narrativo, no lo trae): se guarda como `supuestos` del elemento. INFERIDO, pendiente de confirmar en
-la referencia (los supuestos de esos elementos).
+`resumen` es el resumen narrativo tal como sale en la Transparencia. La columna de resumen narrativo de la Cuenta Pública
+de la referencia trae al final un " sas": es basura del demo de la referencia y NO se replica (ni en el resumen ni como
+supuestos). `supuestos` queda vacío: los supuestos reales de la referencia no vienen en ninguno de los exports.
 
 `padre_id` (solo actividades): el componente (por su ID) al que pertenece cada actividad. Se DEDUCE de la Transparencia
 de referencia, donde el "Objetivo institucional" de una actividad es el resumen narrativo de su componente (12 de 12
@@ -64,7 +64,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'REPORTE DOCUMENTAL DE LAS ENTIDADES ECONÓMICAS ATENDIDAS, EN ARCHIVOS FÍSICOS Y '
                          'MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD '
                          'MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [0, 0, 100, 100, 150, 100, 100, 100, 100, 100, 100, 100],
   'B_2024': [500, 550, 500, 400, 500, 500, 600, 600, 750, 700, 600, 700],
   'alcanzada_2024': 15.22,
@@ -96,7 +96,7 @@ INDICADORES = [{'ref': '411',
   'meta_2024_a': 110,
   'meta_2024_b': 100,
   'medios_verificacion': 'PUBLICACIÓN EN INEGI, IMSS O OTRAS FUENTES.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [140, 109, 112, 42, 50, 70, 150, 190, 200, 150, 90, 150],
   'B_2024': [123, 140, 109, 112, 42, 50, 70, 150, 190, 200, 150, 100],
   'alcanzada_2024': 1.18,
@@ -130,7 +130,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'REGISTRO DE LICENCIAS OTORGADAS ESPECIFICANDO NÚMERO DE EMPLEOS GENERADOS E '
                          'INVERSIÓN ESTIMADA, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN '
                          'DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [180, 120, 200, 130, 150, 180, 150, 200, 230, 250, 200, 90],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
   'alcanzada_2024': 2080.0,
@@ -164,7 +164,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'LISTA DE BENEFICIARIOS DE LOS PROGRAMAS DE EMPRENDEDORES, EVIDENCIAS '
                          'FOTOGRÁFICAS,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE '
                          'PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [0, 0, 280, 0, 120, 0, 50, 0, 0, 19, 6, 10],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
   'alcanzada_2024': 485.0,
@@ -198,7 +198,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'ESTUDIO DEL ÍNDICE DE COMPETITIVIDAD QUE REALIZA EL IMCO . EN ARCHIVOS FÍSICOS Y '
                          'MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD '
                          'MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
   'alcanzada_2024': 1.0,
@@ -232,7 +232,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'INFORME DE ACTIVIDADES DE CRÉDITOS OTORGADOS Y NÚMERO DE PERSONAS BENEFICIADAS, EN '
                          'ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA '
                          'CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [0, 0, 15, 10, 0, 0, 8, 7, 0, 0, 0, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
   'alcanzada_2024': 40.0,
@@ -267,7 +267,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'NÚMERO DE VACANTES, NÚMERO DE SOLICITUDES, VISITAS DE EMPRESAS A PROMOCIONAR SUS '
                          'VACANTES, PARTICIPACIÓN EN FERIAS DE EMPLEO. EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN '
                          'RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'A_2024': [0, 45, 150, 150, 200, 250, 20, 15, 20, 28, 50, 650],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
   'alcanzada_2024': 1578.0,
@@ -302,7 +302,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'REGISTRO DE EMPRESAS NUEVAS O EN EXPANSIÓN BENEFICIADAS CON LOS INCENTIVOS '
                          'MUNICIPALES, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE '
                          'PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 512,
   'A_2024': [0, 0, 0, 1, 1, 0, 2, 2, 1, 1, 1, 2],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -338,7 +338,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'EVIDENCIAS DE PUBLICACIONES, VIDEOS, VISITAS A MEDIOS DIGITALES, EN ARCHIVOS '
                          'FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON '
                          'PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 512,
   'A_2024': [0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -374,7 +374,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'EVIDENCIAS FOTOGRÁFICAS, REGISTROS, MATERIAL PUBLICITARIO. EN ARCHIVOS FÍSICOS Y '
                          'MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD '
                          'MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 512,
   'A_2024': [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -409,7 +409,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'MEDICIÓN DE IMPACTO REGULATORIO (MIR), REGLAMENTO, MANUALES DE OPERACIÓN, '
                          'PROCEDIMIENTOS Y FORMATOS,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA '
                          'DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 512,
   'A_2024': [0, 0, 3, 0, 2, 1, 1, 1, 1, 1, 0, 0],
   'B_2024': [12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -444,7 +444,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'ACTA DE CONSTITUCIÓN DEL CONSEJO MUNICIPAL DE MEJORA REGULATORIA,EN ARCHIVOS '
                          'FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON '
                          'PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 512,
   'A_2024': [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -480,7 +480,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'LIOSTA DE BENEFICIARIOS DE LOS PROGRAMAS DE EMPRENDEDORES, EVIDENCIAS '
                          'FOTOGRÁFICAS, EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE '
                          'PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 513,
   'A_2024': [0, 0, 20, 15, 45, 15, 0, 0, 0, 0, 0, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -516,7 +516,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'PROGRAMAS DE CAPACITACIÓN, LISTA DE ASISTENCIA. EVIDENIA FOTOGRÁFICA, EN ARCHIVOS '
                          'FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON '
                          'PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 514,
   'A_2024': [0, 35, 85, 65, 70, 84, 60, 28, 65, 0, 15, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -552,7 +552,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'LISTA DE ASISTENCIA, FOTOGRAFÍAS, INVITACIONES, PROGRAMAS DE CAPACITACIÓN, EN '
                          'ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA '
                          'CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 514,
   'A_2024': [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -587,7 +587,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'NÚMERO DE DENUNCIAS Y SU RESOLUCIÓN, RECIBIDAS EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, '
                          'EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD '
                          'MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 514,
   'A_2024': [12, 16, 10, 16, 12, 13, 12, 14, 8, 7, 10, 6],
   'B_2024': [15, 20, 14, 18, 12, 15, 20, 16, 10, 7, 15, 10],
@@ -622,7 +622,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'REGISTRO DE SOLICITUDES EMITIDAS Y SOLICITUDES APROBADAS, EN ARCHIVOS FÍSICOS Y '
                          'MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD '
                          'MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 582,
   'A_2024': [0, 4, 5, 5, 10, 15, 10, 12, 5, 7, 2, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -657,7 +657,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'NÚMERO DE REGISTROS DE JÓVENES AL PROGRAMA. LISTAS DE ASISTENCIA. EVIDENCIA '
                          'FOTOGRÁFICA,EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN RESGUARDO DE LA DIRECCIÓN DE '
                          'PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 584,
   'A_2024': [0, 80, 160, 200, 0, 0, 0, 0, 0, 0, 0, 0],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
@@ -692,7 +692,7 @@ INDICADORES = [{'ref': '411',
   'medios_verificacion': 'NÚMERO DE VACANTES, NÚMERO DE SOLICITUDES, VISITAS DE EMPRESAS A PROMOCIONAR SUS '
                          'VACANTES, PARTICIPANDO EN FERIAS DE EMPLEO. EN ARCHIVOS FÍSICOS Y MAGNÉTICOS, EN '
                          'RESGUARDO DE LA DIRECCIÓN DE PROMOCIÓN ECONÓMICA CON PERIODICIDAD MENSUAL-ANUAL.',
-  'supuestos': 'sas',
+  'supuestos': '',
   'padre_id': 584,
   'A_2024': [0, 3, 6, 5, 10, 0, 0, 3, 8, None, None, None],
   'B_2024': [None, None, None, None, None, None, None, None, None, None, None, None],
