@@ -40,12 +40,6 @@ class Pad:
     def lote(self, ruta, ids): return self.post(f"{ruta}/eliminar-lote", {"ids": ids})
 
 
-def liberar_cola(pad):
-    """La plantilla trae 60+ (abierto): se borra para dejar hueco a rangos nuevos."""
-    g = next(g for g in pad.get("grupos-edad").json() if g["clave"] == "60+")
-    assert pad.delete("grupos-edad", g["id"]).status_code == 204
-
-
 def dos_programas(m):
     cg, *_ = m.planeacion()
     return m.programa("A", cg), m.programa("B", cg)
@@ -91,22 +85,21 @@ def test_ciclo_completo_en_los_siete_catalogos(m):
     pad = Pad(m, [pa["id"]])
     estados = pad.get("geo/estados").json()
     estado = estados[0]["id"]
-    liberar_cola(pad)
 
     ap = ok(pad.post("apoyos", {"clave": "DESP", "nombre": "Despensas", "programa_id": pa["id"], "observaciones": "x"}), 201)
     assert (ap["programa_id"], ap["observaciones"]) == (pa["id"], "x")
     de = ok(pad.post("descripciones-apoyo", {"clave": "D1", "nombre": "Básicas", "apoyo_id": ap["id"]}), 201)
     nv = ok(pad.post("niveles-socioeconomicos", {"nombre": "Muy alto"}), 201)
-    gr = ok(pad.post("grupos-edad", {"nombre": "Infancia", "edad_min": 100, "edad_max": 120}), 201)
+    gr = ok(pad.post("grupos-edad", {"nombre": "Infancia", "edad_min": 81, "edad_max": 90}), 201)
     mu = ok(pad.post("geo/municipios", {"clave": "015", "nombre": "Uno", "estado_id": estado}), 201)
     lo = ok(pad.post("geo/localidades", {"clave": "L1", "nombre": "Centro", "municipio_id": mu["id"]}), 201)
     co = ok(pad.post("geo/colonias", {"clave": "C1", "nombre": "Jardines", "estado_id": estado, "municipio_id": mu["id"]}), 201)
-    assert (lo["municipio"], lo["estado_id"]) == ("Uno", estado) and co["municipio"] == "Uno" and gr["rango"] == "100-120"
+    assert (lo["municipio"], lo["estado_id"]) == ("Uno", estado) and co["municipio"] == "Uno" and gr["rango"] == "81-90"
     assert nv["clave"] == "muy_alto"
 
     for ruta, reg, cambio in [("apoyos", ap, {"nombre": "Despensa"}), ("descripciones-apoyo", de, {"nombre": "Básica"}),
                               ("niveles-socioeconomicos", nv, {"nombre": "Altísimo"}),
-                              ("grupos-edad", gr, {"nombre": "Otra", "edad_max": 125}),
+                              ("grupos-edad", gr, {"nombre": "Otra", "edad_max": 95}),
                               ("geo/municipios", mu, {"nombre": "Uno bis"}), ("geo/localidades", lo, {"nombre": "Centro 2"}),
                               ("geo/colonias", co, {"nombre": "Jardines 2"})]:
         nuevo = ok(pad.patch(ruta, reg["id"], cambio))
@@ -173,21 +166,23 @@ def test_la_clave_se_repite_libremente_entre_municipios_de_la_plataforma(admin, 
 def test_grupos_de_edad_sin_traslape_ni_rangos_invertidos(m):
     pad = Pad(m)
     base = {g["clave"]: g for g in pad.get("grupos-edad").json()}
-    assert sorted(base) == ["0-11", "12-17", "18-29", "30-59", "60+"]  # copia de la plantilla
+    assert sorted(base) == ["11-17", "18-59", "2-10", "60-80"]  # los 4 de la referencia, todos con máximo
+    assert [(g["nombre"], g["edad_min"], g["edad_max"]) for g in pad.get("grupos-edad").json()] == [
+        ("NIÑO", 2, 10), ("ADOLESCENTE", 11, 17), ("ADULTO", 18, 59), ("TERCERA EDAD", 60, 80)]
+    assert pad.post("grupos-edad", {"nombre": "X", "edad_min": 55, "edad_max": 65}).json()["codigo"] == "RANGO_TRASLAPADO"
     assert pad.post("grupos-edad", {"nombre": "X", "edad_min": 10, "edad_max": 13}).json()["codigo"] == "RANGO_TRASLAPADO"
-    assert pad.post("grupos-edad", {"nombre": "X", "edad_min": 70, "edad_max": 75}).json()["codigo"] == "RANGO_TRASLAPADO"  # dentro de 60+
-    r = pad.post("grupos-edad", {"nombre": "X", "edad_min": 40, "edad_max": 30})
+    assert pad.post("grupos-edad", {"nombre": "X", "edad_min": 70}).json()["codigo"] == "RANGO_TRASLAPADO"  # abierto sobre 60-80
+    r = pad.post("grupos-edad", {"nombre": "X", "edad_min": 90, "edad_max": 81})
     assert (r.status_code, r.json()["codigo"]) == (422, "RANGO_INVALIDO")
-    # el catálogo permite agregar rangos nuevos en un hueco: se borra el 60+ y se parte
-    assert pad.delete("grupos-edad", base["60+"]["id"]).status_code == 204
-    ok(pad.post("grupos-edad", {"nombre": "Mayores", "edad_min": 60, "edad_max": 80}), 201)
-    ok(pad.post("grupos-edad", {"nombre": "Longevos", "edad_min": 81}), 201)  # abierto hacia arriba
+    # el catálogo permite agregar rangos nuevos en los huecos
+    ok(pad.post("grupos-edad", {"nombre": "Longevos", "edad_min": 81, "edad_max": 90}), 201)
+    ok(pad.post("grupos-edad", {"nombre": "Lactantes", "edad_min": 0, "edad_max": 1}), 201)
     # editar: ampliar un grupo hacia otro se rechaza; moverlo dentro de su hueco, no
-    g = base["12-17"]
+    g = base["11-17"]
     assert pad.patch("grupos-edad", g["id"], {"edad_max": 20}).json()["codigo"] == "RANGO_TRASLAPADO"
-    assert pad.patch("grupos-edad", g["id"], {"edad_min": 13, "edad_max": 17}).status_code == 200
+    assert pad.patch("grupos-edad", g["id"], {"edad_min": 12, "edad_max": 17}).status_code == 200
     assert pad.patch("grupos-edad", g["id"], {"nombre": "Adolescentes"}).json()["nombre"] == "Adolescentes"
-    assert pad.post("grupos-edad", {"nombre": "Adolescentes", "edad_min": 12, "edad_max": 12}).status_code == 409  # nombre repetido
+    assert pad.post("grupos-edad", {"nombre": "Adolescentes", "edad_min": 100, "edad_max": 105}).status_code == 409  # nombre repetido
 
 
 # --- pertenencia entre catálogos ----------------------------------------------------------------------------
@@ -274,8 +269,7 @@ def test_regla_de_borrado_preparada_para_las_entregas(m, monkeypatch):
     pa, _ = dos_programas(m)
     pad = Pad(m, [pa["id"]])
     ap = ok(pad.post("apoyos", {"clave": "X", "nombre": "x", "programa_id": pa["id"]}), 201)
-    liberar_cola(pad)
-    gr = ok(pad.post("grupos-edad", {"nombre": "Nuevo", "edad_min": 100, "edad_max": 110}), 201)
+    gr = ok(pad.post("grupos-edad", {"nombre": "Nuevo", "edad_min": 81, "edad_max": 90}), 201)
     entregas = {"n": 2}
     for entidad in ("apoyo", "grupo_edad"):
         monkeypatch.setitem(svc.USOS_EXTRA, entidad, [("entregas", lambda db, id_: entregas["n"])])
@@ -306,17 +300,16 @@ def test_los_cambios_quedan_en_bitacora(m, db):
     ap = ok(pad.post("apoyos", {"clave": "X", "nombre": "x", "programa_id": pa["id"]}), 201)
     pad.patch("apoyos", ap["id"], {"nombre": "y"})
     pad.delete("apoyos", ap["id"])
-    liberar_cola(pad)
-    gr = ok(pad.post("grupos-edad", {"nombre": "N", "edad_min": 100, "edad_max": 110}), 201)
+    gr = ok(pad.post("grupos-edad", {"nombre": "N", "edad_min": 81, "edad_max": 90}), 201)
     acciones = [b.accion for b in db.scalars(select(Bitacora).where(Bitacora.entidad.in_(["apoyo", "grupo_edad"])).order_by(Bitacora.created_at))]
-    assert acciones == ["apoyo.crear", "apoyo.editar", "apoyo.eliminar", "grupo_edad.eliminar", "grupo_edad.crear"]
+    assert acciones == ["apoyo.crear", "apoyo.editar", "apoyo.eliminar", "grupo_edad.crear"]
     assert gr["id"]
 
 
 # --- datos de plantilla y exportación ------------------------------------------------------------------------------
-def test_un_municipio_nuevo_trae_grupos_de_edad_y_niveles_y_arranca_vacio_en_lo_demas(m):
+def test_un_municipio_nuevo_trae_los_4_grupos_de_edad_y_niveles_y_arranca_vacio_en_lo_demas(m):
     pad = Pad(m)
-    assert len(pad.get("grupos-edad").json()) == 5 and len(pad.get("niveles-socioeconomicos").json()) == 4
+    assert len(pad.get("grupos-edad").json()) == 4 and len(pad.get("niveles-socioeconomicos").json()) == 4
     for ruta in ("apoyos", "descripciones-apoyo", "geo/colonias"):
         assert pad.get(ruta).json() == [], ruta
 
@@ -330,7 +323,7 @@ def test_exportar_genera_el_excel_con_las_columnas_de_la_pantalla(m):
     filas = list(load_workbook(io.BytesIO(r.content)).active.values)
     assert filas == [("Clave", "Apoyo", "Observaciones"), ("X", "Despensas", "o")]
     g = list(load_workbook(io.BytesIO(pad.get("grupos-edad/exportar").content)).active.values)
-    assert g[0] == ("Edad", "Rango min-max") and g[1] == ("Niñez", "0-11") and g[-1] == ("Adultos mayores", "60+")
+    assert g[0] == ("Edad", "Rango min-max") and g[1] == ("NIÑO", "2-10") and g[-1] == ("TERCERA EDAD", "60-80")
 
 
 def test_aislamiento_entre_municipios(admin, m):

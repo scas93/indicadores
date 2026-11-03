@@ -48,9 +48,9 @@ ALGORITMOS = [("a_sobre_b_pct", "(A / B) * 100"), ("a_sobre_b_menos1_pct", "((A 
 CLASIFICACION = [("especificos", "Específicos"), ("proyectos_inversion", "Proyectos de Inversión"),
                  ("servicios_publicos", "Prestación de Servicios Públicos")]
 # Ejemplos: reemplazar con los valores reales (CSV) cuando se definan para el padrón.
-GRUPOS_EDAD = [("0-11", "Niñez", 0, 11), ("12-17", "Adolescencia", 12, 17),
-               ("18-29", "Juventud", 18, 29), ("30-59", "Adultez", 30, 59),
-               ("60+", "Adultos mayores", 60, None)]
+# Los 4 grupos del sistema de referencia, todos con máximo (Fase 5: la captura asigna el grupo según la edad).
+GRUPOS_EDAD = [("2-10", "NIÑO", 2, 10), ("11-17", "ADOLESCENTE", 11, 17),
+               ("18-59", "ADULTO", 18, 59), ("60-80", "TERCERA EDAD", 60, 80)]
 NIVELES = [("muy_bajo", "Muy bajo"), ("bajo", "Bajo"), ("medio", "Medio"), ("alto", "Alto")]
 CONAC_MUESTRA = [
     ("capitulo", "1000", "Servicios personales", None), ("capitulo", "2000", "Materiales y suministros", None),
