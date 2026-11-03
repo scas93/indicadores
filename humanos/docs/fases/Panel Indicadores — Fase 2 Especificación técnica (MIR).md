@@ -10,7 +10,7 @@ Fase 2 construye el módulo **Inicio**, el corazón del sistema: el árbol de pr
 
 **Depende de:** Fase 1 (programas, tipos de usuario y sus programas asignados, sesión).
 
-**De esta fase dependen:** Fase 3 (las estadísticas de indicadores leen `indicador`, `meta_anual` y `avance_mensual` de aquí) y, más adelante, Fase 4 (la pestaña Presupuestación reparte el techo entre las Actividades de la matriz creada aquí).
+**De esta fase dependen:** Fase 3 (las estadísticas de indicadores leen `indicador`, `meta_anual` y `avance_mensual` de aquí) y, más adelante, Fase 4 —fuera de alcance desde el 2026-11-03— (la pestaña Presupuestación reparte el techo entre las Actividades de la matriz creada aquí).
 
 **Entregable:** en `demo.<dominio>`, capturar el mismo indicador de Fin de "Fortalecimiento del empleo" que existe en el sistema actual, con los mismos valores, y obtener el mismo cumplimiento (2024 = 1.18).
 
@@ -239,7 +239,7 @@ Lista de indicadores del programa. Cada uno abre un modal con los datos generale
 ## Fuera de alcance de esta fase
 
 - Las 4 gráficas de estadísticas de indicadores y los exportes de Cuenta Pública/Transparencia — Fase 3 (reutilizan el cálculo de esta fase, pero la presentación y los reportes se construyen ahí).
-- La pestaña Presupuestación dentro de Inicio, y todo lo de techo/partidas — Fase 4.
+- La pestaña Presupuestación dentro de Inicio, y todo lo de techo/partidas — fuera de alcance (2026-11-03).
 - Padrón de beneficiarios — Fase 5.
 
 ## Dependencias hacia Fase 3

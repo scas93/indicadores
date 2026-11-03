@@ -1,3 +1,5 @@
+> **FUERA DE ALCANCE (2026-11-03).** El proyecto se recortó a los usuarios 1 (Informes) y 2 (Padrón de beneficiarios). Este documento se conserva solo como referencia; no se construye ni se muestra en el menú.
+
 # Panel Indicadores — Fase 4: Especificación técnica
 
 ## Presupuesto

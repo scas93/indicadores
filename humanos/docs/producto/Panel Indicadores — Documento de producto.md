@@ -4,13 +4,13 @@ Sep 25, 2026 · @santiago
 
 ## Resumen y alcance
 
-Construir un sistema propio con las mismas capacidades del panel actual de presupuesto basado en resultados (`demo-indicadores.insadisa.mx`): MIR por programa, captura de avances, Padrón de Beneficiarios, Presupuesto y sus reportes. El comportamiento de referencia está en [Panel Indicadores — Análisis del sistema actual](https://claude.ai/code/artifact/03772fdf-aa72-41a3-ac5f-a2662f1fa752); este documento no lo repite, define cómo se construye.
+Construir un sistema propio con las mismas capacidades del panel actual de presupuesto basado en resultados (`demo-indicadores.insadisa.mx`): MIR por programa, captura de avances, Padrón de Beneficiarios y sus reportes. El comportamiento de referencia está en [Panel Indicadores — Análisis del sistema actual](https://claude.ai/code/artifact/03772fdf-aa72-41a3-ac5f-a2662f1fa752); este documento no lo repite, define cómo se construye.
 
 **Qué cambia respecto al sistema actual**
 
 - **Multi-tenant.** Un solo sistema para varios municipios. Cada municipio tiene su propio subdominio (p. ej. `guadalajara.insadisa.mx`), sus datos, catálogos, usuarios y configuración de login.
 - **Super admin.** Un nivel por encima de los municipios que da de alta municipios, los activa o suspende y crea su primer administrador.
-- **Los mismos 7 tipos de usuario que hoy.** Al crear un usuario se elige su tipo y se marcan sus programas.
+- **3 tipos de usuario fijos (recorte de alcance del 2026-11-03).** Informes y Padrón de beneficiarios replican los usuarios 1 y 2 del sistema actual, que son los únicos que se necesitan; Administrador se conserva como rol técnico para configurar el municipio. Al crear un usuario se elige su tipo y se marcan sus programas.
 - **Diseño visual.** Se conserva el aspecto del panel actual para que el usuario no note el cambio.
 
 **Supuestos de partida**
@@ -21,7 +21,8 @@ Construir un sistema propio con las mismas capacidades del panel actual de presu
 
 **Fuera de alcance del MVP**
 
-- Alta de Presupuestación, Cancelación de Padrón, Formato PbR, Clasificación Funcional y Físico Financiero (fase 6).
+- **Presupuesto completo** (clasificador CONAC, techo, presupuestación, PbR) y los módulos de los tipos Presupuestación, Control Presupuestal, Indicadores y Alcalde: fuera de alcance desde el 2026-11-03; no se construyen ni se muestran en el menú.
+- Alta de Presupuestación, Cancelación de Padrón, Formato PbR, Clasificación Funcional y Físico Financiero (antes fase 6, también fuera).
 - Logs MySQL y Panel de control: ningún usuario los tiene asignados hoy; se sustituyen por la bitácora y el panel del super admin.
 - Importación de datos desde Excel.
 
@@ -121,36 +122,32 @@ Si la carga incluyera datos personales del padrón, el super admin tendría acce
 
 ### Catálogos: globales y del municipio
 
-Al crear un municipio se copian las plantillas globales a su espacio, y a partir de ahí cada municipio edita su propia copia. Así se conserva el comportamiento actual (el usuario de Presupuestación edita partidas y artículos; el del Padrón edita localidades y colonias) sin que un municipio afecte a otro.
+Al crear un municipio se copian las plantillas globales a su espacio, y a partir de ahí cada municipio edita su propia copia. Así se conserva el comportamiento actual (el usuario del Padrón edita localidades y colonias) sin que un municipio afecte a otro.
 
 | Catálogo | Origen | Quién lo edita en el municipio |
 | --- | --- | --- |
 | Capítulos, partidas, partidas específicas, artículos | Copia de la plantilla CONAC | Presupuestación, admin |
 | Municipios, localidades, colonias | Copia del estado elegido | Padrón, admin |
-| Frecuencias, grupos de edad, niveles socioeconómicos | Copia de la plantilla | Admin (y Alcalde para frecuencias) |
-| Centros gestores, ejes, subtemas, estrategias, programas | Vacíos | Alcalde, admin (programas también Presupuestación) |
+| Frecuencias, grupos de edad, niveles socioeconómicos | Copia de la plantilla | Admin |
+| Centros gestores, ejes, subtemas, estrategias, programas | Vacíos | Admin |
 | Apoyos y descripciones de apoyo | Vacíos | Padrón, admin |
 
 ### Tipos de usuario
 
-Al crear un usuario se elige **un tipo** de una lista fija de 7. El tipo define qué módulos ve y qué puede hacer en cada uno; no se editan permisos casilla por casilla. Los tipos replican los perfiles del sistema actual (detalle módulo por módulo en la matriz del [análisis del sistema actual](https://claude.ai/code/artifact/03772fdf-aa72-41a3-ac5f-a2662f1fa752)).
+Al crear un usuario se elige **un tipo** de una lista fija de 3. El tipo define qué módulos ve y qué puede hacer en cada uno; no se editan permisos casilla por casilla. Los tipos replican los perfiles del sistema actual (detalle módulo por módulo en la matriz del [análisis del sistema actual](https://claude.ai/code/artifact/03772fdf-aa72-41a3-ac5f-a2662f1fa752)).
 
 | Tipo | Qué ve y hace |
 | --- | --- |
 | 1 · Informes | Inicio completo · catálogos MIR en consulta · Usuarios · 6 estadísticas de indicadores · Configuración (Login y Meses de avances) |
 | 2 · Padrón de Beneficiarios | Padrón (consultar y eliminar) · 8 catálogos del padrón · Usuarios · 4 estadísticas del padrón |
-| 3 · Presupuestación | Inicio con Presupuestación · Programas con duplicar · capítulos, partidas, partidas específicas y artículos · Usuarios · Techo Presupuestal · Dependencias y PbR |
-| 4 · Control Presupuestal | Inicio con Presupuestación · Físico Financiero |
-| 5 · Indicadores | Inicio con Presupuestación · Usuarios |
-| 6 · Alcalde | Inicio con Presupuestación · catálogos MIR con edición · Usuarios · 6 estadísticas + Físico Financiero · Formato PbR · Meses de avances |
-| 7 · Administrador | Todo |
+| 3 · Administrador | Rol técnico: Usuarios y matriz, planeación (centros gestores, ejes, subtemas, estrategias, programas con duplicar), frecuencias, Configuración (Login y Meses de avances) y acceso a los módulos de Informes y Padrón |
 
 **Además del tipo, cada usuario tiene sus programas.** Dos usuarios del mismo tipo pueden trabajar programas distintos: hoy el usuario 1 tiene 8 programas y el 2 solo uno. Al crear el usuario se marcan sus programas en un árbol agrupado por centro gestor, y solo esos aparecen en sus selectores y reportes.
 
 - **Datos del usuario:** nombre, usuario, contraseña, tipo, programas, dirección, teléfono, email, años de acceso, meses de acceso y activo.
 - **Cambiar de tipo** a un usuario le cambia el acceso en su siguiente petición, sin volver a iniciar sesión.
 - **El menú se arma según el tipo,** y la API revisa tipo y programa en cada petición. Ocultar un módulo en el menú no basta.
-- **Quién crea usuarios:** solo el Administrador del municipio. Los otros 6 tipos no ven el módulo de Usuarios.
+- **Quién crea usuarios:** solo el Administrador del municipio. Los otros 2 tipos no ven el módulo de Usuarios.
 
 #### Matriz de usuarios y programas
 
@@ -209,9 +206,9 @@ Cada fase se entrega desplegada y usable en un municipio de prueba (`demo.insadi
 | 1 | Acceso y planeación: sesión, usuarios y tipos, catálogos MIR, configuración | 0 |
 | 2 | MIR: árbol, matriz, indicadores y captura de avances | 1 |
 | 3 | Estadísticas de indicadores y exportes oficiales | 2 |
-| 4 | Presupuesto: clasificador, techo, presupuestación y PbR | 2 |
+| 4 | ~~Presupuesto: clasificador, techo, presupuestación y PbR~~ **Fuera de alcance (2026-11-03)** | — |
 | 5 | Padrón de beneficiarios | 1 |
-| 6 | Módulos diseñados por inferencia | 3, 4, 5 |
+| 6 | ~~Módulos diseñados por inferencia~~ **Fuera de alcance (2026-11-03)** | — |
 
 ### Fase 0 — Base
 
@@ -222,10 +219,10 @@ Cada fase se entrega desplegada y usable en un municipio de prueba (`demo.insadi
 
 ### Fase 1 — Acceso y planeación
 
-- **Alcance:** sesión persistente con duración configurable; usuarios (alta, edición, deshabilitar, años y meses de acceso); 7 tipos de usuario; matriz de usuarios × programas con asignación en lote; alta de varios usuarios a la vez; centros gestores, ejes, subtemas, estrategias, frecuencias y programas con duplicar a otro ejercicio; configuración de login y meses de avances.
+- **Alcance:** sesión persistente con duración configurable; usuarios (alta, edición, deshabilitar, años y meses de acceso); 3 tipos de usuario; matriz de usuarios × programas con asignación en lote; alta de varios usuarios a la vez; centros gestores, ejes, subtemas, estrategias, frecuencias y programas con duplicar a otro ejercicio; configuración de login y meses de avances.
 - **Aceptación:** un usuario de cada tipo ve el mismo menú que su perfil equivalente actual; cambiar el tipo cambia el acceso en la siguiente petición; un usuario solo ve sus programas en todos los selectores; tras cerrar y reabrir el navegador la sesión sigue activa, y al vencer pide login; deshabilitar un usuario lo saca de inmediato; duplicar un programa lo copia al ejercicio destino con clave nueva; deshabilitar no borra.
 - **Prueba:** un caso por tipo que verifica menú y acceso directo por URL a un módulo no permitido (debe negarse en la API); una prueba con la duración de sesión puesta en minutos para comprobar el vencimiento; una prueba de que la cookie de un municipio no abre otro.
-- **Medición:** 7 de 7 tipos con menú idéntico al del perfil actual; cero accesos a módulos sin permiso en las pruebas.
+- **Medición:** 3 de 3 tipos; Informes y Padrón con menú idéntico al del perfil actual; cero accesos a módulos sin permiso en las pruebas.
 
 ### Fase 2 — MIR
 
@@ -260,6 +257,8 @@ Cada fase se entrega desplegada y usable en un municipio de prueba (`demo.insadi
 
 ### Fase 4 — Presupuesto
 
+> **FUERA DE ALCANCE (2026-11-03).** Se conserva el texto solo como referencia; no se construye.
+
 - **Alcance:** capítulos, partidas, partidas específicas y artículos; techo presupuestal por centro gestor y ejercicio con reparto por partida y estado abierto/cerrado; pestaña Presupuestación en Inicio con asignación por actividad y artículo mes a mes; reporte PbR con exportación.
 - **Aceptación:** el techo exige monto > 0, al menos una partida, sin repetir y con suma igual al total; una asignación no puede exceder lo que queda por distribuir de su partida; la pestaña solo aparece si el programa tiene techo y el usuario tiene el permiso.
 - **Prueba: resuelta con el Excel de muestra del PbR** (programa 2076 Comedores Comunitarios, ejercicio 2076). Confirma exactamente el ejemplo que ya teníamos documentado: Fin y Propósito con su resumen narrativo; Componente 1 con los $100 totales; las tres actividades con $45, $35 y $20; y dentro de cada actividad, la partida específica 2213 (Productos alimenticios) y 2231 (Utensilios) desglosadas por artículo con montos mes a mes (todo cargado en enero, el resto de los meses en 0) y su total. Confirma también el encabezado exacto: Programa, Centro Gestor, Fecha de Elaboración, Ejercicio Fiscal, Clasificación Funcional y Alineación al Programa (Eje, Subtema, Estrategia).
@@ -273,6 +272,8 @@ Cada fase se entrega desplegada y usable en un municipio de prueba (`demo.insadi
 - **Medición:** tiempo para capturar una entrega de un beneficiario existente igual o menor que hoy.
 
 ### Fase 6 — Módulos por inferencia
+
+> **FUERA DE ALCANCE (2026-11-03).** Sin presupuesto ni módulos solo-admin, el menú no lleva entradas deshabilitadas.
 
 - **Resuelto: se muestran deshabilitados, no ocultos.** Formato PbR, Alta de Presupuestación, Cancelación de Padrón, Clasificación Funcional y Físico Financiero aparecen en el menú lateral desde la fase 0, pero sin funcionalidad (deshabilitados o con aviso de "próximamente") hasta que se construyan en esta fase. Así el menú se ve completo desde el inicio y no hay que reordenar nada después.
 - **Antes de construir:** una mini especificación por módulo, validada con el cliente, porque no hay referencia del sistema actual.

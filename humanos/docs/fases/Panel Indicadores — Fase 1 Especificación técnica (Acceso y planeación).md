@@ -6,13 +6,13 @@ Basado en @santiago — Panel Indicadores — Documento de producto. Depende de 
 
 ## Resumen y alcance de esta fase
 
-Fase 1 convierte el cascarón vacío de Fase 0 en un sistema usable para dar de alta la estructura de un municipio: sus usuarios (los 7 tipos, con sus programas asignados) y su jerarquía de planeación (dos ramas independientes: **eje → subtema → estrategia → programa** y **centro gestor → programa**; el eje no pertenece a ningún centro gestor). Al terminar esta fase, un Administrador puede armar todo el andamiaje de su municipio sin tocar MIR, presupuesto ni padrón —esos llegan después y dependen de que los programas ya existan.
+Fase 1 convierte el cascarón vacío de Fase 0 en un sistema usable para dar de alta la estructura de un municipio: sus usuarios (los 3 tipos, con sus programas asignados) y su jerarquía de planeación (dos ramas independientes: **eje → subtema → estrategia → programa** y **centro gestor → programa**; el eje no pertenece a ningún centro gestor). Al terminar esta fase, un Administrador puede armar todo el andamiaje de su municipio sin tocar MIR, presupuesto ni padrón —esos llegan después y dependen de que los programas ya existan.
 
 **Depende de:** Fase 0 (municipio, subdominio, sesión, tabla `usuario` mínima).
 
 **De esta fase dependen:** Fase 2 (MIR se captura sobre los programas creados aquí), Fase 4 (Presupuesto usa centro gestor y programa), y en general todo lo demás —sin programas no hay dónde capturar nada.
 
-**Entregable:** en `demo.<dominio>`, un Administrador crea usuarios de los 7 tipos, les asigna programas por la matriz, y arma al menos un centro gestor y una jerarquía eje → subtema → estrategia, y con ellos un programa duplicable a otro ejercicio.
+**Entregable:** en `demo.<dominio>`, un Administrador crea usuarios de los 3 tipos, les asigna programas por la matriz, y arma al menos un centro gestor y una jerarquía eje → subtema → estrategia, y con ellos un programa duplicable a otro ejercicio.
 
 ## Modelo de datos de esta fase
 
@@ -28,7 +28,7 @@ Columnas nuevas sobre las ya creadas en Fase 0 (`municipio_id`, `usuario`, `pass
 | `anios_acceso` | int\[\] | años en los que el usuario tiene acceso. Resuelto: array simple (no tabla aparte) —no hay requisito de reportar por año, un `int[]` en la misma fila alcanza. |
 | `meses_acceso` | int\[\] (1-12) | meses en los que tiene acceso dentro de esos años |
 
-`tipo` pasa a aceptar los 7 valores: `informes`, `padron`, `presupuestacion`, `control_presupuestal`, `indicadores`, `alcalde`, `administrador`.
+`tipo` pasa a aceptar 3 valores: `informes`, `padron`, `administrador` (recorte de alcance del 2026-11-03: los otros 4 tipos —`presupuestacion`, `control_presupuestal`, `indicadores`, `alcalde`— no existen).
 
 ### `usuario_programa`
 
@@ -48,7 +48,7 @@ PK compuesta `(usuario_id, programa_id)`. Binario: existe o no existe la fila, n
 | `eje` | `id`, `municipio_id`, `clave`, `nombre` | único `(municipio_id, clave)`. **General: no pertenece a ningún centro gestor** (migración 0004; antes llevaba `centro_gestor_id`) |
 | `subtema` | `id`, `municipio_id`, `eje_id`, `clave`, `nombre` |  |
 | `estrategia` | `id`, `municipio_id`, `subtema_id`, `clave`, `nombre` |  |
-| `frecuencia` | `id`, `municipio_id`, `clave`, `nombre` | copiada de la plantilla global en Fase 0, editable por Admin y Alcalde |
+| `frecuencia` | `id`, `municipio_id`, `clave`, `nombre` | copiada de la plantilla global en Fase 0, editable por Admin |
 | `programa` | `id`, `municipio_id`, `ejercicio_fiscal`, `clave`, `nombre`, `centro_gestor_id`, `subtema_id`, `estrategia_id`, `clasificacion_pragmatica`, `activo` | `activo=false` en vez de borrado (regla ya establecida); único `(municipio_id, ejercicio_fiscal, clave)`. `clasificacion_pragmatica` referencia `plantilla_clasificacion_programatica` (catálogo global de Fase 0, copiado al municipio): Específicos, Proyectos de Inversión, Prestación de Servicios Públicos, entre otros —misma clasificación que usa Cuenta Pública en Fase 3. |
 
 ### Configuración del municipio (columnas de `municipio`, sin tabla aparte)
@@ -70,17 +70,13 @@ Soporta la recuperación de contraseña por email (vía Resend).
 
 ## Tipos de usuario y permisos
 
-7 tipos fijos, sin permisos casilla por casilla (detalle módulo por módulo en el Documento de producto y en el Análisis del sistema actual):
+3 tipos fijos, sin permisos casilla por casilla (detalle módulo por módulo en el Documento de producto y en el Análisis del sistema actual):
 
 | Tipo | Qué ve y hace |
 | --- | --- |
 | `informes` | Inicio completo · catálogos MIR en consulta · Usuarios · 6 estadísticas de indicadores · Configuración |
 | `padron` | Padrón (consultar/eliminar) · 8 catálogos del padrón · Usuarios · 4 estadísticas del padrón |
-| `presupuestacion` | Inicio con Presupuestación · Programas con duplicar · capítulos/partidas/partidas específicas/artículos · Usuarios · Techo Presupuestal · Dependencias y PbR |
-| `control_presupuestal` | Inicio con Presupuestación · Físico Financiero |
-| `indicadores` | Inicio con Presupuestación · Usuarios |
-| `alcalde` | Inicio con Presupuestación · catálogos MIR con edición · Usuarios · 6 estadísticas + Físico Financiero · Formato PbR · Meses de avances |
-| `administrador` | Todo |
+| `administrador` | Rol técnico de configuración: Usuarios y matriz, planeación (centros gestores, ejes, subtemas, estrategias, programas con duplicar), frecuencias, Configuración (Login y Meses de avances) y acceso a los módulos de Informes y Padrón |
 
 ### Cómo se aplica
 
@@ -91,7 +87,7 @@ Soporta la recuperación de contraseña por email (vía Resend).
 
 ## Endpoints de la API
 
-Todos de ámbito municipio; `administrador` puede llamar los de Usuarios dentro de su propio municipio (los otros 6 tipos ni ven el módulo). El super admin tiene su propio conjunto de endpoints espejo bajo `/api/admin/municipios/{municipio_id}/usuarios*` (ámbito `admin`, ver más abajo) para crear y administrar usuarios de **cualquier** municipio, en cualquier momento —no solo al dar de alta el municipio.
+Todos de ámbito municipio; `administrador` puede llamar los de Usuarios dentro de su propio municipio (los otros 2 tipos ni ven el módulo). El super admin tiene su propio conjunto de endpoints espejo bajo `/api/admin/municipios/{municipio_id}/usuarios*` (ámbito `admin`, ver más abajo) para crear y administrar usuarios de **cualquier** municipio, en cualquier momento —no solo al dar de alta el municipio.
 
 ### Usuarios
 
@@ -129,18 +125,18 @@ Toda acción del super admin sobre usuarios de un municipio queda en `bitacora` 
 
 | Método y ruta | Qué hace |
 | --- | --- |
-| `GET/POST/PATCH /api/centros-gestores` | CRUD. Editable por `administrador` y `alcalde` (regla del Documento de producto). |
-| `GET/POST/PATCH /api/ejes`, `/api/subtemas`, `/api/estrategias` | CRUD. Los ejes no tienen padre; subtemas se filtran por eje y estrategias por subtema (`padre_id`). Editable por `administrador` y `alcalde`. |
-| `GET/POST/PATCH /api/frecuencias` | CRUD. Editable por `administrador` y `alcalde`. |
-| `GET/POST/PATCH /api/programas` | CRUD, con `ejercicio_fiscal`. Editable por `administrador`, `alcalde` y `presupuestacion`. |
-| `POST /api/programas/{id}/duplicar` | Crea un `programa` nuevo con clave nueva en el `ejercicio_fiscal` destino, **reutilizando** (no duplicando) su `centro_gestor_id`, `subtema_id` y `estrategia_id` originales —esos catálogos no tienen versión por ejercicio, así que no se copian, solo se referencian de nuevo. Editable por `administrador`, `alcalde` y `presupuestacion`, igual que el resto de Programas. |
+| `GET/POST/PATCH /api/centros-gestores` | CRUD. Editable por `administrador`. |
+| `GET/POST/PATCH /api/ejes`, `/api/subtemas`, `/api/estrategias` | CRUD. Los ejes no tienen padre; subtemas se filtran por eje y estrategias por subtema (`padre_id`). Editable por `administrador`. |
+| `GET/POST/PATCH /api/frecuencias` | CRUD. Editable por `administrador`. |
+| `GET/POST/PATCH /api/programas` | CRUD, con `ejercicio_fiscal`. Editable por `administrador`. |
+| `POST /api/programas/{id}/duplicar` | Crea un `programa` nuevo con clave nueva en el `ejercicio_fiscal` destino, **reutilizando** (no duplicando) su `centro_gestor_id`, `subtema_id` y `estrategia_id` originales —esos catálogos no tienen versión por ejercicio, así que no se copian, solo se referencian de nuevo. Editable por `administrador`, igual que el resto de Programas. |
 
 ### Configuración
 
 | Método y ruta | Qué hace |
 | --- | --- |
 | `GET /api/config` | Config actual del municipio (login, meses de avance) |
-| `PATCH /api/config` | Editar; `meses_avance_activos` solo editable por `administrador` y `alcalde` |
+| `PATCH /api/config` | Editar; `meses_avance_activos` solo editable por `administrador` |
 
 ### Recuperación de contraseña por email
 
@@ -221,7 +217,7 @@ Pestañas Login (imagen, color de botón, mostrar logos —ya en Fase 0) y Meses
 
 | # | Caso | Resultado esperado |
 | --- | --- | --- |
-| 1 | Un usuario de cada uno de los 7 tipos inicia sesión | El menú que ve coincide con el perfil equivalente del sistema actual |
+| 1 | Un usuario de cada uno de los 3 tipos inicia sesión | El menú que ve coincide con el perfil equivalente del sistema actual |
 | 2 | Acceso directo por URL a un módulo no permitido para el tipo | La API lo niega (`403`), sin importar que el front oculte el enlace |
 | 3 | Administrador cambia el tipo de un usuario | El usuario ve el nuevo menú en su siguiente petición, sin volver a iniciar sesión |
 | 4 | Usuario con programas asignados A y B consulta un selector o reporte | Solo ve A y B, nunca los demás programas del municipio |
@@ -232,7 +228,7 @@ Pestañas Login (imagen, color de botón, mostrar logos —ya en Fase 0) y Meses
 | 9 | Deshabilitar un centro gestor/eje/programa en uso | Se marca `activo=false`, desaparece de los selectores, pero el histórico que lo referencia no se rompe |
 | 10 | Usuario deshabilitado con sesión abierta | Pierde el acceso de inmediato (sesiones revocadas al deshabilitar) |
 
-**Medición de la fase:** 7 de 7 tipos con menú idéntico al del perfil actual; cero accesos a módulos sin permiso en las pruebas.
+**Medición de la fase:** 3 de 3 tipos con menú idéntico al del perfil actual; cero accesos a módulos sin permiso en las pruebas.
 
 **Cobertura de testing (ver Fase 0 § Testing):** los casos 2–10 de esta tabla son reglas de negocio (permisos, scoping por `usuario_programa`, auditoría, transacciones, baja lógica, revocación de sesión) y se agregan como unit tests de los validadores correspondientes. El caso 1 (menú idéntico al perfil del sistema actual) es de comparación visual y se verifica manualmente.
 
@@ -240,7 +236,7 @@ Pestañas Login (imagen, color de botón, mostrar logos —ya en Fase 0) y Meses
 
 - Árbol de problemas/objetivos, matriz MIR, indicadores y captura de avances — Fase 2 (necesita los programas de esta fase, pero el contenido MIR en sí no se construye aquí).
 - Las 4 estadísticas de indicadores y los exportes oficiales (Cuenta Pública, Transparencia) — Fase 3.
-- Presupuesto (techo, presupuestación, PbR) — Fase 4.
+- Presupuesto (techo, presupuestación, PbR) — fuera de alcance (2026-11-03).
 - Padrón de beneficiarios — Fase 5.
 - Carga masiva desde el super admin — no está en el MVP.
 

@@ -4,6 +4,10 @@ Panel administrativo multi-tenant para municipios (réplica del sistema de
 Insadisa, reconstruido con permiso del dueño). Ver humanos/docs/producto/ para el
 contexto completo de negocio; este archivo es solo un mapa.
 
+## Alcance (recorte del 2026-11-03)
+
+Solo se construye lo que ven los usuarios 1 y 2 del sistema de referencia. Tipos de usuario fijos: `informes`, `padron` y `administrador` (rol técnico de configuración). Presupuesto y los tipos Presupuestación, Control Presupuestal, Indicadores y Alcalde están fuera de alcance: no construirlos, no dejarlos en el menú.
+
 ## Arquitectura (no renegociar sin avisar a Santiago)
 
 - Monorepo: `/front` (Next.js App Router, Vercel) + `/api` (FastAPI, Railway).
@@ -39,7 +43,8 @@ de frontend ni meta de cobertura. Ver humanos/docs/fases/Panel Indicadores — F
 | 1 | Usuarios, permisos, catálogos de planeación | humanos/docs/fases/Panel Indicadores — Fase 1 Especificación técnica (Acceso y planeación).md |
 | 2 | MIR — matriz de indicadores, metas, avances | humanos/docs/fases/Panel Indicadores — Fase 2 Especificación técnica (MIR).md |
 | 3 | Estadísticas, exportaciones Cuenta Pública/Transparencia | humanos/docs/fases/Panel Indicadores — Fase 3 Especificación técnica (Estadísticas de indicadores).md |
-| 4 | Presupuesto — techo, presupuestación, PbR | humanos/docs/fases/Panel Indicadores — Fase 4 Especificación técnica (Presupuesto).md |
+| 4 | ~~Presupuesto~~ — FUERA DE ALCANCE | humanos/docs/fases/Panel Indicadores — Fase 4 Especificación técnica (Presupuesto).md (solo referencia) |
+| 5 | Padrón de beneficiarios (usuario 2) | humanos/docs/fases/Panel Indicadores — Fase 5 Especificación técnica (Padrón de beneficiarios).md |
 
 Cada doc de fase trae, al final de su tabla de criterios de aceptación, una
 nota de qué casos ya están cubiertos por unit test y cuáles son verificación
