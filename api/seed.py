@@ -17,11 +17,12 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import new_session
-from app.models import (GeografiaEstado, GeografiaLocalidad, GeografiaMunicipio, PlantillaAlgoritmo,
+from app.models import (GeografiaEstado, PlantillaAlgoritmo,
                         PlantillaClasificacionProgramatica, PlantillaConac, PlantillaDimension,
                         PlantillaFrecuencia, PlantillaGrupoEdad, PlantillaNivelSocioeconomico,
                         SubdominioReservado, SuperAdmin)
 from app.security import hash_admin_password
+from app.services.geografia import cargar_geografia
 
 DATA = Path(__file__).parent / "seed_data"
 
@@ -48,9 +49,9 @@ ALGORITMOS = [("a_sobre_b_pct", "(A / B) * 100"), ("a_sobre_b_menos1_pct", "((A 
 CLASIFICACION = [("especificos", "Específicos"), ("proyectos_inversion", "Proyectos de Inversión"),
                  ("servicios_publicos", "Prestación de Servicios Públicos")]
 # Ejemplos: reemplazar con los valores reales (CSV) cuando se definan para el padrón.
-GRUPOS_EDAD = [("0-11", "Niñez", 0, 11), ("12-17", "Adolescencia", 12, 17),
-               ("18-29", "Juventud", 18, 29), ("30-59", "Adultez", 30, 59),
-               ("60+", "Adultos mayores", 60, None)]
+# Los 4 grupos del sistema de referencia, todos con máximo (Fase 5: la captura asigna el grupo según la edad).
+GRUPOS_EDAD = [("2-10", "NIÑO", 2, 10), ("11-17", "ADOLESCENTE", 11, 17),
+               ("18-59", "ADULTO", 18, 59), ("60-80", "TERCERA EDAD", 60, 80)]
 NIVELES = [("muy_bajo", "Muy bajo"), ("bajo", "Bajo"), ("medio", "Medio"), ("alto", "Alto")]
 CONAC_MUESTRA = [
     ("capitulo", "1000", "Servicios personales", None), ("capitulo", "2000", "Materiales y suministros", None),
@@ -72,6 +73,13 @@ def _csv(nombre: str):
         return []
     with p.open(encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def _csv_iter(nombre: str):
+    p = DATA / nombre
+    if p.exists():
+        with p.open(encoding="utf-8", newline="") as f:
+            yield from csv.DictReader(f)
 
 
 def _plano(db: Session, modelo, filas, extras=()):
@@ -124,21 +132,10 @@ def seed_plantillas(db: Session) -> None:
         db.flush()
         por_clave[(nivel, clave)] = c
 
-    # Geografía INEGI desde CSV (no se embebe: ~300 mil localidades)
-    estados = {e.clave: e for e in db.scalars(select(GeografiaEstado))}
-    munis = {(m.estado_id, m.clave): m for m in db.scalars(select(GeografiaMunicipio))}
-    for r in _csv("geografia_municipio.csv"):
-        e = estados[r["estado_clave"]]
-        if (e.id, r["clave"]) not in munis:
-            m = GeografiaMunicipio(estado_id=e.id, clave=r["clave"], nombre=r["nombre"])
-            db.add(m)
-            db.flush()
-            munis[(e.id, r["clave"])] = m
-    locs = {(l.municipio_geo_id, l.clave) for l in db.scalars(select(GeografiaLocalidad))}
-    for r in _csv("geografia_localidad.csv"):
-        m = munis[(estados[r["estado_clave"]].id, r["municipio_clave"])]
-        if (m.id, r["clave"]) not in locs:
-            db.add(GeografiaLocalidad(municipio_geo_id=m.id, clave=r["clave"], nombre=r["nombre"]))
+
+def seed_geografia(db: Session):
+    """Geografía INEGI desde CSV (no se embebe: ~300 mil localidades). Tolerante a datos incompletos."""
+    return cargar_geografia(db, _csv_iter("geografia_municipio.csv"), _csv_iter("geografia_localidad.csv"))
 
 
 def seed_reservados(db: Session) -> None:
@@ -164,7 +161,9 @@ def main(argv=None) -> int:
         seed_plantillas(db)
         seed_reservados(db)
         db.commit()
+        geo = seed_geografia(db)
     print(f"super admin {r}; plantillas y subdominios reservados cargados")
+    print(geo.resumen())
     return 0
 
 

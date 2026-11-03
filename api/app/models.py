@@ -250,7 +250,15 @@ class CatalogoMunicipio(TenantMixin, Base):
     las fases siguientes pueden promover cada `tipo` a su tabla propia (frecuencia, partida…)."""
 
     __tablename__ = "catalogo_municipio"
-    __table_args__ = (UniqueConstraint("municipio_id", "tipo", "clave", "padre_id"),)
+    __table_args__ = (
+        UniqueConstraint("municipio_id", "tipo", "clave", "padre_id"),
+        # padre_id NULL no cuenta como igual en la unicidad de arriba: los catálogos planos del Padrón
+        # (municipios, grupos de edad, niveles) se protegen con este índice parcial. Las localidades
+        # (clave única por municipio geográfico) ya quedan cubiertas por la restricción de arriba.
+        Index("uq_catalogo_municipio_clave_plano", "municipio_id", "tipo", "clave", unique=True,
+              postgresql_where=text("tipo IN ('geo_municipio', 'grupo_edad', 'nivel_socioeconomico')"),
+              sqlite_where=text("tipo IN ('geo_municipio', 'grupo_edad', 'nivel_socioeconomico')")),
+    )
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     # conac_capitulo|conac_partida|conac_partida_especifica|conac_articulo|geo_municipio|
     # geo_localidad|frecuencia|dimension|algoritmo|grupo_edad|nivel_socioeconomico|
@@ -488,3 +496,38 @@ class AvanceMensual(TenantMixin, Base):
     valor_a: Mapped[Decimal | None] = mapped_column(_VALOR)
     valor_b: Mapped[Decimal | None] = mapped_column(_VALOR)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now, onupdate=_now)
+
+
+# --------------------------------------------------------------------------- Fase 5: catálogos del Padrón
+# Municipios, localidades, grupos de edad y niveles socioeconómicos viven en `catalogo_municipio`
+# (copias de las plantillas de Fase 0). Estas tres tablas arrancan vacías al crear el municipio.
+class Apoyo(TenantMixin, Base):
+    __tablename__ = "apoyo"
+    __table_args__ = (UniqueConstraint("municipio_id", "clave"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    clave: Mapped[str] = mapped_column(String(32))
+    nombre: Mapped[str] = mapped_column(Text)
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), index=True)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+
+
+class DescripcionApoyo(TenantMixin, Base):
+    __tablename__ = "descripcion_apoyo"
+    __table_args__ = (UniqueConstraint("municipio_id", "clave"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    clave: Mapped[str] = mapped_column(String(32))
+    nombre: Mapped[str] = mapped_column(Text)
+    apoyo_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("apoyo.id"), index=True)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+
+
+class Colonia(TenantMixin, Base):
+    """Pertenece a un estado y a un municipio (fila `geo_municipio` de `catalogo_municipio`), no a una localidad."""
+
+    __tablename__ = "colonia"
+    __table_args__ = (UniqueConstraint("municipio_id", "clave"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    clave: Mapped[str] = mapped_column(String(32))
+    nombre: Mapped[str] = mapped_column(Text)
+    estado_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("geografia_estado.id"), index=True)
+    municipio_geo_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
