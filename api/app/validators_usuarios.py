@@ -17,13 +17,13 @@ PERMISOS: dict[str, frozenset[str]] = {
     # (alta, edición, contraseña, forzar, masivo, matriz) es solo del administrador.
     "usuarios_ver": frozenset({"informes", "padron", ADMIN}),
     "usuarios_gestion": frozenset({ADMIN}),
-    # Planeación: informes la consulta; programas y planeación solo los edita el administrador
-    "planeacion_ver": frozenset({"informes", ADMIN}),
+    # Planeación: informes y padrón la consultan (el selector del Inicio la necesita); programas y planeación solo los edita el administrador
+    "planeacion_ver": frozenset({"informes", "padron", ADMIN}),
     "planeacion_editar": frozenset({ADMIN}),
     "programas_editar": frozenset({ADMIN}),
     # Fase 2: módulo Inicio (árbol, matriz de indicadores, captura de avances). Todos los tipos con
     # "Inicio" en su menú; además cada endpoint filtra por los programas asignados (usuario_programa).
-    "inicio": frozenset({"informes", ADMIN}),
+    "inicio": frozenset({"informes", "padron", ADMIN}),
     # Fase 3: módulo Estadísticas (Dependencias, Ejes, Cumplimiento de Metas, Consolidado, Cuenta
     # Pública, Transparencia). Todo se acota por el mismo alcance de programas del resto de las
     # fases (solo el administrador ve todos).

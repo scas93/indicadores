@@ -35,7 +35,7 @@ export const MENU_MUNICIPIO: Menu = [
       { label: "Programas", href: "/catalogos/programas", tipos: T.informes },
       { label: "Apoyos", href: "/catalogos/apoyos", tipos: T.padron },
       { label: "Descripción de Apoyo", href: "/catalogos/descripciones-apoyo", tipos: T.padron },
-      { label: "Nivel Socioeconómico", href: "/catalogos/niveles-socioeconomicos", tipos: T.padron },
+      { label: "Nivel Socioeconomico", href: "/catalogos/niveles-socioeconomicos", tipos: T.padron },
       { label: "Grupo Edad", href: "/catalogos/grupos-edad", tipos: T.padron },
       { label: "Localidades", href: "/catalogos/localidades", tipos: T.padron },
       { label: "Municipios", href: "/catalogos/municipios", tipos: T.padron },
@@ -43,7 +43,7 @@ export const MENU_MUNICIPIO: Menu = [
       { label: "Usuarios", href: "/catalogos/usuarios", tipos: ["informes", "padron"] },
     ],
   },
-  { label: "Padrón de Beneficiarios", icon: "fa-users", tipos: T.padron },
+  { label: "Padron de Beneficiarios", icon: "fa-users", tipos: T.padron },
   {
     label: "Estadísticas", icon: "fa-bar-chart",
     tipos: ["informes", "padron"], hijos: [

@@ -65,7 +65,8 @@ def test_quien_ve_el_listado_de_usuarios(tipo, esperado):
 def test_edicion_de_planeacion_y_programas_solo_administrador():
     assert {t for t in TIPOS if vu.tipo_permitido("planeacion_editar", t)} == {"administrador"}
     assert {t for t in TIPOS if vu.tipo_permitido("programas_editar", t)} == {"administrador"}
-    assert vu.tipo_permitido("planeacion_ver", "informes") and not vu.tipo_permitido("planeacion_ver", "padron")
+    assert vu.tipo_permitido("planeacion_ver", "informes") and vu.tipo_permitido("planeacion_ver", "padron")
+    assert vu.tipo_permitido("inicio", "padron")  # la referencia entra al Padrón por el Inicio
 
 
 def test_administrador_puede_todo_lo_que_podian_alcalde_y_presupuestacion():

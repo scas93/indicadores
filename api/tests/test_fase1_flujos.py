@@ -92,8 +92,10 @@ def test_caso2_otros_modulos_por_tipo(m):
     m.usuario("pad", "padron")
     m.usuario("inf", "informes")
     pad, inf = (m.cliente(u, "pw") for u in ("pad", "inf"))
-    assert m.get(pad, "/api/centros-gestores").status_code == 403
-    assert m.get(pad, "/api/programas").status_code == 403
+    # padrón entra por el Inicio (como en la referencia): lee centros y programas, no los edita
+    assert m.get(pad, "/api/centros-gestores").status_code == 200
+    assert m.get(pad, "/api/programas").status_code == 200
+    assert m.post(pad, "/api/centros-gestores", {"clave": "x", "nombre": "x"}).status_code == 403
     assert m.get(pad, "/api/config").status_code == 403
     assert m.get(pad, "/api/usuarios").status_code == 200           # padrón sí tiene el módulo Usuarios
     assert m.get(inf, "/api/centros-gestores").status_code == 200
