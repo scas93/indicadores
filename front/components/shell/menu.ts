@@ -1,8 +1,6 @@
 /** Definición de menú compartida por los dos paneles. El cascarón (AppShell) es único;
  *  lo ÚNICO que cambia entre /sa y /mun, y entre tipos de usuario, es qué items existen. */
-export type TipoUsuario =
-  | "informes" | "padron" | "presupuestacion" | "control_presupuestal"
-  | "indicadores" | "alcalde" | "administrador";
+export type TipoUsuario = "informes" | "padron" | "administrador";
 
 export type Item = {
   label: string;
@@ -18,63 +16,48 @@ export type Menu = Item[];
 export const TIPO_ETIQUETA: Record<TipoUsuario, string> = {
   informes: "1.- INFORMES",
   padron: "2.- PADRON DE BENEFICIARIOS",
-  presupuestacion: "3.- PRESUPUESTACION",
-  control_presupuestal: "4.- CONTROL PRESUPUESTAL",
-  indicadores: "5.- INDICADORES",
-  alcalde: "6.- ALCALDE",
   administrador: "7.- ADMINISTRADOR",
 };
 
 const T: Record<string, TipoUsuario[]> = {
-  informes: ["informes"], padron: ["padron"], presup: ["presupuestacion"], ctrl: ["control_presupuestal"],
-  ind: ["indicadores"], alc: ["alcalde"],
+  informes: ["informes"], padron: ["padron"],
 };
-const mir: TipoUsuario[] = [...T.informes, ...T.alc];
+const mir: TipoUsuario[] = T.informes;
 
-/** Menú del municipio. Estructura y orden de las capturas (usuarios 3 y 4); las secciones que las
- *  capturas no cubren (tipos 1, 2, 5, 6 y fases futuras) se infieren de la tabla de tipos de la Fase 1. */
+/** Menú del municipio. Estructura y orden de las capturas; las secciones que las
+ *  capturas no cubren (tipos 1, 2 y fases futuras) se infieren de la tabla de tipos de la Fase 1. */
 export const MENU_MUNICIPIO: Menu = [
-  { label: "Inicio", icon: "fa-home", href: "/", tipos: [...T.informes, ...T.presup, ...T.ctrl, ...T.ind, ...T.alc] },
+  { label: "Inicio", icon: "fa-home", href: "/", tipos: T.informes },
   {
     label: "Catálogos", icon: "fa-book", hijos: [
       { label: "Centros gestores", href: "/catalogos/centros-gestores", tipos: mir }, { label: "Ejes", href: "/catalogos/ejes", tipos: mir }, { label: "Subtemas", href: "/catalogos/subtemas", tipos: mir },
       { label: "Estrategias", href: "/catalogos/estrategias", tipos: mir }, { label: "Frecuencias", href: "/catalogos/frecuencias", tipos: mir },
-      { label: "Programas", href: "/catalogos/programas", tipos: [...T.informes, ...T.presup, ...T.alc] },
-      { label: "Capitulos", tipos: T.presup }, { label: "Partidas", tipos: T.presup },
-      { label: "Partidas Especificas", tipos: T.presup }, { label: "Articulos", tipos: T.presup },
+      { label: "Programas", href: "/catalogos/programas", tipos: T.informes },
       { label: "Apoyos", tipos: T.padron }, { label: "Descripciones de apoyo", tipos: T.padron },
       { label: "Grupos de edad", tipos: T.padron }, { label: "Niveles socioeconómicos", tipos: T.padron },
       { label: "Municipios", tipos: T.padron }, { label: "Localidades", tipos: T.padron },
       { label: "Colonias", tipos: T.padron },
-      { label: "Usuarios", href: "/catalogos/usuarios", tipos: ["informes", "padron", "presupuestacion", "indicadores", "alcalde"] },
+      { label: "Usuarios", href: "/catalogos/usuarios", tipos: ["informes", "padron"] },
     ],
   },
   { label: "Padrón de Beneficiarios", icon: "fa-users", tipos: T.padron },
   {
     label: "Estadísticas", icon: "fa-bar-chart",
-    tipos: ["informes", "padron", "presupuestacion", "control_presupuestal", "alcalde"], hijos: [
-      { label: "Dependencias", href: "/estadisticas/dependencias", tipos: [...mir, ...T.presup, ...T.ctrl] },
+    tipos: ["informes", "padron"], hijos: [
+      { label: "Dependencias", href: "/estadisticas/dependencias", tipos: mir },
       { label: "Ejes", href: "/estadisticas/ejes", tipos: mir },
       { label: "Cumplimiento de Metas", href: "/estadisticas/cumplimiento-metas", tipos: mir },
       { label: "Consolidado", href: "/estadisticas/consolidado", tipos: mir },
       { label: "Cuenta Pública", href: "/estadisticas/cuenta-publica", tipos: mir },
       { label: "Transparencia", href: "/estadisticas/transparencia", tipos: mir },
-      { label: "PbR", tipos: [...T.presup, ...T.ctrl, ...T.alc] },
       { label: "Estadísticas del padrón", tipos: T.padron },
     ],
   },
-  { label: "Techo Presupuestal", icon: "fa-money", tipos: T.presup },
   {
     label: "Configuración", icon: "fa-cog", tipos: mir, hijos: [
       { label: "Login", href: "/configuracion/login", tipos: T.informes }, { label: "Meses de avances", href: "/configuracion/meses-avances", tipos: mir },
     ],
   },
-  // Fase 6 (por inferencia): módulos que solo ve el administrador. Visibles pero deshabilitados
-  // desde la Fase 0 ("nunca ocultos"); las capturas de usuarios 3 y 4 confirman que los demás tipos no los ven.
-  { label: "Físico Financiero", icon: "fa-calculator", tipos: [] },
-  { label: "Alta de Presupuestación", icon: "fa-plus-square-o", tipos: [] },
-  { label: "Clasificación Funcional", icon: "fa-sitemap", tipos: [] },
-  { label: "Cancelación de Padrón", icon: "fa-ban", tipos: [] },
 ];
 
 /** Super admin: mismo lenguaje visual, solo cambian las opciones. */

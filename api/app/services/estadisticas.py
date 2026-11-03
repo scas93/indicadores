@@ -1,6 +1,6 @@
 """Fase 3 — Estadísticas: capa de lectura y agregación sobre Fase 2. No guarda nada.
 
-Alcance: la misma regla de las demás fases (`programas.visibles`): administrador y alcalde ven todos
+Alcance: la misma regla de las demás fases (`programas.visibles`): solo el administrador ve todos
 los programas del municipio; el resto, solo los de su `usuario_programa`. Es la única fuente de
 alcance de conteos, detalle, selectores y exportaciones. Cumplimiento y color se calculan con `services.cumplimiento` / `app.calculo` (Fase 2); `app.calculo_estadisticas` solo
 decide qué valor se compara según el modo.
@@ -51,7 +51,7 @@ def validar_modo(modo: str) -> str:
 
 def programas_en_alcance(db: Session, actor: ActorCtx) -> set[uuid.UUID]:
     ver = visibles(db, actor.tipo_usuario, actor.usuario_id)
-    if ver is None:  # administrador, alcalde: todos los programas del municipio (Session ya aislada)
+    if ver is None:  # administrador: todos los programas del municipio (Session ya aislada)
         return set(db.scalars(select(Programa.id)))
     return set(ver)
 

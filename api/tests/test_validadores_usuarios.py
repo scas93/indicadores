@@ -7,8 +7,9 @@ from app import validators_usuarios as vu
 from app.errors import ApiError
 
 U1, U2, P1, P2, P3 = (uuid.uuid4() for _ in range(5))
-TIPOS = ["informes", "padron", "presupuestacion", "control_presupuestal", "indicadores", "alcalde",
-         "administrador"]
+TIPOS = ["informes", "padron", "administrador"]
+# Tipos retirados (migración 0006): ya no existen en ningún lado
+RETIRADOS = ["presupuestacion", "control_presupuestal", "indicadores", "alcalde"]
 
 
 def fila(**kw):
@@ -16,8 +17,27 @@ def fila(**kw):
 
 
 # --- caso 2: acceso directo por URL a un módulo no permitido -> 403 ----------
-def test_son_7_tipos():
+def test_son_3_tipos():
     assert vu.TIPOS == set(TIPOS)
+
+
+@pytest.mark.parametrize("retirado", RETIRADOS)
+def test_un_tipo_retirado_se_rechaza_al_validar_la_fila(retirado):
+    assert vu.validar_fila_usuario(fila(tipo=retirado), existentes=set()) == {"tipo": "Tipo de usuario inválido"}
+    with pytest.raises(ApiError) as e:  # alta, edición e importación pasan por la misma validación
+        vu.levantar_si_errores(vu.validar_fila_usuario(fila(tipo=retirado), existentes=set()))
+    assert (e.value.status, e.value.codigo) == (422, "VALIDACION")
+
+
+@pytest.mark.parametrize("retirado", RETIRADOS)
+def test_un_tipo_retirado_no_tiene_ningun_permiso(retirado):
+    assert not any(vu.tipo_permitido(g, retirado) for g in vu.PERMISOS)
+    assert vu.programas_visibles(retirado, [P1]) == {P1}
+
+
+def test_tipo_ausente_o_no_texto_es_invalido():
+    for t in (None, "", ["administrador"], 7):
+        assert vu.validar_fila_usuario(fila(tipo=t), existentes=set()) == {"tipo": "Tipo de usuario inválido"}
 
 
 @pytest.mark.parametrize("tipo", [t for t in TIPOS if t != "administrador"])
@@ -37,24 +57,30 @@ def test_super_admin_sin_tipo_no_pasa_por_validar_tipo():
 
 
 @pytest.mark.parametrize("tipo,esperado", [
-    ("informes", True), ("padron", True), ("presupuestacion", True), ("indicadores", True),
-    ("alcalde", True), ("administrador", True), ("control_presupuestal", False)])
+    ("informes", True), ("padron", True), ("administrador", True), ("alcalde", False)])
 def test_quien_ve_el_listado_de_usuarios(tipo, esperado):
     assert vu.tipo_permitido("usuarios_ver", tipo) is esperado
 
 
-def test_edicion_de_planeacion_y_programas():
-    assert {t for t in TIPOS if vu.tipo_permitido("planeacion_editar", t)} == {"alcalde", "administrador"}
-    assert {t for t in TIPOS if vu.tipo_permitido("programas_editar", t)} == {
-        "alcalde", "presupuestacion", "administrador"}
-    assert not vu.tipo_permitido("planeacion_ver", "padron")
+def test_edicion_de_planeacion_y_programas_solo_administrador():
+    assert {t for t in TIPOS if vu.tipo_permitido("planeacion_editar", t)} == {"administrador"}
+    assert {t for t in TIPOS if vu.tipo_permitido("programas_editar", t)} == {"administrador"}
+    assert vu.tipo_permitido("planeacion_ver", "informes") and not vu.tipo_permitido("planeacion_ver", "padron")
 
 
-def test_config_meses_solo_admin_y_alcalde_login_informes_y_admin():
-    vu.validar_campos_config("alcalde", ["meses_avance_activos"])
+def test_administrador_puede_todo_lo_que_podian_alcalde_y_presupuestacion():
+    # alcalde: planeación, programas, meses y tolerancia; presupuestación: programas
+    for grupo in ("planeacion_ver", "planeacion_editar", "programas_editar", "inicio", "estadisticas",
+                  "estadisticas_dependencias", "config_ver"):
+        assert vu.tipo_permitido(grupo, "administrador")
+    vu.validar_campos_config("administrador", ["meses_avance_activos", "tolerancia_semaforo"])
+
+
+def test_config_meses_solo_admin_login_informes_y_admin():
+    vu.validar_campos_config("administrador", ["meses_avance_activos", "color_boton"])
     vu.validar_campos_config("informes", ["color_boton", "mostrar_logos"])
-    for tipo, campo in [("informes", "meses_avance_activos"), ("alcalde", "color_boton"),
-                        ("presupuestacion", "tolerancia_semaforo")]:
+    for tipo, campo in [("informes", "meses_avance_activos"), ("informes", "tolerancia_semaforo"),
+                        ("padron", "color_boton")]:
         with pytest.raises(ApiError) as e:
             vu.validar_campos_config(tipo, [campo])
         assert e.value.status == 403
@@ -67,9 +93,10 @@ def test_programas_visibles_dos_usuarios_del_mismo_tipo_ven_distinto():
     assert vu.programas_visibles("informes", []) == frozenset()  # sin asignar: no ve ninguno
 
 
-def test_administrador_y_alcalde_ven_todos():
+def test_solo_administrador_ve_todos_informes_y_padron_solo_los_asignados():
     assert vu.programas_visibles("administrador", []) is None
-    assert vu.programas_visibles("alcalde", [P1]) is None
+    assert vu.programas_visibles("informes", [P1]) == {P1}
+    assert vu.programas_visibles("padron", [P1]) == {P1}
 
 
 # --- altas (individual y masiva usan la misma función) -----------------------

@@ -62,11 +62,23 @@ class EstadoMunicipio(str, enum.Enum):
 class TipoUsuario(str, enum.Enum):
     informes = "informes"
     padron = "padron"
-    presupuestacion = "presupuestacion"
-    control_presupuestal = "control_presupuestal"
-    indicadores = "indicadores"
-    alcalde = "alcalde"
     administrador = "administrador"
+
+
+class TipoUsuarioCol(TypeDecorator):
+    """VARCHAR(32) que lee los tipos retirados (usuarios deshabilitados por la migración 0006,
+    que conserva su valor original) como None en vez de fallar al cargar la fila."""
+    impl = String(32)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        return getattr(value, "value", value)
+
+    def process_result_value(self, value, dialect):
+        try:
+            return None if value is None else TipoUsuario(value)
+        except ValueError:
+            return None
 
 
 class ActorTipo(str, enum.Enum):
@@ -191,7 +203,7 @@ class Usuario(TenantMixin, Base):
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     usuario: Mapped[str] = mapped_column(String(100))
     password_encrypted: Mapped[str] = mapped_column(Text)  # AES-256-GCM reversible, NO hash
-    tipo: Mapped[TipoUsuario] = mapped_column(_enum(TipoUsuario))
+    tipo: Mapped[TipoUsuario | None] = mapped_column(TipoUsuarioCol())
     nombre: Mapped[str] = mapped_column(Text)
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     # Solo informativo: el login nunca obliga a cambiar la contraseña (decisión de producto)
@@ -287,7 +299,7 @@ class Estrategia(_Catalogo, Base):
 
 
 class Frecuencia(_Catalogo, Base):
-    """Copiada de plantilla_frecuencia al crear el municipio; editable por Admin y Alcalde."""
+    """Copiada de plantilla_frecuencia al crear el municipio; editable por Administrador."""
 
     __tablename__ = "frecuencia"
     __table_args__ = (UniqueConstraint("municipio_id", "clave"),)

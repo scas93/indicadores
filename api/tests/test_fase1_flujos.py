@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 
 from app.main import app
 from app.models import (Bitacora, PasswordResetToken, Programa, Sesion, Usuario, UsuarioPrograma)
@@ -77,7 +77,7 @@ def m(admin):
 
 # --- caso 2: 403 por tipo ------------------------------------------------------
 def test_caso2_tipo_sin_permiso_recibe_403_en_la_api(m):
-    for tipo in ("informes", "padron", "presupuestacion", "control_presupuestal", "indicadores", "alcalde"):
+    for tipo in ("informes", "padron"):
         m.usuario("u_" + tipo, tipo)
         c = m.cliente("u_" + tipo, "pw")
         assert m.post(c, "/api/usuarios", {"nombre": "x", "usuario": "x", "tipo": "informes"}).status_code == 403
@@ -90,22 +90,21 @@ def test_caso2_tipo_sin_permiso_recibe_403_en_la_api(m):
 
 def test_caso2_otros_modulos_por_tipo(m):
     m.usuario("pad", "padron")
-    m.usuario("ctrl", "control_presupuestal")
-    m.usuario("pres", "presupuestacion")
-    pad, ctrl, pres = (m.cliente(u, "pw") for u in ("pad", "ctrl", "pres"))
+    m.usuario("inf", "informes")
+    pad, inf = (m.cliente(u, "pw") for u in ("pad", "inf"))
     assert m.get(pad, "/api/centros-gestores").status_code == 403
     assert m.get(pad, "/api/programas").status_code == 403
-    assert m.get(ctrl, "/api/usuarios").status_code == 403          # no tiene el módulo Usuarios
-    assert m.get(ctrl, "/api/config").status_code == 403
-    assert m.get(pres, "/api/centros-gestores").status_code == 200
-    assert m.post(pres, "/api/centros-gestores", {"clave": "x", "nombre": "x"}).status_code == 403
-    assert m.post(pres, "/api/frecuencias", {"clave": "x", "nombre": "x"}).status_code == 403
+    assert m.get(pad, "/api/config").status_code == 403
+    assert m.get(pad, "/api/usuarios").status_code == 200           # padrón sí tiene el módulo Usuarios
+    assert m.get(inf, "/api/centros-gestores").status_code == 200
+    assert m.post(inf, "/api/centros-gestores", {"clave": "x", "nombre": "x"}).status_code == 403
+    assert m.post(inf, "/api/frecuencias", {"clave": "x", "nombre": "x"}).status_code == 403
     assert m.get(m.admin, "/api/usuarios").status_code == 200
     # sin sesión: 401
     assert TestClient(app).get("/api/usuarios", headers=m.h).status_code == 401
 
 
-def test_listado_de_usuarios_lo_ven_cinco_tipos_sin_contrasenas(m):
+def test_listado_de_usuarios_lo_ven_informes_y_padron_sin_contrasenas(m):
     m.usuario("inf", "informes")
     c = m.cliente("inf", "pw")
     lista = m.get(c, "/api/usuarios").json()
@@ -120,8 +119,8 @@ def test_caso3_cambio_de_tipo_aplica_en_la_siguiente_peticion(m):
     c = m.cliente("ana", "pw")
     assert m.get(c, "/api/auth/me").json()["usuario"]["tipo"] == "informes"
     assert m.get(c, "/api/config").status_code == 200
-    assert m.patch(m.admin, f"/api/usuarios/{u['id']}", {"tipo": "indicadores"}).status_code == 200
-    assert m.get(c, "/api/auth/me").json()["usuario"]["tipo"] == "indicadores"  # sin volver a entrar
+    assert m.patch(m.admin, f"/api/usuarios/{u['id']}", {"tipo": "padron"}).status_code == 200
+    assert m.get(c, "/api/auth/me").json()["usuario"]["tipo"] == "padron"  # sin volver a entrar
     assert m.get(c, "/api/config").status_code == 403
 
 
@@ -129,7 +128,7 @@ def test_cambiar_tipo_no_toca_los_programas(m):
     cg, *_ = m.planeacion()
     p = m.programa("P1", cg)
     u = m.usuario("ana", "informes", programa_ids=[p["id"]])
-    assert m.patch(m.admin, f"/api/usuarios/{u['id']}", {"tipo": "presupuestacion"}).json()["programa_ids"] == [p["id"]]
+    assert m.patch(m.admin, f"/api/usuarios/{u['id']}", {"tipo": "padron"}).json()["programa_ids"] == [p["id"]]
 
 
 # --- caso 4: solo ve sus programas -----------------------------------------------
@@ -145,20 +144,8 @@ def test_caso4_usuario_solo_ve_sus_programas_y_dos_del_mismo_tipo_difieren(m):
     # no puede editar ni duplicar lo que no ve
     assert m.post(m.cliente("u1", "pw"), f"/api/programas/{pc['id']}/duplicar",
                   {"ejercicio_fiscal": 2027, "clave": "Z"}).status_code == 403  # informes no edita
-    pres = m.usuario("pres", "presupuestacion", programa_ids=[pa["id"]])
-    cp = m.cliente("pres", "pw")
-    assert m.patch(cp, f"/api/programas/{pc['id']}", {"nombre": "x"}).status_code == 404
-    assert m.patch(cp, f"/api/programas/{pa['id']}", {"nombre": "nuevo"}).status_code == 200
-
-
-def test_presupuestacion_que_crea_un_programa_lo_recibe_asignado(m):
-    cg, *_ = m.planeacion()
-    m.usuario("pres", "presupuestacion")
-    cp = m.cliente("pres", "pw")
-    assert m.get(cp, "/api/programas").json() == []
-    r = m.post(cp, "/api/programas", {"ejercicio_fiscal": EJ, "clave": "N", "nombre": "n", "centro_gestor_id": cg["id"]})
-    assert r.status_code == 201
-    assert [p["clave"] for p in m.get(cp, "/api/programas").json()] == ["N"]
+    assert m.patch(m.cliente("u1", "pw"), f"/api/programas/{pa['id']}", {"nombre": "nuevo"}).status_code == 403
+    assert m.patch(m.admin, f"/api/programas/{pc['id']}", {"nombre": "nuevo"}).status_code == 200  # admin: todos
 
 
 # --- caso 5: contraseña visible + bitácora -----------------------------------------
@@ -222,13 +209,14 @@ def test_caso7_alta_masiva_con_un_usuario_repetido(m):
     r = m.post(m.admin, "/api/usuarios/bulk", {"filas": [
         {"nombre": "A", "usuario": "a", "tipo": "informes", "email": "a@x.mx"},
         {"nombre": "B", "usuario": "existente", "tipo": "informes"},
-        {"nombre": "C", "usuario": "c", "tipo": "alcalde", "password": "1"},
+        {"nombre": "C", "usuario": "c", "tipo": "padron", "password": "1"},
+        {"nombre": "F", "usuario": "f", "tipo": "alcalde"},          # tipo retirado
         {"nombre": "D", "usuario": "a", "tipo": "informes"},           # repetido dentro del lote
         {"nombre": "E", "usuario": "e", "tipo": "informes", "email": "malo"},
     ]})
     j = r.json()
     assert [c["usuario"] for c in j["creados"]] == ["a", "c"]
-    assert sorted((e["fila"], list(e["campos"])[0]) for e in j["errores"]) == [(1, "usuario"), (3, "usuario"), (4, "email")]
+    assert sorted((e["fila"], list(e["campos"])[0]) for e in j["errores"]) == [(1, "usuario"), (3, "tipo"), (4, "usuario"), (5, "email")]
     assert j["creados"][0]["password_generada"] and j["creados"][1]["password_generada"] is None
     assert {u["usuario"] for u in m.get(m.admin, "/api/usuarios").json()} == {"admin1", "existente", "a", "c"}
     # la generada sirve para entrar
@@ -339,13 +327,29 @@ def test_caso9_deshabilitar_en_uso_no_rompe_el_historico(m):
 
 
 def test_catalogos_clave_unica_y_permisos_de_edicion(m):
-    m.usuario("alc", "alcalde")
-    alc = m.cliente("alc", "pw")
+    alc = m.admin  # antes también editaban alcalde y presupuestación; hoy solo el administrador
     assert m.post(alc, "/api/centros-gestores", {"clave": "A", "nombre": "x"}).status_code == 201
     assert m.post(alc, "/api/centros-gestores", {"clave": "A", "nombre": "y"}).status_code == 409
     f = m.get(alc, "/api/frecuencias").json()
     assert {x["clave"] for x in f} >= {"mensual", "anual"}
     assert m.patch(alc, f"/api/frecuencias/{f[0]['id']}", {"nombre": "Renombrada"}).json()["nombre"] == "Renombrada"
+    m.usuario("inf", "informes")
+    assert m.patch(m.cliente("inf", "pw"), f"/api/frecuencias/{f[0]['id']}", {"nombre": "x"}).status_code == 403
+
+
+# --- usuarios con tipo retirado (deshabilitados por la migración 0006) ----------------------------
+def test_usuario_con_tipo_retirado_se_lista_sin_tipo_no_entra_y_solo_se_rehabilita_con_tipo_valido(m, db):
+    u = m.usuario("vieja", "informes")
+    db.execute(update(Usuario).where(Usuario.id == uuid.UUID(u["id"])).values(tipo="alcalde", activo=False))
+    db.commit()
+    listado = {x["usuario"]: x for x in m.get(m.admin, "/api/usuarios").json()}
+    assert (listado["vieja"]["tipo"], listado["vieja"]["activo"]) == (None, False)
+    assert m.get(m.admin, "/api/usuarios", params={"tipo": "alcalde"}).status_code == 422  # tampoco como filtro
+    assert m.post(TestClient(app), "/api/auth/login", {"usuario": "vieja", "password": "pw"}).status_code == 403
+    r = m.patch(m.admin, f"/api/usuarios/{u['id']}", {"activo": True})  # sin asignar un tipo válido: no
+    assert (r.status_code, list(r.json()["campos"])) == (422, ["tipo"])
+    r = m.patch(m.admin, f"/api/usuarios/{u['id']}", {"activo": True, "tipo": "padron"})
+    assert (r.status_code, r.json()["tipo"], r.json()["activo"]) == (200, "padron", True)
 
 
 # --- caso 10: deshabilitado pierde acceso ----------------------------------------
@@ -409,7 +413,12 @@ def test_super_admin_gestiona_usuarios_de_cualquier_municipio_y_tipo(admin, m, d
     m.cliente("adm2", "p2")
     assert {u["usuario"] for u in admin.get(base, headers=ADMIN).json()} == {"admin1", "adm2"}
     assert admin.get(f"{base}/{uid}", headers=ADMIN).json()["password"] == "p2"
-    assert admin.patch(f"{base}/{uid}", headers=ADMIN, json={"tipo": "alcalde"}).json()["tipo"] == "alcalde"
+    assert admin.patch(f"{base}/{uid}", headers=ADMIN, json={"tipo": "padron"}).json()["tipo"] == "padron"
+    for retirado in ("presupuestacion", "control_presupuestal", "indicadores", "alcalde"):  # tipos retirados
+        r = admin.patch(f"{base}/{uid}", headers=ADMIN, json={"tipo": retirado})
+        assert (r.status_code, list(r.json()["campos"])) == (422, ["tipo"])
+        r = admin.post(base, headers=ADMIN, json={"nombre": "X", "usuario": "x" + retirado, "tipo": retirado})
+        assert (r.status_code, list(r.json()["campos"])) == (422, ["tipo"])
     nueva = admin.post(f"{base}/{uid}/forzar-password", headers=ADMIN).json()["password"]
     m.cliente("adm2", nueva)
     acciones = {b.accion: b.actor_tipo.value for b in db.scalars(select(Bitacora).where(
@@ -432,14 +441,13 @@ def test_super_admin_no_cruza_municipios_y_sesiones_no_son_intercambiables(admin
 
 # --- configuración -----------------------------------------------------------------
 def test_config_meses_de_avance_y_permisos(m):
-    m.usuario("alc", "alcalde")
     m.usuario("inf", "informes")
-    alc, inf = m.cliente("alc", "pw"), m.cliente("inf", "pw")
+    alc, inf = m.admin, m.cliente("inf", "pw")  # alc: lo que podía el alcalde ahora es del administrador
     assert m.get(m.admin, "/api/config").json()["meses_avance_activos"] == []
     r = m.patch(alc, "/api/config", {"meses_avance_activos": [3, 1, 2], "tolerancia_semaforo": 5})
     assert (r.json()["meses_avance_activos"], r.json()["tolerancia_semaforo"]) == ([1, 2, 3], 5)
     assert m.patch(inf, "/api/config", {"meses_avance_activos": [1]}).status_code == 403
-    assert m.patch(alc, "/api/config", {"color_boton": "danger"}).status_code == 403
+    assert m.patch(inf, "/api/config", {"tolerancia_semaforo": 9}).status_code == 403
     assert m.patch(inf, "/api/config", {"color_boton": "danger", "mostrar_logos": False}).status_code == 200
     assert m.patch(m.admin, "/api/config", {"meses_avance_activos": [13]}).status_code == 422
     assert m.get(inf, "/api/config").json()["meses_avance_activos"] == [1, 2, 3]

@@ -29,7 +29,7 @@ def obtener(ses: SesionUsuario = Depends(require_tipo("config_ver"))):
 def editar(body: ConfigEditarIn, ses: SesionUsuario = Depends(require_tipo("config_ver")),
            db: Session = Depends(get_db)):
     cambios = body.model_dump(exclude_unset=True)
-    # login (imagen, color, logos) -> informes y administrador; meses y tolerancia -> alcalde y administrador
+    # login (imagen, color, logos) -> informes y administrador; meses y tolerancia -> solo administrador
     vu.validar_campos_config(ses.usuario.tipo.value, cambios)
     if "meses_avance_activos" in cambios:
         cambios["meses_avance_activos"] = vu.validar_meses_avance(cambios["meses_avance_activos"] or [])

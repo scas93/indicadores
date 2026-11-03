@@ -47,7 +47,7 @@ export function ConfigMeses() {
                 checked={f.meses_avance_activos.includes(i + 1)} onChange={() => alternar(i + 1)} /> {m}</label></div></div>))}</div>
           </Campo>
           {editable ? <button className="btn btn-success" onClick={guardar}><i className="fa fa-save" /> Guardar</button>
-            : <p className="text-muted">Solo el Administrador y el Alcalde pueden editar estos valores.</p>}
+            : <p className="text-muted">Solo el Administrador puede editar estos valores.</p>}
         </div>
       </div>
     </>
