@@ -37,3 +37,10 @@ railway ssh -s outstanding-gratitude -e staging -- python copiar_geografia.py --
 Repetir el 1 o el 3 no agrega nada. El municipio debe tener su estado de la república asignado.
 `--todos` en lugar de `--subdominio demo` copia a todos los municipios. Si el municipio borró una fila de
 la plantilla, la copia la vuelve a agregar. Las colonias no tienen fuente de datos y no se tocan.
+
+### Origen de los datos versionados
+
+`geografia_municipio.csv` y `geografia_localidad.csv` contienen Guanajuato (estado 11): 46 municipios y
+11,054 localidades, obtenidos del Servicio Web del Catálogo Único de Claves Geoestadísticas de INEGI
+(`https://gaia.inegi.org.mx/wscatgeo/v2/mgem/11` y `.../localidades/11/{cve_mun}`). Para agregar otro
+estado, concatena sus filas a estos archivos (misma estructura) y corre el paso 1 con su clave.

@@ -39,7 +39,7 @@ class ReporteCarga:
 
     def resumen(self) -> str:
         lineas = [
-            f"estados en la plantilla: {self.estados}",
+            f"estados con datos geográficos: {self.estados}",
             f"municipios: {self.municipios_cargados} cargados, {self.municipios_existentes} ya existían, "
             f"{self.municipios_omitidos} omitidos",
             f"localidades: {self.localidades_cargadas} cargadas, {self.localidades_existentes} ya existían, "
