@@ -2,7 +2,7 @@
 
 Nov 3, 2026 · @santiago
 
-> **Estado: borrador.** Se levantó en el sistema de referencia con el **usuario 2** (tipo PADRON BENEFICIARIOS, un solo programa asignado: Comedores Comunitarios, centro gestor DIF). Lo marcado **[Por verificar]** no se pudo confirmar en la referencia o contradice otro documento; está concentrado en la sección *Pendientes de verificación*. No se capturó ni se guarda ningún dato personal real de beneficiarios: todo lo de abajo es estructura de pantallas y catálogos.
+> **Estado: lista para construir (2026-11-03).** Se levantó en el sistema de referencia con el **usuario 2** (tipo PADRON BENEFICIARIOS, un solo programa asignado: Comedores Comunitarios, centro gestor DIF). Se perdió el acceso a ese usuario antes de cerrar la verificación, así que los puntos que no se pudieron confirmar quedaron resueltos con **decisiones de construcción** (sección *Decisiones de construcción*), marcadas como **sin verificar contra la referencia**. No se capturó ni se guarda ningún dato personal real de beneficiarios: todo lo de abajo es estructura de pantallas y catálogos.
 
 ## Resumen y alcance
 
@@ -21,12 +21,13 @@ El tipo `padron` ve además el módulo de Usuarios (solo consulta), igual que ho
 ## Reglas de negocio
 
 - **Programa:** el usuario solo captura y consulta sobre los programas de su `usuario_programa`. El centro gestor y la fecha de registro se autollenan (no se editan).
-- **Edad y grupo de edad:** el grupo de edad se asigna automáticamente a partir de la edad. Rangos observados: 2–10 Niño, 11-17 Adolescente, 18-59 Adulto, 60-80 Tercera edad. **[Por verificar]** qué pasa con 0-1 y con más de 80.
+- **Edad y grupo de edad:** el grupo de edad se asigna automáticamente a partir de la edad. Rangos observados: 2–10 Niño, 11-17 Adolescente, 18-59 Adulto, 60-80 Tercera edad. Una edad fuera de todos los rangos se rechaza con error de validación; el Administrador puede agregar grupos (p. ej. 0-1) en el catálogo.
 - **Apoyo y descripción:** la descripción de apoyo es una lista en cascada filtrada por el apoyo elegido (p. ej. DESPENSAS → DESPENSAS BASICAS). El apoyo se elige de un catálogo con autocompletado. Solo aparecen los apoyos del programa elegido (regla del Documento de producto).
 - **CURP:** única por municipio. Al escribirla, se autocompleta contra un beneficiario ya existente del padrón (nombre y datos), para no duplicar a la persona.
 - **Entrega:** cada captura es una entrega de apoyo a un beneficiario (apoyo, descripción, cantidad, fecha de entrega, observaciones). La entrega guarda la foto del momento (edad, grupo de edad y nivel socioeconómico tal como estaban al entregar), de modo que un cambio posterior en el beneficiario no reescribe reportes pasados.
 - **Borrado:** eliminar una captura o un beneficiario pide confirmación escribiendo "eliminar". Los catálogos del padrón se borran, pero solo si nada los usa.
-- **Documentos:** se rastrea qué documentos tiene entregados cada beneficiario: INE/IFE, CURP y Comprobante de domicilio. El Reporte Documentos lista a quien le falte cada tipo.
+- **Género:** no se captura ni se guarda. Se deriva de la CURP (carácter 11: H o M) al calcular los reportes; cualquier otro valor se cuenta como "No especificado".
+- **Documentos:** cada beneficiario tiene su ficha con 3 tipos de documento (INE/IFE, CURP y Comprobante de domicilio), cada uno con subida de archivo. El Reporte Documentos lista a quien le falte cada tipo.
 - **Datos personales:** documentos en almacenamiento privado con enlaces temporales, acceso solo con permiso, bitácora de consultas y exportes (ver Riesgos del Documento de producto).
 
 ## Modelo de datos
@@ -35,14 +36,14 @@ Todas las tablas son de ámbito municipio (`municipio_id`), aisladas por la capa
 
 | Tabla | Campos principales | Notas |
 | --- | --- | --- |
-| `beneficiario` | `id`, `municipio_id`, `curp` ✓ (única por municipio), `nombre` ✓, `edad` ✓, `nivel_socioeconomico_id` ✓, geografía (`municipio_geo_id`, `localidad_id`, `colonia_id`) | Domicilio, fecha de nacimiento y género **[Por verificar]**: no aparecen en la pantalla de captura observada. |
+| `beneficiario` | `id`, `municipio_id`, `curp` ✓ (única por municipio), `nombre` ✓, `edad` ✓, `nivel_socioeconomico_id` ✓, geografía (`municipio_geo_id`, `localidad_id`, `colonia_id`) | No se capturan domicilio ni fecha de nacimiento (no están en la referencia). El género no se guarda: se deriva de la CURP. |
 | `documento` | `id`, `beneficiario_id`, `tipo` (`ine`, `curp`, `comprobante_domicilio`) ✓, `archivo_ref`, `entregado_en` | Faltante = no existe fila del tipo. Archivo en almacenamiento privado. |
 | `apoyo` | `id`, `municipio_id`, `clave`, `nombre` ✓ | Vacío al crear el municipio. |
 | `descripcion_apoyo` | `id`, `apoyo_id` ✓, `nombre` ✓ | Cascada filtrada por apoyo. |
 | `entrega` | `id`, `beneficiario_id`, `programa_id` ✓, `apoyo_id` ✓, `descripcion_apoyo_id` ✓, `cantidad` ✓, `fecha_entrega` ✓, `observaciones` ✓, `fecha_registro` ✓ (autollenada), foto del momento: `edad`, `grupo_edad_id`, `nivel_socioeconomico_id` | `centro_gestor` se deriva del programa. |
 | `grupo_edad` | `id`, `municipio_id`, `nombre` ✓, `edad_min`, `edad_max` ✓ | Copia de la plantilla de Fase 0. |
 | `nivel_socioeconomico` | `id`, `municipio_id`, `nombre` ✓ (Muy bajo, Bajo, Medio, Alto) | Copia de la plantilla de Fase 0. |
-| `municipio_geo`, `localidad`, `colonia` | jerarquía municipio → localidad → colonia | Municipios y localidades: copia de la plantilla de geografía de Fase 0. **Colonias no vienen en esa plantilla**: arrancan vacías y las captura el Padrón **[Por verificar]**. |
+| `municipio_geo`, `localidad`, `colonia` | jerarquía municipio → localidad → colonia | Municipios y localidades: copia de la plantilla de geografía de Fase 0. **Colonias no vienen en esa plantilla**: arrancan vacías y las captura el Padrón o el Administrador. |
 
 ## Endpoints de la API
 
@@ -69,7 +70,7 @@ Todas las tablas son de ámbito municipio (`municipio_id`), aisladas por la capa
 Cada pantalla se compara contra su captura de referencia antes de darse por cerrada (paridad visual). **[Pendiente]:** guardar las capturas de referencia del usuario 2 en `referencias/` como se hizo con las demás fases.
 
 ### Catálogos
-Ocho entradas bajo el menú Catálogos: Beneficiarios, Apoyos, Descripciones de apoyo, Niveles socioeconómicos, Grupos de edad, Municipios, Localidades y Colonias. Mismo patrón de tabla de los catálogos de Fase 1 (alta, edición, borrado condicionado).
+Ocho entradas bajo el menú Catálogos: Beneficiarios (con su ficha de documentos: subida, descarga y estado de cada uno de los 3 tipos), Apoyos, Descripciones de apoyo, Niveles socioeconómicos, Grupos de edad, Municipios, Localidades y Colonias. Mismo patrón de tabla de los catálogos de Fase 1 (alta, edición, borrado condicionado).
 
 ### Padrón de Beneficiarios (captura)
 Formulario en este orden: Programa → Centro gestor y Fecha de registro (autollenados) · CURP (autocompletado) y Nombre · Edad · Grupo de edad (lista desplegable que se asigna sola) · Nivel socioeconómico · Apoyo (autocompletado) + Descripción de apoyo (cascada) · Cantidad · Fecha de entrega · Observaciones. Debajo, tabla **Capturas del día** con borrado confirmado.
@@ -94,15 +95,17 @@ Formulario en este orden: Programa → Centro gestor y Fecha de registro (autoll
 
 **Cobertura de testing (ver Fase 0 § Testing):** los criterios 1–4 y 6–8 son reglas de negocio y se agregan como unit tests; el 5 se prueba con datos sintéticos; el 9 es verificación manual contra la referencia, con datos ficticios.
 
-## Pendientes de verificación (en la referencia, con el usuario 2)
+## Decisiones de construcción (2026-11-03, sin verificar contra la referencia)
 
-1. **Género:** una gráfica es "Apoyos por género", pero la captura no tiene campo de género. **Hipótesis:** se deriva de la CURP. Confirmar.
-2. **Fecha de nacimiento y domicilio:** el Documento de producto habla de validar la CURP contra fecha de nacimiento y domicilio, pero la captura observada solo pide Edad. Confirmar si existen en otra pantalla (p. ej. el catálogo Beneficiarios).
-3. **Dónde se suben los documentos** (INE/IFE, CURP, comprobante): la pantalla de captura no los muestra, aunque el Reporte Documentos implica que se rastrean.
-4. **Grupos de edad:** qué pasa con 0-1 y con más de 80 años.
-5. **Colonias:** el Documento de producto dice que vienen copiadas del estado, pero la plantilla de geografía de Fase 0 no las incluye.
-6. **Columnas reales** de los exportes de Detalles y Comparativo (descargar un Excel de muestra).
-7. **Alcance por programa de los apoyos:** confirmar si el catálogo de apoyos se filtra por programa o por centro gestor.
+No se pudo volver a entrar como usuario 2 en la referencia. Estos puntos se resolvieron así; si se recupera el acceso, se contrastan y se ajusta lo que difiera.
+
+1. **Género:** se deriva de la CURP; no hay campo en el formulario. *(Hipótesis: la referencia hace lo mismo.)*
+2. **Fecha de nacimiento y domicilio:** no se capturan; el formulario replica solo los campos observados.
+3. **Documentos:** se suben en la ficha del beneficiario (catálogo Beneficiarios), no en la pantalla de captura.
+4. **Grupos de edad:** los 4 observados (2-10, 11-17, 18-59, 60-80). Una edad fuera de rango se rechaza; el catálogo es editable para agregar rangos.
+5. **Colonias:** catálogo vacío al crear el municipio; lo llena el Padrón o el Administrador.
+6. **Exportes de Detalles y Comparativo:** las columnas se definen a partir de los filtros y de la estructura observada (no hay Excel de muestra). Es lo menos seguro de esta fase: con un Excel real de la referencia se ajusta.
+7. **Apoyos:** catálogo general del municipio; en la captura se ofrecen los apoyos del programa elegido, y la regla exacta de esa relación se define al construir la captura.
 
 ## Fuera de alcance y dependencias
 
