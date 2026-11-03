@@ -20,7 +20,7 @@ CAMPOS_EDITABLES = {"nombre", "usuario", "tipo", "activo", "direccion", "telefon
 
 
 def a_dict(u: Usuario, ultimo_acceso=None, programa_ids: list | None = None) -> dict:
-    d = {"id": u.id, "usuario": u.usuario, "nombre": u.nombre, "tipo": u.tipo.value,
+    d = {"id": u.id, "usuario": u.usuario, "nombre": u.nombre, "tipo": u.tipo.value if u.tipo else None,
          "activo": u.activo, "debe_cambiar_password": u.debe_cambiar_password,
          "direccion": u.direccion, "telefono": u.telefono, "email": u.email,
          "anios_acceso": list(u.anios_acceso or []), "meses_acceso": list(u.meses_acceso or []),
@@ -42,6 +42,8 @@ def listar(db: Session, tipo: str | None, activo: bool | None, q: str | None) ->
               .where(Sesion.usuario_id.is_not(None)).group_by(Sesion.usuario_id).subquery())
     stmt = select(Usuario, acceso.c.ultimo).join(acceso, acceso.c.usuario_id == Usuario.id, isouter=True)
     if tipo:
+        if tipo not in vu.TIPOS:
+            raise ApiError(422, "VALIDACION", "Datos inválidos", {"tipo": "Tipo de usuario inválido"})
         stmt = stmt.where(Usuario.tipo == tipo)
     if activo is not None:
         stmt = stmt.where(Usuario.activo == activo)
@@ -139,8 +141,8 @@ def editar(db: Session, actor: ActorCtx, u: Usuario, cambios: dict) -> Usuario:
     for k in ("nombre", "usuario", "tipo", "activo"):  # no admiten null
         if k in cambios and cambios[k] is None:
             del cambios[k]
-    vu.validar_no_autobloqueo(actor.usuario_id, u.id, u.tipo.value, cambios)
-    actual = {"nombre": u.nombre, "usuario": u.usuario, "tipo": u.tipo.value, "email": u.email,
+    vu.validar_no_autobloqueo(actor.usuario_id, u.id, u.tipo.value if u.tipo else None, cambios)
+    actual = {"nombre": u.nombre, "usuario": u.usuario, "tipo": u.tipo.value if u.tipo else None, "email": u.email,
               "anios_acceso": u.anios_acceso, "meses_acceso": u.meses_acceso}
     vu.levantar_si_errores(vu.validar_fila_usuario({**actual, **cambios}, _existentes(db, u.id)))
     estaba_activo = u.activo

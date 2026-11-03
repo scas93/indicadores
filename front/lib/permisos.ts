@@ -6,19 +6,15 @@ const en = (...t: TipoUsuario[]) => (tipo: TipoUsuario | null) => !!tipo && t.in
 
 export const puede = {
   gestionarUsuarios: en("administrador"),
-  editarPlaneacion: en("alcalde", "administrador"),
-  editarProgramas: en("alcalde", "presupuestacion", "administrador"),
+  editarPlaneacion: en("administrador"),
+  editarProgramas: en("administrador"),
   editarLogin: en("informes", "administrador"),
-  editarMeses: en("alcalde", "administrador"),
+  editarMeses: en("administrador"),
 };
 
 export const TIPOS: { valor: TipoUsuario; nombre: string }[] = [
   { valor: "informes", nombre: "Informes" },
   { valor: "padron", nombre: "Padrón de beneficiarios" },
-  { valor: "presupuestacion", nombre: "Presupuestación" },
-  { valor: "control_presupuestal", nombre: "Control presupuestal" },
-  { valor: "indicadores", nombre: "Indicadores" },
-  { valor: "alcalde", nombre: "Alcalde" },
   { valor: "administrador", nombre: "Administrador" },
 ];
 export const nombreTipo = (t: string) => TIPOS.find((x) => x.valor === t)?.nombre ?? t;

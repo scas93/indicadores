@@ -12,7 +12,7 @@ from .programas import visibles
 
 def programa_accesible(db: Session, actor: ActorCtx, programa_id: uuid.UUID) -> Programa:
     """El programa debe existir en el municipio (404) y estar asignado al usuario en sesión (403),
-    sin importar su tipo: administrador y alcalde ven todos, el resto solo su matriz.
+    sin importar su tipo: solo el administrador ve todos, el resto solo su matriz.
     Se lee de la base en cada petición, nunca de la sesión."""
     p = db.get(Programa, programa_id)
     if p is None:

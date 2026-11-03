@@ -51,8 +51,7 @@ def clasificaciones(actor: ActorCtx = Depends(_ver), db: Session = Depends(get_d
         .order_by(ClasificacionProgramatica.clave))]
 
 
-# Programas: ver = cualquiera con acceso a planeación (filtrado por su matriz); editar = admin,
-# alcalde y presupuestación.
+# Programas: ver = cualquiera con acceso a planeación (filtrado por su matriz); editar = solo administrador.
 _prog_ver = actor_con_tipo("planeacion_ver")
 
 

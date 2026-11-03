@@ -30,7 +30,7 @@ export function Inicio() {
 
   useEffect(() => {
     if (tipo === "padron") return;
-    // /api/programas ya filtra por usuario_programa (administrador y alcalde ven todos). Al entrar no se
+    // /api/programas ya filtra por usuario_programa (solo administrador ve todos). Al entrar no se
     // elige ningún programa: no se carga ninguna pestaña hasta que la persona elija uno.
     Promise.all([api<Programa[]>("/api/programas?activo=true"), api<typeof centros>("/api/centros-gestores")])
       .then(([l, c]) => { setProgramas(l); setCentros(c); })

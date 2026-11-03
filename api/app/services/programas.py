@@ -21,7 +21,7 @@ def a_dict(p: Programa) -> dict:
 
 
 def visibles(db: Session, tipo: str | None, usuario_id: uuid.UUID | None):
-    """Programas que el usuario puede ver/usar: None = todos (administrador, alcalde, super admin),
+    """Programas que el usuario puede ver/usar: None = todos (administrador, super admin),
     si no, solo los de su matriz (`usuario_programa`). Punto único para selectores y reportes
     presentes y futuros: se lee de la base en cada petición, nunca de la sesión."""
     if tipo is None:

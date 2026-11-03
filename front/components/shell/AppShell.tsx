@@ -10,7 +10,7 @@ import type { Item, Menu } from "./menu";
 
 export type ShellProps = {
   menu: Menu;
-  /** Texto de la etiqueta derecha del header: "3.- PRESUPUESTACION", "SUPER ADMIN"… */
+  /** Texto de la etiqueta derecha del header: "2.- PADRON DE BENEFICIARIOS", "SUPER ADMIN"… */
   etiquetaUsuario: string;
   /** Endpoint de logout de ámbito (/api/auth/logout | /api/admin/auth/logout). */
   logoutUrl: string;

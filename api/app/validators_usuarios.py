@@ -13,39 +13,35 @@ ADMIN = "administrador"
 # Qué tipos pueden llamar cada grupo de endpoints. El menú del front solo oculta: esto es lo que
 # realmente niega (403) el acceso directo por URL.
 PERMISOS: dict[str, frozenset[str]] = {
-    # Usuarios: el listado lo ven los 5 tipos que tienen el item en el menú; todo lo demás
+    # Usuarios: el listado lo ven los tipos que tienen el item en el menú; todo lo demás
     # (alta, edición, contraseña, forzar, masivo, matriz) es solo del administrador.
-    "usuarios_ver": frozenset({"informes", "padron", "presupuestacion", "indicadores", "alcalde", ADMIN}),
+    "usuarios_ver": frozenset({"informes", "padron", ADMIN}),
     "usuarios_gestion": frozenset({ADMIN}),
-    # Planeación
-    "planeacion_ver": frozenset({"informes", "presupuestacion", "control_presupuestal",
-                                 "indicadores", "alcalde", ADMIN}),
-    "planeacion_editar": frozenset({"alcalde", ADMIN}),
-    "programas_editar": frozenset({"alcalde", "presupuestacion", ADMIN}),
+    # Planeación: informes la consulta; programas y planeación solo los edita el administrador
+    "planeacion_ver": frozenset({"informes", ADMIN}),
+    "planeacion_editar": frozenset({ADMIN}),
+    "programas_editar": frozenset({ADMIN}),
     # Fase 2: módulo Inicio (árbol, matriz de indicadores, captura de avances). Todos los tipos con
     # "Inicio" en su menú; además cada endpoint filtra por los programas asignados (usuario_programa).
-    "inicio": frozenset({"informes", "presupuestacion", "control_presupuestal", "indicadores",
-                         "alcalde", ADMIN}),
-    # Fase 3: módulo Estadísticas. "estadisticas" = Ejes, Cumplimiento de Metas, Consolidado, Cuenta
-    # Pública, Transparencia (informes y alcalde); "estadisticas_dependencias" suma a presupuestación
-    # y control presupuestal, que solo tienen Dependencias en su menú. Además todo se acota por el
-    # mismo alcance de programas del resto de las fases (administrador y alcalde ven todos).
-    "estadisticas": frozenset({"informes", "alcalde", ADMIN}),
-    "estadisticas_dependencias": frozenset({"informes", "presupuestacion", "control_presupuestal",
-                                            "alcalde", ADMIN}),
+    "inicio": frozenset({"informes", ADMIN}),
+    # Fase 3: módulo Estadísticas (Dependencias, Ejes, Cumplimiento de Metas, Consolidado, Cuenta
+    # Pública, Transparencia). Todo se acota por el mismo alcance de programas del resto de las
+    # fases (solo el administrador ve todos).
+    "estadisticas": frozenset({"informes", ADMIN}),
+    "estadisticas_dependencias": frozenset({"informes", ADMIN}),
     # Configuración
-    "config_ver": frozenset({"informes", "alcalde", ADMIN}),
+    "config_ver": frozenset({"informes", ADMIN}),
 }
-# Quién edita cada campo de configuración (meses/tolerancia: solo administrador y alcalde)
+# Quién edita cada campo de configuración (meses/tolerancia: solo administrador)
 CONFIG_CAMPOS_EDITABLES: dict[str, frozenset[str]] = {
     "imagen_login_url": frozenset({"informes", ADMIN}),
     "color_boton": frozenset({"informes", ADMIN}),
     "mostrar_logos": frozenset({"informes", ADMIN}),
-    "meses_avance_activos": frozenset({"alcalde", ADMIN}),
-    "tolerancia_semaforo": frozenset({"alcalde", ADMIN}),
+    "meses_avance_activos": frozenset({ADMIN}),
+    "tolerancia_semaforo": frozenset({ADMIN}),
 }
-# Tipos que, además de por tipo, ven solo los programas de su matriz (administrador y alcalde ven todos)
-TIPOS_SIN_FILTRO_PROGRAMAS = frozenset({"administrador", "alcalde"})
+# Tipos que, además de por tipo, ven solo los programas de su matriz (solo administrador ve todos)
+TIPOS_SIN_FILTRO_PROGRAMAS = frozenset({ADMIN})
 
 
 def tipo_permitido(grupo: str, tipo: str | None) -> bool:
@@ -102,7 +98,7 @@ def validar_fila_usuario(fila: Mapping, existentes: Iterable[str], vistos: Itera
         errores["usuario"] = "El usuario ya existe en el municipio"
     if not email_valido(fila.get("email")):
         errores["email"] = "Email con formato inválido"
-    if fila.get("tipo") not in TIPOS:
+    if not isinstance(fila.get("tipo"), str) or fila["tipo"] not in TIPOS:
         errores["tipo"] = "Tipo de usuario inválido"
     errores.update(validar_anios_meses(fila.get("anios_acceso"), fila.get("meses_acceso")))
     return errores
@@ -116,7 +112,7 @@ def levantar_si_errores(errores: dict[str, str]) -> None:
 
 
 def validar_no_autobloqueo(actor_id: uuid.UUID | None, objetivo_id: uuid.UUID,
-                           tipo_actual: str, cambios: Mapping) -> None:
+                           tipo_actual: str | None, cambios: Mapping) -> None:
     """Un administrador no puede deshabilitarse ni quitarse el tipo a sí mismo (quedaría sin acceso)."""
     if actor_id != objetivo_id:
         return

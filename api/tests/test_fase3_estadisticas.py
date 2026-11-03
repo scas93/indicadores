@@ -105,7 +105,7 @@ def test_modo_invalido_es_422(m, eco):
     assert r.status_code == 422 and r.json()["campos"]["tipo_cumplimiento"]
 
 
-def test_caso6_solo_programas_asignados_a_tipos_distintos_de_administrador_y_alcalde(m):
+def test_caso6_solo_programas_asignados_a_tipos_distintos_de_administrador(m):
     ctx = Ctx(m)
     cargar_2025(ctx)
     otro = m.programa("P2", ctx.cg)  # mismo centro gestor, programa NO asignado al usuario
@@ -144,7 +144,7 @@ def test_caso6_exportar_sin_programa_asignado_es_403_y_con_programa_asignado_es_
     m.usuario("sin1", "informes")
     r = stats(m, m.cliente("sin1", "pw"), "exportar/transparencia", anio=2025, centro_gestor_id=ctx.cg["id"], programa_id=ctx.pid)
     assert r.status_code == 403
-    u = usuario_con(m, [ctx.pid], "alc1", tipo="alcalde")
+    u = usuario_con(m, [ctx.pid], "inf2", tipo="informes")
     r = stats(m, u, "exportar/transparencia", anio=2025, centro_gestor_id=ctx.cg["id"], programa_id=ctx.pid)
     assert r.status_code == 200 and r.headers["content-type"].startswith("application/vnd.openxmlformats")
     assert "attachment" in r.headers["content-disposition"]
@@ -224,9 +224,9 @@ def test_tipos_sin_acceso_reciben_403(m, eco):
     ctx = Ctx(m, "X")
     pad = usuario_con(m, [ctx.pid], "pad1", tipo="padron")
     assert stats(m, pad, "dependencias", anio=2025).status_code == 403
-    pres = usuario_con(m, [ctx.pid], "pres1", tipo="presupuestacion")
-    assert stats(m, pres, "dependencias", anio=2025).status_code == 200  # Dependencias sí
-    assert stats(m, pres, "ejes", anio=2025).status_code == 403  # Ejes solo informes/alcalde/admin
+    inf = usuario_con(m, [ctx.pid], "inf1", tipo="informes")
+    assert stats(m, inf, "dependencias", anio=2025).status_code == 200
+    assert stats(m, inf, "ejes", anio=2025).status_code == 200
 
 
 def test_programa_sin_subtema_cae_en_sin_eje_y_el_total_no_cambia(m):
@@ -237,19 +237,14 @@ def test_programa_sin_subtema_cae_en_sin_eje_y_el_total_no_cambia(m):
     assert [(x["nombre"], x["total"]) for x in g] == [("Sin eje", 19)]
 
 
-@pytest.mark.parametrize("tipo", ["administrador", "alcalde"])
-def test_administrador_y_alcalde_ven_todos_los_programas_como_en_programas_visibles(m, tipo):
+def test_solo_administrador_ve_todos_los_programas_como_en_programas_visibles(m):
     """Misma regla de alcance que las demás fases (`programas.visibles`): sin asignaciones, ven todo el
     municipio en reportes, detalle, selectores y exportaciones; un tipo normal sin asignar no ve nada."""
     a, b = Ctx(m, "A"), Ctx(m, "B")
     cargar_2025(a)
     for ind in datos.INDICADORES[:6]:
         _crear(b, ind)
-    if tipo == "administrador":
-        c = m.admin  # el administrador del municipio, sin ninguna fila en usuario_programa
-    else:
-        m.usuario("alc1", "alcalde")
-        c = m.cliente("alc1", "pw")
+    c = m.admin  # el administrador del municipio, sin ninguna fila en usuario_programa
     g = stats(m, c, "dependencias", anio=2025, tipo_cumplimiento="co_ce").json()["grupos"]
     assert sorted(x["id"] for x in g) == sorted([a.cg["id"], b.cg["id"]]) and totales(g)["total"] == 19 + 6
     assert len(stats(m, c, "indicadores", anio=2025).json()["indicadores"]) == 25

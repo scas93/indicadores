@@ -70,7 +70,7 @@ def ctx(m):
     return Ctx(m)
 
 
-def usuario_con(m, p_ids, usuario="u1", tipo="indicadores"):
+def usuario_con(m, p_ids, usuario="u1", tipo="informes"):
     u = m.usuario(usuario, tipo)
     m.post(m.admin, "/api/usuarios/matriz", {"altas": [{"usuario_id": u["id"], "programa_id": p} for p in p_ids]})
     return m.cliente(usuario, "pw")
