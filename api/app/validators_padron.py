@@ -2,6 +2,7 @@
 import re
 import unicodedata
 import uuid
+from datetime import date, timedelta, timezone
 from typing import Iterable, Mapping, Sequence
 
 from .errors import ApiError
@@ -127,3 +128,91 @@ def validar_borrable(usos: Mapping[str, int]) -> None:
 def ids_unicos(ids: Sequence[uuid.UUID]) -> list[uuid.UUID]:
     """Para el borrado en lote: sin repetidos y respetando el orden."""
     return list(dict.fromkeys(ids))
+
+
+# --- beneficiarios y captura (Fase 4.2) -----------------------------------------------------------
+GENEROS = {"F": "Femenino", "M": "Masculino"}
+_CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+ZONA_MEXICO = timezone(timedelta(hours=-6))  # sin horario de verano desde 2022
+
+
+def normalizar_curp(curp: str | None) -> str:
+    """Recortada y en mayúsculas. NO se valida el formato: la referencia acepta CURPs irregulares;
+    solo importa que no esté vacía y que no se repita."""
+    curp = (curp or "").strip().upper()
+    if not curp:
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"curp": "La CURP es obligatoria"})
+    if len(curp) > 32:
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"curp": "Máximo 32 caracteres"})
+    return curp
+
+
+def levantar_si_curp_repetida(curp: str, existentes: Iterable[str]) -> None:
+    if curp in {c.strip().upper() for c in existentes}:
+        raise ApiError(409, "CURP_DUPLICADA", "Ya existe un beneficiario con esa CURP", {"curp": "Ya existe"})
+
+
+def validar_fecha_nacimiento(nacimiento: date | None, hoy: date) -> date | None:
+    if nacimiento is None:
+        return None
+    if nacimiento > hoy:
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"fecha_nacimiento": "No puede ser futura"})
+    if calcular_edad(nacimiento, hoy) > EDAD_MAX_PERMITIDA:
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"fecha_nacimiento": "Fecha inválida"})
+    return nacimiento
+
+
+def validar_genero(genero: str | None) -> str | None:
+    genero = (genero or "").strip().upper() or None
+    if genero is not None and genero not in GENEROS:
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"genero": "Femenino o Masculino"})
+    return genero
+
+
+def validar_correo(correo: str | None) -> str | None:
+    correo = (correo or "").strip() or None
+    if correo is not None and not _CORREO.match(correo):
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"correo": "Correo inválido"})
+    return correo
+
+
+def validar_cascada_geografica(estado_id, estado_del_municipio, municipio_id, municipio_del_localidad, localidad_id) -> None:
+    """Estado -> Municipio -> Localidad: cada nivel solo se acepta si el de arriba está y es su padre."""
+    if municipio_id is not None and (estado_id is None or estado_del_municipio != estado_id):
+        raise ApiError(422, "JERARQUIA_INVALIDA", "El municipio no pertenece al estado",
+                       {"municipio_id": "No pertenece al estado elegido"})
+    if localidad_id is not None and (municipio_id is None or municipio_del_localidad != municipio_id):
+        raise ApiError(422, "JERARQUIA_INVALIDA", "La localidad no pertenece al municipio",
+                       {"localidad_id": "No pertenece al municipio elegido"})
+
+
+def calcular_edad(nacimiento: date, a_la_fecha: date) -> int:
+    """Años cumplidos a esa fecha."""
+    return a_la_fecha.year - nacimiento.year - ((a_la_fecha.month, a_la_fecha.day) < (nacimiento.month, nacimiento.day))
+
+
+def grupo_de_edad(edad: int | None, grupos: Iterable[Rango]) -> uuid.UUID | None:
+    """El grupo de edad (id, mín, máx) que contiene la edad; None si ninguno la cubre (p. ej. 1 año o 85)."""
+    if edad is None:
+        return None
+    for id_, mn, mx in grupos:
+        if mn <= edad <= _tope(mx):
+            return id_
+    return None
+
+
+def validar_cantidad(cantidad) -> int:
+    if cantidad is None or isinstance(cantidad, bool) or not isinstance(cantidad, int) or cantidad < 1:
+        raise ApiError(422, "VALIDACION", "Datos inválidos", {"cantidad": "Debe ser un entero de 1 o más"})
+    return cantidad
+
+
+def validar_apoyo_del_programa(apoyo_programa_id: uuid.UUID | None, programa_id: uuid.UUID) -> None:
+    if apoyo_programa_id != programa_id:
+        raise ApiError(422, "JERARQUIA_INVALIDA", "El apoyo no pertenece al programa", {"apoyo_id": "No es del programa"})
+
+
+def validar_descripcion_del_apoyo(descripcion_apoyo_id: uuid.UUID | None, apoyo_id: uuid.UUID) -> None:
+    if descripcion_apoyo_id != apoyo_id:
+        raise ApiError(422, "JERARQUIA_INVALIDA", "La descripción no pertenece al apoyo",
+                       {"descripcion_apoyo_id": "No es del apoyo elegido"})

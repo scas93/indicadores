@@ -278,6 +278,28 @@ class PadronCatalogoIn(BaseModel):
     municipio_id: uuid.UUID | None = None     # localidades, colonias
     edad_min: int | None = None               # grupos de edad
     edad_max: int | None = None
+    # beneficiarios (municipio_id y estado_id son los mismos de arriba)
+    curp: str | None = None
+    fecha_nacimiento: date | None = None
+    genero: str | None = None
+    cp: str | None = None
+    localidad_id: uuid.UUID | None = None
+    calle: str | None = None
+    numero: str | None = None
+    colonia: str | None = None
+    telefono: str | None = None
+    correo: str | None = None
+
+
+class CapturaApoyoIn(BaseModel):
+    beneficiario_id: uuid.UUID | None = None
+    programa_id: uuid.UUID | None = None
+    apoyo_id: uuid.UUID | None = None
+    descripcion_apoyo_id: uuid.UUID | None = None
+    nivel_socioeconomico_id: uuid.UUID | None = None
+    cantidad: int | None = 1
+    fecha_entrega: date | None = None
+    observaciones: str | None = None
 
 
 class EliminarLoteIn(BaseModel):
