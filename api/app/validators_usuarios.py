@@ -29,6 +29,8 @@ PERMISOS: dict[str, frozenset[str]] = {
     # fases (solo el administrador ve todos).
     "estadisticas": frozenset({"informes", ADMIN}),
     "estadisticas_dependencias": frozenset({"informes", ADMIN}),
+    # Fase 5: catálogos del Padrón (apoyos, descripciones, niveles, grupos de edad, geografía). Informes no.
+    "padron_catalogos": frozenset({"padron", ADMIN}),
     # Configuración
     "config_ver": frozenset({"informes", ADMIN}),
 }

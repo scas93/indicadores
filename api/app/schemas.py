@@ -263,3 +263,22 @@ class ResultadoMetaIn(BaseModel):
 
 class AvancesGuardarIn(BaseModel):
     meses: list[AvanceMesIn]
+
+
+# --------------------------------------------------------------------------- Fase 5: catálogos del Padrón
+class PadronCatalogoIn(BaseModel):
+    """Un solo cuerpo para los 7 catálogos: cada uno toma los campos que le tocan (el resto se ignora)."""
+
+    clave: str | None = None
+    nombre: str | None = None
+    observaciones: str | None = None
+    programa_id: uuid.UUID | None = None      # apoyos
+    apoyo_id: uuid.UUID | None = None         # descripciones de apoyo
+    estado_id: uuid.UUID | None = None        # municipios, colonias
+    municipio_id: uuid.UUID | None = None     # localidades, colonias
+    edad_min: int | None = None               # grupos de edad
+    edad_max: int | None = None
+
+
+class EliminarLoteIn(BaseModel):
+    ids: list[uuid.UUID]

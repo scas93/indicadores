@@ -6,6 +6,7 @@ const en = (...t: TipoUsuario[]) => (tipo: TipoUsuario | null) => !!tipo && t.in
 
 export const puede = {
   gestionarUsuarios: en("administrador"),
+  catalogosPadron: en("padron", "administrador"),
   editarPlaneacion: en("administrador"),
   editarProgramas: en("administrador"),
   editarLogin: en("informes", "administrador"),
