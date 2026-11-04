@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..deps import ActorCtx, actor_con_tipo
 from ..services import padron_catalogos as cat
+from ..services import padron_documentos as docs
 from ..services import padron_estadisticas as svc
 
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -69,3 +70,17 @@ def comparativo(programa_ids: Programas = None, apoyo_id: Id = None, descripcion
                 actor: ActorCtx = Depends(_actor), db: Session = Depends(get_db)):
     return svc.comparativo(cat.Ctx(db, actor), _f(programa_ids, apoyo_id, descripcion_apoyo_id, estado_id, municipio_id,
                                                   localidad_id, anio_ini=anio_ini, anio_fin=anio_fin))
+
+
+@router.get("/documentos")
+def reporte_documentos(curp: str | None = None, nombre: str | None = None, faltante: str | None = None,
+                       actor: ActorCtx = Depends(_actor), db: Session = Depends(get_db)):
+    """Reporte Documentos: beneficiarios del municipio a los que les falta un documento (no se limita por programa)."""
+    return docs.reporte(cat.Ctx(db, actor), {"curp": curp, "nombre": nombre, "faltante": faltante})
+
+
+@router.get("/documentos/exportar")
+def exportar_reporte_documentos(curp: str | None = None, nombre: str | None = None, faltante: str | None = None,
+                                actor: ActorCtx = Depends(_actor), db: Session = Depends(get_db)):
+    datos, nombre_archivo = docs.exportar_reporte(cat.Ctx(db, actor), {"curp": curp, "nombre": nombre, "faltante": faltante})
+    return Response(datos, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nombre_archivo}"'})

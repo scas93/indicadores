@@ -10,6 +10,7 @@ import { useTipo } from "../TipoContext";
 import { ApiError, api } from "@/lib/api.client";
 import { descargar } from "@/lib/estadisticas";
 import { puede } from "@/lib/permisos";
+import { ModalDocumentos } from "./DocumentosBeneficiario";
 import { CATALOGOS_PADRON, type CampoForm, type CatalogoCfg } from "./catalogos";
 
 type Fila = { id: string; [k: string]: any };
@@ -27,6 +28,7 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<null | "alta" | Fila>(null);
   const [borrar, setBorrar] = useState<null | Fila | "lote">(null);
+  const [docs, setDocs] = useState<Fila | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -64,6 +66,7 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
   const acciones = (f: Fila) => (
     <td>
       <button className="btn btn-xs btn-info" title="Editar" onClick={() => setModal(f)}><i className="fa fa-pencil" /></button>{" "}
+      {cfg.documentos && <><button className="btn btn-xs btn-primary" title="Documentos" onClick={() => setDocs(f)}><i className="fa fa-file-text-o" /></button>{" "}</>}
       <button className="btn btn-xs btn-danger" title="Eliminar" onClick={() => setBorrar(f)}><i className="fa fa-trash" /></button>
     </td>);
 
@@ -87,7 +90,7 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
             <thead><tr>
               <th style={{ width: 80 }}><label style={{ fontWeight: "normal", margin: 0 }}>
                 <input type="checkbox" checked={todas} onChange={() => setMarcadas(todas ? new Set() : new Set((lista ?? []).map((f) => f.id)))} /> Todo</label></th>
-              {cfg.accionesPrimero && <th style={{ width: 100 }}>Acciones</th>}
+              {cfg.accionesPrimero && <th style={{ width: cfg.documentos ? 120 : 100 }}>Acciones</th>}
               {cfg.columnas.map((c) => <th key={c.key}>{c.label}</th>)}
               {!cfg.accionesPrimero && <th style={{ width: 100 }}>Acciones</th>}
             </tr></thead>
@@ -108,6 +111,7 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
         <button className="btn btn-danger" disabled={!marcadas.size} onClick={() => setBorrar("lote")}>
           <i className="fa fa-trash" /> Eliminar seleccionados{marcadas.size ? ` (${marcadas.size})` : ""}</button>
       </div></div>
+      {docs && <ModalDocumentos beneficiario={{ id: docs.id, curp: docs.curp, nombre: docs.nombre }} onClose={() => setDocs(null)} />}
       {modal && <ModalCatalogo cfg={cfg} fila={modal === "alta" ? null : modal} onClose={() => setModal(null)}
         onGuardado={() => { setModal(null); cargar(); }} />}
       {borrar && <Confirmar titulo="Eliminar" boton={ocupado ? "Eliminando…" : "Eliminar"} onClose={() => setBorrar(null)} onConfirmar={eliminar}

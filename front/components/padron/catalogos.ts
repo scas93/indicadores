@@ -31,6 +31,8 @@ export type CatalogoCfg = {
   /** Encabezado de la tabla: "<texto> — se han encontrado N elementos". */
   tituloTabla?: string;
   accionesPrimero?: boolean;
+  /** Botón morado por fila para los documentos adjuntos (Beneficiarios). */
+  documentos?: boolean;
 };
 
 const clave = (o: any) => `${o.clave} — ${o.nombre}`;
@@ -96,7 +98,7 @@ export const CATALOGOS_PADRON: Record<string, CatalogoCfg> = {
   },
   beneficiarios: {
     ruta: "beneficiarios", titulo: "Beneficiarios", singular: "Beneficiario",
-    tituloTabla: "Catálogo de beneficiarios", accionesPrimero: true,
+    tituloTabla: "Catálogo de beneficiarios", accionesPrimero: true, documentos: true,
     filtros: [{ key: "curp", label: "CURP" }, { key: "nombre", label: "Beneficiario" }],
     columnas: [{ key: "curp", label: "CURP" }, { key: "nombre", label: "Beneficiario" }],
     campos: [

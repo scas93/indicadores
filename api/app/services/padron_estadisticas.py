@@ -17,6 +17,7 @@ from .. import validators_padron as vpd
 from .. import validators_padron_estadisticas as vpe
 from ..models import (Apoyo, Beneficiario, CapturaApoyo, CatalogoMunicipio, CentroGestor, Colonia, DescripcionApoyo,
                       GeografiaEstado, Programa)
+from . import padron_documentos
 from .padron_beneficiarios import hoy
 from .padron_catalogos import Ctx
 
@@ -140,7 +141,7 @@ def concentrado(ctx: Ctx, f: dict) -> dict:
         "id": b.id, "curp": b.curp, "nombre": b.nombre, "edad_actual": edad, "genero": vpd.GENEROS.get(b.genero),
         "grupo_edad_actual": g.nombre if g else None, "localidad": loc.nombre if loc else None,
         "nivel_socioeconomico": ultimo["nivel"] if ultimo else None},
-        "beneficio": beneficio, "documentos": []}  # los documentos llegan en la 4.3b
+        "beneficio": beneficio, "documentos": padron_documentos.listar(ctx, b.id)}
 
 
 def detalles(ctx: Ctx, f: dict) -> dict:

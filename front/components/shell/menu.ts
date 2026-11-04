@@ -57,6 +57,7 @@ export const MENU_MUNICIPIO: Menu = [
       { label: "Padrón Beneficiario", href: "/estadisticas/padron-beneficiario", tipos: T.padron },
       { label: "Detalles Padrón Beneficiario", href: "/estadisticas/detalles-padron-beneficiario", tipos: T.padron },
       { label: "Comparativo Padrón Beneficiario", href: "/estadisticas/comparativo-padron-beneficiario", tipos: T.padron },
+      { label: "Reporte Documentos", href: "/estadisticas/reporte-documentos", tipos: T.padron },
     ],
   },
   {

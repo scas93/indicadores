@@ -536,7 +536,7 @@ class Colonia(TenantMixin, Base):
 # --------------------------------------------------------------------------- Fase 4.2: beneficiarios y captura
 class Beneficiario(TenantMixin, Base):
     """Persona que recibe apoyos. La CURP se guarda recortada y en mayúsculas y es única por municipio.
-    Estado, municipio y localidad son opcionales; la colonia es texto libre (no ligada al catálogo Colonias)."""
+    Estado, municipio y localidad son opcionales; la colonia es texto libre o, si se eligió del catálogo, queda ligada con `colonia_id`."""
 
     __tablename__ = "beneficiario"
     __table_args__ = (UniqueConstraint("municipio_id", "curp"),)
@@ -556,6 +556,23 @@ class Beneficiario(TenantMixin, Base):
     telefono: Mapped[str | None] = mapped_column(String(32))
     correo: Mapped[str | None] = mapped_column(String(254))
     es_ejemplo: Mapped[bool] = mapped_column(Boolean, default=False)  # datos de demostración
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
+
+
+class DocumentoBeneficiario(TenantMixin, Base):
+    """Documento adjunto de un beneficiario (INE/IFE, CURP, comprobante de domicilio). El archivo vive en un bucket
+    privado; `llave` incluye el municipio y solo se alcanza a través de esta fila (nunca hay URL pública)."""
+
+    __tablename__ = "documento_beneficiario"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    beneficiario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("beneficiario.id"), index=True)
+    tipo: Mapped[str] = mapped_column(String(32))  # ine | curp | comprobante_domicilio
+    titulo: Mapped[str] = mapped_column(Text)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+    llave: Mapped[str] = mapped_column(Text)
+    nombre_archivo: Mapped[str] = mapped_column(Text)
+    content_type: Mapped[str] = mapped_column(String(64))
+    tamano: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
 
 

@@ -44,6 +44,16 @@ class Settings(BaseSettings):
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
 
+    # Documentos de beneficiarios (Fase 4.3b): bucket PRIVADO de R2, distinto del de imágenes de marca (arriba, público).
+    # Sin bucket la subida responde error; nunca se guarda en disco.
+    docs_s3_endpoint_url: str = ""
+    docs_s3_bucket: str = ""
+    docs_s3_access_key_id: str = ""
+    docs_s3_secret_access_key: str = ""
+    docs_s3_region: str = "auto"
+    # SOLO desarrollo local: guarda los documentos en la memoria del proceso (se pierden al reiniciar). No usar en Railway.
+    docs_almacen_memoria: bool = False
+
     # Recuperación de contraseña por email (Resend). Sin API key el correo no se envía (solo log).
     resend_api_key: str = ""
     email_from: str = ""
