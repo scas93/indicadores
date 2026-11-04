@@ -60,6 +60,12 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
     } catch (e) { toast.error(mensajeError(e)); setBorrar(null); } finally { setOcupado(false); }
   }
 
+  const acciones = (f: Fila) => (
+    <td>
+      <button className="btn btn-xs btn-info" title="Editar" onClick={() => setModal(f)}><i className="fa fa-pencil" /></button>{" "}
+      <button className="btn btn-xs btn-danger" title="Eliminar" onClick={() => setBorrar(f)}><i className="fa fa-trash" /></button>
+    </td>);
+
   return (
     <>
       <h3 className="page-heading">{cfg.titulo}</h3>
@@ -74,13 +80,15 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
           <button type="button" className="btn btn-success" onClick={() => setModal("alta")}><i className="fa fa-plus" /> Nuevo</button>
           <button type="button" className="btn btn-default" onClick={exportar}><i className="fa fa-file-excel-o" /> Exportar</button>
         </form>
+        {cfg.tituloTabla && <h4 className="tabla-titulo">{cfg.tituloTabla} — se han encontrado {lista?.length ?? 0} elementos</h4>}
         <div className="table-responsive">
           <table className="table table-hover">
             <thead><tr>
               <th style={{ width: 80 }}><label style={{ fontWeight: "normal", margin: 0 }}>
                 <input type="checkbox" checked={todas} onChange={() => setMarcadas(todas ? new Set() : new Set((lista ?? []).map((f) => f.id)))} /> Todo</label></th>
+              {cfg.accionesPrimero && <th style={{ width: 100 }}>Acciones</th>}
               {cfg.columnas.map((c) => <th key={c.key}>{c.label}</th>)}
-              <th style={{ width: 100 }}>Acciones</th>
+              {!cfg.accionesPrimero && <th style={{ width: 100 }}>Acciones</th>}
             </tr></thead>
             <tbody>
               {lista === null && <tr><td colSpan={cfg.columnas.length + 2} className="text-center text-muted">Cargando…</td></tr>}
@@ -88,11 +96,9 @@ export function CatalogoPadron({ catalogo }: { catalogo: string }) {
               {lista?.map((f) => (
                 <tr key={f.id}>
                   <td><input type="checkbox" aria-label="Seleccionar" checked={marcadas.has(f.id)} onChange={() => alternar(f.id)} /></td>
+                  {cfg.accionesPrimero && acciones(f)}
                   {cfg.columnas.map((c) => <td key={c.key}>{f[c.key] ?? ""}</td>)}
-                  <td>
-                    <button className="btn btn-xs btn-info" title="Editar" onClick={() => setModal(f)}><i className="fa fa-pencil" /></button>{" "}
-                    <button className="btn btn-xs btn-danger" title="Eliminar" onClick={() => setBorrar(f)}><i className="fa fa-trash" /></button>
-                  </td>
+                  {!cfg.accionesPrimero && acciones(f)}
                 </tr>
               ))}
             </tbody>
@@ -122,32 +128,47 @@ function useOpciones(fuente: string | null) {
 
 function CampoInput({ campo, valores, error, onCambio }: { campo: CampoForm; valores: Record<string, string>; error?: string; onCambio: (k: string, v: string) => void }) {
   const fuente = typeof campo.fuente === "function" ? campo.fuente(valores) : campo.fuente ?? null;
-  const ops = useOpciones(fuente);
+  const fijas = campo.opcionesFijas;
+  const ops = useOpciones(fijas ? null : fuente);
   const v = valores[campo.key] ?? "";
   const set = (x: string) => onCambio(campo.key, x);
   const etiqueta = (o: Fila) => (campo.opcion ? campo.opcion(o) : o.nombre);
   const grupos = useMemo(() => [{ etiqueta: campo.label, opciones: ops.map((o) => ({ valor: o.id, etiqueta: etiqueta(o) })) }], [ops]); // eslint-disable-line react-hooks/exhaustive-deps
   let control;
   if (campo.tipo === "area") control = <textarea className="form-control" rows={3} value={v} onChange={(e) => set(e.target.value)} />;
+  else if (campo.tipo === "fecha") control = <input className="form-control" type="date" value={v} onChange={(e) => set(e.target.value)} />;
   else if (campo.tipo === "numero") control = <input className="form-control" type="number" min={0} value={v} onChange={(e) => set(e.target.value)} />;
   else if (campo.tipo === "buscable") control = <SelectBuscable grupos={grupos} valor={v} onChange={set} placeholder={`— ${campo.label} —`} ariaLabel={campo.label} />;
   else if (campo.tipo === "lista") control = (
-    <select className="form-control" value={v} onChange={(e) => set(e.target.value)} disabled={!fuente}>
+    <select className="form-control" value={v} onChange={(e) => set(e.target.value)} disabled={!fuente && !fijas}>
       <option value="">{campo.sinOpcion ?? "— Seleccione —"}</option>
-      {ops.map((o) => <option key={o.id} value={o.id}>{etiqueta(o)}</option>)}
+      {fijas ? fijas.map((o) => <option key={o.valor} value={o.valor}>{o.etiqueta}</option>)
+        : ops.map((o) => <option key={o.id} value={o.id}>{etiqueta(o)}</option>)}
     </select>);
-  else control = <input className="form-control" value={v} onChange={(e) => set(e.target.value)} />;
+  else control = <input className="form-control" value={v} placeholder={campo.placeholder} onChange={(e) => set(e.target.value)} />;
   return <Campo label={campo.label} error={error}>{control}</Campo>;
 }
 
-function ModalCatalogo({ cfg, fila, onClose, onGuardado }: { cfg: CatalogoCfg; fila: Fila | null; onClose: () => void; onGuardado: () => void }) {
+export function ModalCatalogo({ cfg, fila, onClose, onGuardado }: { cfg: CatalogoCfg; fila: Fila | null; onClose: () => void; onGuardado: (registro: Fila) => void }) {
   const [v, setV] = useState<Record<string, string>>(() => Object.fromEntries(cfg.campos.map((c) => [c.key, String(fila?.[c.key] ?? "")])));
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
 
+  // Al dar de alta, el Estado arranca en el de la plataforma (Guanajuato en la referencia)
+  useEffect(() => {
+    const est = cfg.campos.find((c) => c.estadoPorDefecto);
+    if (fila || !est) return;
+    api<{ id: string; por_defecto: boolean }[]>("/api/geo/estados")
+      .then((l) => { const d = l.find((e) => e.por_defecto); if (d) setV((x) => (x[est.key] ? x : { ...x, [est.key]: d.id })); })
+      .catch(() => undefined);
+  }, [cfg, fila]);
+
   function cambio(k: string, valor: string) {
-    const limpia = cfg.campos.find((c) => c.key === k)?.limpia;
-    setV((x) => ({ ...x, [k]: valor, ...(limpia ? { [limpia]: "" } : {}) }));
+    setV((x) => {
+      const n = { ...x, [k]: valor };
+      for (let l = cfg.campos.find((c) => c.key === k)?.limpia; l; l = cfg.campos.find((c) => c.key === l)?.limpia) n[l] = "";  // Estado -> Municipio -> Localidad
+      return n;
+    });
   }
 
   async function guardar() {
@@ -157,12 +178,12 @@ function ModalCatalogo({ cfg, fila, onClose, onGuardado }: { cfg: CatalogoCfg; f
     for (const c of cfg.campos) {
       if (c.virtual) continue;
       const x = v[c.key] ?? "";
-      json[c.key] = c.tipo === "numero" ? (x === "" ? null : Number(x)) : (c.tipo === "lista" || c.tipo === "buscable") ? (x || null) : x;
+      json[c.key] = c.tipo === "numero" ? (x === "" ? null : Number(x)) : (c.tipo === "lista" || c.tipo === "buscable" || c.tipo === "fecha") ? (x || null) : x;
     }
     try {
-      await api(fila ? `/api/${cfg.ruta}/${fila.id}` : `/api/${cfg.ruta}`, { method: fila ? "PATCH" : "POST", json });
+      const guardado = await api<Fila>(fila ? `/api/${cfg.ruta}/${fila.id}` : `/api/${cfg.ruta}`, { method: fila ? "PATCH" : "POST", json });
       toast.success(fila ? "Cambios guardados" : "Registro creado");
-      onGuardado();
+      onGuardado(guardado);
     } catch (e) {
       if (e instanceof ApiError) { setErrores(e.campos); toast.error(e.message); } else toast.error("Error de conexión");
       setOcupado(false);

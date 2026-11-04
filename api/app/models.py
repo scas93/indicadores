@@ -531,3 +531,51 @@ class Colonia(TenantMixin, Base):
     nombre: Mapped[str] = mapped_column(Text)
     estado_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("geografia_estado.id"), index=True)
     municipio_geo_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
+
+
+# --------------------------------------------------------------------------- Fase 4.2: beneficiarios y captura
+class Beneficiario(TenantMixin, Base):
+    """Persona que recibe apoyos. La CURP se guarda recortada y en mayúsculas y es única por municipio.
+    Estado, municipio y localidad son opcionales; la colonia es texto libre (no ligada al catálogo Colonias)."""
+
+    __tablename__ = "beneficiario"
+    __table_args__ = (UniqueConstraint("municipio_id", "curp"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    curp: Mapped[str] = mapped_column(String(32))
+    nombre: Mapped[str] = mapped_column(Text)
+    fecha_nacimiento: Mapped[date | None] = mapped_column(Date)
+    genero: Mapped[str | None] = mapped_column(String(1))  # F | M
+    cp: Mapped[str | None] = mapped_column(String(10))
+    estado_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("geografia_estado.id"), index=True)
+    municipio_geo_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
+    localidad_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
+    calle: Mapped[str | None] = mapped_column(Text)
+    numero: Mapped[str | None] = mapped_column(String(32))
+    colonia: Mapped[str | None] = mapped_column(Text)
+    telefono: Mapped[str | None] = mapped_column(String(32))
+    correo: Mapped[str | None] = mapped_column(String(254))
+    es_ejemplo: Mapped[bool] = mapped_column(Boolean, default=False)  # datos de demostración
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)
+
+
+class CapturaApoyo(TenantMixin, Base):
+    """Un apoyo entregado a un beneficiario en un programa. `edad` y `grupo_edad_id` son la foto al momento de la
+    entrega (edad en `fecha_entrega`), para que las estadísticas por grupo no cambien si el catálogo cambia."""
+
+    __tablename__ = "captura_apoyo"
+    __table_args__ = (CheckConstraint("cantidad >= 1", name="ck_captura_apoyo_cantidad"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    beneficiario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("beneficiario.id"), index=True)
+    programa_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("programa.id"), index=True)
+    apoyo_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("apoyo.id"), index=True)
+    descripcion_apoyo_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("descripcion_apoyo.id"), index=True)
+    nivel_socioeconomico_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
+    grupo_edad_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
+    edad: Mapped[int | None] = mapped_column(Integer)
+    cantidad: Mapped[int] = mapped_column(Integer, default=1)
+    fecha_entrega: Mapped[date] = mapped_column(Date, index=True)
+    fecha_registro: Mapped[date] = mapped_column(Date, index=True)
+    observaciones: Mapped[str | None] = mapped_column(Text)
+    usuario_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("usuario.id"))
+    es_ejemplo: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=_now)

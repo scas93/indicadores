@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from .. import validators_padron as vpd
 from ..deps import ActorCtx
 from ..errors import ApiError
-from ..models import (Apoyo, CatalogoMunicipio, Colonia, DescripcionApoyo, GeografiaEstado, Municipio,
+from ..models import (Apoyo, CatalogoMunicipio, CentroGestor, Colonia, DescripcionApoyo, GeografiaEstado, Municipio,
                       Programa)
 from . import programas as psvc
 from .bitacora import registrar
@@ -591,10 +591,13 @@ def programas_disponibles(ctx: Ctx) -> list[dict]:
     stmt = select(Programa).where(Programa.activo.is_(True))
     if ctx.visibles is not None:
         stmt = stmt.where(Programa.id.in_(ctx.visibles))
-    return [{"id": p.id, "ejercicio_fiscal": p.ejercicio_fiscal, "clave": p.clave, "nombre": p.nombre}
+    centros = {c.id: c.nombre for c in ctx.db.scalars(select(CentroGestor))}
+    return [{"id": p.id, "ejercicio_fiscal": p.ejercicio_fiscal, "clave": p.clave, "nombre": p.nombre,
+             "centro_gestor": centros.get(p.centro_gestor_id)}
             for p in ctx.db.scalars(stmt.order_by(Programa.ejercicio_fiscal.desc(), Programa.clave))]
 
 
 def estados(ctx: Ctx) -> list[dict]:
-    return [{"id": e.id, "clave": e.clave, "nombre": e.nombre}
+    """`por_defecto`: el estado del municipio de la plataforma (Guanajuato en la referencia)."""
+    return [{"id": e.id, "clave": e.clave, "nombre": e.nombre, "por_defecto": e.id == ctx.tenant.estado_republica_id}
             for e in ctx.db.scalars(select(GeografiaEstado).order_by(GeografiaEstado.clave))]

@@ -111,3 +111,80 @@ def test_solo_se_borra_si_nada_lo_usa():
 
 def test_ids_unicos_conserva_el_orden():
     assert vp.ids_unicos([B, A, B, C, A]) == [B, A, C]
+
+
+# --- beneficiarios y captura (4.2) ---------------------------------------------------------------------
+from datetime import date  # noqa: E402
+
+
+def test_curp_se_normaliza_sin_validar_formato_y_no_puede_estar_vacia():
+    assert vp.normalizar_curp("  abcd-123 irregular ") == "ABCD-123 IRREGULAR"  # formato irregular aceptado
+    for malo in (None, "", "   "):
+        with pytest.raises(ApiError) as e:
+            vp.normalizar_curp(malo)
+        assert e.value.campos == {"curp": "La CURP es obligatoria"}
+
+
+def test_curp_repetida_sin_importar_mayusculas_ni_espacios():
+    vp.levantar_si_curp_repetida("NUEVA1", ["OTRA1"])
+    with pytest.raises(ApiError) as e:
+        vp.levantar_si_curp_repetida("EJEM1", [" ejem1 "])
+    assert e.value.codigo == "CURP_DUPLICADA"
+
+
+@pytest.mark.parametrize("nac,fecha,edad", [
+    (date(2000, 5, 10), date(2025, 5, 9), 24),    # un día antes del cumpleaños
+    (date(2000, 5, 10), date(2025, 5, 10), 25),   # el día del cumpleaños
+    (date(2000, 2, 29), date(2025, 2, 28), 24),   # nacida un 29 de febrero
+    (date(2000, 2, 29), date(2025, 3, 1), 25),
+    (date(2025, 1, 1), date(2025, 1, 1), 0)])
+def test_calculo_de_edad(nac, fecha, edad):
+    assert vp.calcular_edad(nac, fecha) == edad
+
+
+def test_grupo_de_edad_por_edad_y_sin_grupo_fuera_de_los_rangos():
+    a, b, c, d = (uuid.uuid4() for _ in range(4))
+    grupos = [(a, 2, 10), (b, 11, 17), (c, 18, 59), (d, 60, 80)]
+    assert [vp.grupo_de_edad(x, grupos) for x in (2, 10, 11, 17, 18, 59, 60, 80)] == [a, a, b, b, c, c, d, d]
+    assert vp.grupo_de_edad(1, grupos) is None and vp.grupo_de_edad(81, grupos) is None  # nadie los cubre
+    assert vp.grupo_de_edad(None, grupos) is None
+    assert vp.grupo_de_edad(95, [(d, 60, None)]) == d  # grupo abierto hacia arriba
+
+
+def test_cascada_apoyo_a_descripcion_y_programa_a_apoyo():
+    p, q = uuid.uuid4(), uuid.uuid4()
+    vp.validar_apoyo_del_programa(p, p)
+    vp.validar_descripcion_del_apoyo(q, q)
+    with pytest.raises(ApiError) as e:
+        vp.validar_apoyo_del_programa(p, q)
+    assert e.value.codigo == "JERARQUIA_INVALIDA"
+    with pytest.raises(ApiError):
+        vp.validar_descripcion_del_apoyo(p, q)
+
+
+def test_cascada_geografica_estado_municipio_localidad():
+    e, m, l = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    vp.validar_cascada_geografica(None, None, None, None, None)
+    vp.validar_cascada_geografica(e, e, m, m, l)
+    with pytest.raises(ApiError):  # municipio de otro estado
+        vp.validar_cascada_geografica(e, uuid.uuid4(), m, m, l)
+    with pytest.raises(ApiError):  # localidad de otro municipio
+        vp.validar_cascada_geografica(e, e, m, uuid.uuid4(), l)
+    with pytest.raises(ApiError):  # localidad sin municipio
+        vp.validar_cascada_geografica(e, e, None, m, l)
+
+
+def test_cantidad_fecha_genero_y_correo():
+    assert vp.validar_cantidad(3) == 3
+    for malo in (0, -1, None, True, 2.5):
+        with pytest.raises(ApiError):
+            vp.validar_cantidad(malo)
+    with pytest.raises(ApiError):
+        vp.validar_fecha_nacimiento(date(2030, 1, 1), date(2026, 1, 1))
+    assert vp.validar_fecha_nacimiento(None, date(2026, 1, 1)) is None
+    assert vp.validar_genero(" f ") == "F" and vp.validar_genero("") is None
+    with pytest.raises(ApiError):
+        vp.validar_genero("X")
+    assert vp.validar_correo(" a@b.mx ") == "a@b.mx" and vp.validar_correo("") is None
+    with pytest.raises(ApiError):
+        vp.validar_correo("sin-arroba")

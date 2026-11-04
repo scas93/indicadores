@@ -334,3 +334,15 @@ body.app-body { background: var(--c-body); }
 
 /* campos calculados de solo lectura (p. ej. columna Resultado de la tabla de metas) */
 .campo-calculado { background: #eee !important; color: #444; cursor: default; }
+
+/* Fase 4.2: tabla del catálogo de beneficiarios y autocompletado "Escriba y Seleccione" */
+.tabla-titulo { margin: 0 0 12px; font-size: 16px; font-weight: 400; color: #444; }
+.ac { position: relative; }
+.ac-lista { position: absolute; left: 0; right: 0; top: 100%; z-index: 1100; margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid #8caac6; border-top: 0; box-shadow: 0 4px 8px rgba(0,0,0,.12); max-height: 260px; overflow-y: auto; }
+.ac-lista li { padding: 6px 10px; cursor: pointer; color: #222; font-size: 14px; }
+.ac-lista li:hover, .ac-lista li.activo { background: #eef3f8; }
+.ac-lista li.vacio { color: #888; cursor: default; }
+.captura-bloque { margin-bottom: 18px; }
+.captura-bloque > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #444; }
+.captura-curp { display: flex; gap: 6px; }
+.captura-curp .ac { flex: 1; }

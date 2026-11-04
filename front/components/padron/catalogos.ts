@@ -3,7 +3,12 @@
 export type CampoForm = {
   key: string;
   label: string;
-  tipo?: "texto" | "area" | "numero" | "lista" | "buscable";
+  tipo?: "texto" | "area" | "numero" | "lista" | "buscable" | "fecha";
+  placeholder?: string;
+  /** Opciones fijas de una lista (Género). */
+  opcionesFijas?: { valor: string; etiqueta: string }[];
+  /** Al dar de alta, este campo arranca con el estado por defecto de la plataforma (Guanajuato). */
+  estadoPorDefecto?: boolean;
   /** Ruta de la API que da las opciones (puede depender de otros campos; null = aún sin opciones). */
   fuente?: string | ((f: Record<string, string>) => string | null);
   opcion?: (o: any) => string;
@@ -23,6 +28,9 @@ export type CatalogoCfg = {
   filtros: { key: string; label: string }[];
   columnas: { key: string; label: string }[];
   campos: CampoForm[];
+  /** Encabezado de la tabla: "<texto> — se han encontrado N elementos". */
+  tituloTabla?: string;
+  accionesPrimero?: boolean;
 };
 
 const clave = (o: any) => `${o.clave} — ${o.nombre}`;
@@ -85,5 +93,27 @@ export const CATALOGOS_PADRON: Record<string, CatalogoCfg> = {
       ESTADO({ limpia: "municipio_id", ancho: 6 }),
       { key: "municipio_id", label: "Municipio", tipo: "lista", opcion: nombre, ancho: 6,
         fuente: (f) => (f.estado_id ? `geo/municipios?estado_id=${f.estado_id}` : null) }],
+  },
+  beneficiarios: {
+    ruta: "beneficiarios", titulo: "Beneficiarios", singular: "Beneficiario",
+    tituloTabla: "Catálogo de beneficiarios", accionesPrimero: true,
+    filtros: [{ key: "curp", label: "CURP" }, { key: "nombre", label: "Beneficiario" }],
+    columnas: [{ key: "curp", label: "CURP" }, { key: "nombre", label: "Beneficiario" }],
+    campos: [
+      { key: "curp", label: "CURP" },
+      { key: "nombre", label: "Nombre", placeholder: "Apellido Paterno Materno Nombre(s)" },
+      { key: "fecha_nacimiento", label: "Fecha de nacimiento", tipo: "fecha", ancho: 6 },
+      { key: "genero", label: "Género", tipo: "lista", ancho: 6, sinOpcion: "— Seleccione —",
+        opcionesFijas: [{ valor: "F", etiqueta: "Femenino" }, { valor: "M", etiqueta: "Masculino" }] },
+      { key: "cp", label: "CP", ancho: 4 },
+      ESTADO({ limpia: "municipio_id", ancho: 4, estadoPorDefecto: true, opcional: true }),
+      { key: "municipio_id", label: "Municipio", tipo: "lista", opcion: nombre, ancho: 4, limpia: "localidad_id",
+        fuente: (f) => (f.estado_id ? `geo/municipios?estado_id=${f.estado_id}` : null) },
+      { key: "localidad_id", label: "Localidad", tipo: "lista", opcion: nombre,
+        fuente: (f) => (f.municipio_id ? `geo/localidades?municipio_id=${f.municipio_id}` : null) },
+      { key: "calle", label: "Calle", ancho: 8 }, { key: "numero", label: "Número", ancho: 4 },
+      { key: "colonia", label: "Colonia" },
+      { key: "telefono", label: "Teléfono", ancho: 6 }, { key: "correo", label: "Correo", ancho: 6 },
+    ],
   },
 };
