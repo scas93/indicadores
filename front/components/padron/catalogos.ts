@@ -3,7 +3,7 @@
 export type CampoForm = {
   key: string;
   label: string;
-  tipo?: "texto" | "area" | "numero" | "lista" | "buscable" | "fecha";
+  tipo?: "texto" | "area" | "numero" | "lista" | "buscable" | "fecha" | "colonia";
   placeholder?: string;
   /** Opciones fijas de una lista (Género). */
   opcionesFijas?: { valor: string; etiqueta: string }[];
@@ -112,7 +112,7 @@ export const CATALOGOS_PADRON: Record<string, CatalogoCfg> = {
       { key: "localidad_id", label: "Localidad", tipo: "lista", opcion: nombre,
         fuente: (f) => (f.municipio_id ? `geo/localidades?municipio_id=${f.municipio_id}` : null) },
       { key: "calle", label: "Calle", ancho: 8 }, { key: "numero", label: "Número", ancho: 4 },
-      { key: "colonia", label: "Colonia" },
+      { key: "colonia", label: "Colonia", tipo: "colonia", placeholder: "Escriba y Seleccione…" },
       { key: "telefono", label: "Teléfono", ancho: 6 }, { key: "correo", label: "Correo", ancho: 6 },
     ],
   },

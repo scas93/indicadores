@@ -54,7 +54,9 @@ export const MENU_MUNICIPIO: Menu = [
       { label: "Consolidado", href: "/estadisticas/consolidado", tipos: mir },
       { label: "Cuenta Pública", href: "/estadisticas/cuenta-publica", tipos: mir },
       { label: "Transparencia", href: "/estadisticas/transparencia", tipos: mir },
-      { label: "Estadísticas del padrón", tipos: T.padron },
+      { label: "Padrón Beneficiario", href: "/estadisticas/padron-beneficiario", tipos: T.padron },
+      { label: "Detalles Padrón Beneficiario", href: "/estadisticas/detalles-padron-beneficiario", tipos: T.padron },
+      { label: "Comparativo Padrón Beneficiario", href: "/estadisticas/comparativo-padron-beneficiario", tipos: T.padron },
     ],
   },
   {

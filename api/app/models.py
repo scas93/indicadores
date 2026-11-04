@@ -551,7 +551,8 @@ class Beneficiario(TenantMixin, Base):
     localidad_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("catalogo_municipio.id"), index=True)
     calle: Mapped[str | None] = mapped_column(Text)
     numero: Mapped[str | None] = mapped_column(String(32))
-    colonia: Mapped[str | None] = mapped_column(Text)
+    colonia: Mapped[str | None] = mapped_column(Text)  # texto libre; si salió del catálogo, `colonia_id` la liga
+    colonia_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("colonia.id"), index=True)
     telefono: Mapped[str | None] = mapped_column(String(32))
     correo: Mapped[str | None] = mapped_column(String(254))
     es_ejemplo: Mapped[bool] = mapped_column(Boolean, default=False)  # datos de demostración

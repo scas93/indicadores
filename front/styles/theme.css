@@ -346,3 +346,26 @@ body.app-body { background: var(--c-body); }
 .captura-bloque > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #444; }
 .captura-curp { display: flex; gap: 6px; }
 .captura-curp .ac { flex: 1; }
+
+/* Fase 4.3a: Estadísticas del Padrón */
+.pe-bloque { margin-top: 22px; }
+.pe-grafica { border: 1px solid #e3e3e3; padding: 12px 14px; margin-bottom: 18px; background: #fff; overflow-x: auto; }
+.pe-grafica-cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.pe-grafica-cab h4 { margin: 0; font-size: 15px; font-weight: 600; color: #444; }
+.pe-menu { position: relative; }
+.pe-menu-lista { position: absolute; right: 0; top: 100%; z-index: 1100; margin: 2px 0 0; padding: 4px 0; list-style: none; background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,.15); min-width: 190px; }
+.pe-menu-lista button { display: block; width: 100%; padding: 6px 14px; border: 0; background: none; text-align: left; font-size: 13px; color: #333; }
+.pe-menu-lista button:hover { background: #eef3f8; }
+.pe-leyenda { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 13px; color: #444; }
+.pe-leyenda .cuadro { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
+.pe-par { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .pe-par { grid-template-columns: 1fr; } }
+.pe-genero { display: flex; gap: 24px; flex-wrap: wrap; }
+.pe-pastel { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.pe-filtros { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0 16px; align-items: start; }
+.pe-nota { font-size: 12px; color: #777; margin: 4px 0 0; }
+.pe-ficha { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 18px; align-items: start; }
+.pe-ficha dl { margin: 0; } .pe-ficha dt { font-weight: 600; color: #444; } .pe-ficha dd { margin: 0 0 8px; }
+.pe-franja { background: #b9bcc0; color: #fff; font-weight: 600; padding: 8px 14px; margin: 14px 0 8px; }
+.pe-aviso { color: #a94442; margin: 8px 0; }
+@media (max-width: 800px) { .pe-ficha { grid-template-columns: 1fr; } }

@@ -287,6 +287,7 @@ class PadronCatalogoIn(BaseModel):
     calle: str | None = None
     numero: str | None = None
     colonia: str | None = None
+    colonia_id: uuid.UUID | None = None
     telefono: str | None = None
     correo: str | None = None
 

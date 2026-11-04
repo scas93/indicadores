@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Autocompleto } from "../Autocompleto";
 import { Campo, mensajeError } from "../Campo";
 import { Confirmar } from "../Confirmar";
 import { Modal } from "../Modal";
@@ -138,6 +139,16 @@ function CampoInput({ campo, valores, error, onCambio }: { campo: CampoForm; val
   if (campo.tipo === "area") control = <textarea className="form-control" rows={3} value={v} onChange={(e) => set(e.target.value)} />;
   else if (campo.tipo === "fecha") control = <input className="form-control" type="date" value={v} onChange={(e) => set(e.target.value)} />;
   else if (campo.tipo === "numero") control = <input className="form-control" type="number" min={0} value={v} onChange={(e) => set(e.target.value)} />;
+  else if (campo.tipo === "colonia") control = (
+    <Autocompleto texto={v} ariaLabel={campo.label} placeholder={campo.placeholder}
+      onTexto={(t) => { onCambio(campo.key, t); onCambio("colonia_id", ""); }}
+      buscar={async (q) => {
+        const p = new URLSearchParams({ nombre: q });
+        if (valores.municipio_id) p.set("municipio_id", valores.municipio_id);
+        const r = await api<Fila[]>(`/api/geo/colonias?${p}`);
+        return r.slice(0, 30).map((c) => ({ valor: c.id, etiqueta: `[${c.clave}]${c.nombre}` }));
+      }}
+      onElegir={(o) => { onCambio(campo.key, o.etiqueta.replace(/^\[[^\]]*\]/, "")); onCambio("colonia_id", o.valor); }} />);
   else if (campo.tipo === "buscable") control = <SelectBuscable grupos={grupos} valor={v} onChange={set} placeholder={`— ${campo.label} —`} ariaLabel={campo.label} />;
   else if (campo.tipo === "lista") control = (
     <select className="form-control" value={v} onChange={(e) => set(e.target.value)} disabled={!fuente && !fijas}>
@@ -150,7 +161,8 @@ function CampoInput({ campo, valores, error, onCambio }: { campo: CampoForm; val
 }
 
 export function ModalCatalogo({ cfg, fila, onClose, onGuardado }: { cfg: CatalogoCfg; fila: Fila | null; onClose: () => void; onGuardado: (registro: Fila) => void }) {
-  const [v, setV] = useState<Record<string, string>>(() => Object.fromEntries(cfg.campos.map((c) => [c.key, String(fila?.[c.key] ?? "")])));
+  const [v, setV] = useState<Record<string, string>>(() => Object.fromEntries([...cfg.campos.map((c) => [c.key, String(fila?.[c.key] ?? "")]),
+    ...(cfg.campos.some((c) => c.tipo === "colonia") ? [["colonia_id", String(fila?.colonia_id ?? "")]] : [])]));
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
 
@@ -166,6 +178,7 @@ export function ModalCatalogo({ cfg, fila, onClose, onGuardado }: { cfg: Catalog
   function cambio(k: string, valor: string) {
     setV((x) => {
       const n = { ...x, [k]: valor };
+      if (k === "municipio_id" && n.colonia_id) n.colonia_id = "";  // la colonia de catálogo es de otro municipio: queda como texto libre
       for (let l = cfg.campos.find((c) => c.key === k)?.limpia; l; l = cfg.campos.find((c) => c.key === l)?.limpia) n[l] = "";  // Estado -> Municipio -> Localidad
       return n;
     });
@@ -180,6 +193,7 @@ export function ModalCatalogo({ cfg, fila, onClose, onGuardado }: { cfg: Catalog
       const x = v[c.key] ?? "";
       json[c.key] = c.tipo === "numero" ? (x === "" ? null : Number(x)) : (c.tipo === "lista" || c.tipo === "buscable" || c.tipo === "fecha") ? (x || null) : x;
     }
+    if (cfg.campos.some((c) => c.tipo === "colonia")) json.colonia_id = v.colonia_id || null;
     try {
       const guardado = await api<Fila>(fila ? `/api/${cfg.ruta}/${fila.id}` : `/api/${cfg.ruta}`, { method: fila ? "PATCH" : "POST", json });
       toast.success(fila ? "Cambios guardados" : "Registro creado");
