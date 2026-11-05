@@ -11,8 +11,8 @@ from sqlalchemy import func, select
 
 from .. import validators_padron as vpd
 from ..errors import ApiError
-from ..models import (Apoyo, Beneficiario, CapturaApoyo, CatalogoMunicipio, DescripcionApoyo, GeografiaEstado,
-                      Programa)
+from ..models import (Apoyo, Beneficiario, CapturaApoyo, CatalogoMunicipio, Colonia, DescripcionApoyo,
+                      GeografiaEstado, Programa)
 from . import padron_catalogos as base
 from .padron_catalogos import CATALOGOS, USOS_EXTRA, Cat, Ctx, _como, _flush, _texto
 
@@ -32,6 +32,7 @@ USOS_EXTRA["nivel_socioeconomico"].append(("capturas", _cuenta(CapturaApoyo, Cap
 USOS_EXTRA["grupo_edad"].append(("capturas", _cuenta(CapturaApoyo, CapturaApoyo.grupo_edad_id)))
 USOS_EXTRA["geo_municipio"].append(("beneficiarios", _cuenta(Beneficiario, Beneficiario.municipio_geo_id)))
 USOS_EXTRA["geo_localidad"].append(("beneficiarios", _cuenta(Beneficiario, Beneficiario.localidad_id)))
+USOS_EXTRA["colonia"].append(("beneficiarios", _cuenta(Beneficiario, Beneficiario.colonia_id)))
 USOS_EXTRA["beneficiario"].append(("capturas", _cuenta(CapturaApoyo, CapturaApoyo.beneficiario_id)))
 
 
@@ -53,7 +54,7 @@ class Beneficiarios(Cat):
                  "estado_id": o.estado_id, "estado": estados.get(o.estado_id),
                  "municipio_id": o.municipio_geo_id, "municipio": geo.get(o.municipio_geo_id),
                  "localidad_id": o.localidad_id, "localidad": geo.get(o.localidad_id),
-                 "calle": o.calle, "numero": o.numero, "colonia": o.colonia, "telefono": o.telefono,
+                 "calle": o.calle, "numero": o.numero, "colonia": o.colonia, "colonia_id": o.colonia_id, "telefono": o.telefono,
                  "correo": o.correo, "es_ejemplo": o.es_ejemplo} for o in objs]
 
     def listar(self, ctx, f):
@@ -77,6 +78,18 @@ class Beneficiarios(Cat):
         vpd.validar_cascada_geografica(estado_id, base.estado_de_municipio(ctx, m) if m else None, municipio_id,
                                        loc.padre_id if loc else None, localidad_id)
 
+    def _colonia(self, ctx, texto, colonia_id, municipio_id) -> tuple[str | None, uuid.UUID | None]:
+        """Colonia del catálogo (se guarda su nombre y su id) o escrita a mano (solo texto)."""
+        if not colonia_id:
+            return _texto(texto), None
+        c = ctx.db.get(Colonia, colonia_id)
+        if c is None:
+            raise ApiError(422, "JERARQUIA_INVALIDA", "Colonia inexistente", {"colonia": "Colonia inválida"})
+        if municipio_id is not None and c.municipio_geo_id != municipio_id:
+            raise ApiError(422, "JERARQUIA_INVALIDA", "La colonia no pertenece al municipio",
+                           {"colonia": "No pertenece al municipio elegido"})
+        return c.nombre, c.id
+
     def _campos(self, ctx, datos: dict, actual: Beneficiario | None) -> dict:
         def dato(k, d=None):
             return datos[k] if k in datos else (getattr(actual, d or k) if actual else None)
@@ -85,6 +98,8 @@ class Beneficiarios(Cat):
         nombre = vpd.validar_nombre(dato("nombre"))
         estado_id, municipio_id, localidad_id = dato("estado_id"), dato("municipio_id", "municipio_geo_id"), dato("localidad_id")
         self._geografia(ctx, estado_id, municipio_id, localidad_id)
+        colonia, colonia_id = self._colonia(ctx, dato("colonia"), (datos.get("colonia_id") if "colonia_id" in datos else (
+            None if "colonia" in datos else dato("colonia_id"))), municipio_id)
         stmt = select(Beneficiario.curp)
         if actual:
             stmt = stmt.where(Beneficiario.id != actual.id)
@@ -93,7 +108,7 @@ class Beneficiarios(Cat):
                     fecha_nacimiento=vpd.validar_fecha_nacimiento(dato("fecha_nacimiento"), hoy()),
                     genero=vpd.validar_genero(dato("genero")), cp=_texto(dato("cp")),
                     estado_id=estado_id, municipio_geo_id=municipio_id, localidad_id=localidad_id,
-                    calle=_texto(dato("calle")), numero=_texto(dato("numero")), colonia=_texto(dato("colonia")),
+                    calle=_texto(dato("calle")), numero=_texto(dato("numero")), colonia=colonia, colonia_id=colonia_id,
                     telefono=_texto(dato("telefono")), correo=vpd.validar_correo(dato("correo")))
 
     def crear(self, ctx, datos):

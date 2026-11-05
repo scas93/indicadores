@@ -1,4 +1,4 @@
-"""Datos de EJEMPLO del Padrón para un municipio (demo): 12 beneficiarios ficticios y algunas capturas.
+"""Datos de EJEMPLO del Padrón para un municipio (demo): 14 beneficiarios ficticios y capturas en 2024, 2025 y la fecha actual.
 
     python seed_padron_ejemplo.py --subdominio demo --usuario padron2
 
@@ -7,13 +7,13 @@ Todo es inventado y está marcado: la CURP empieza con EJEMPLO, el nombre termin
 (copiar_geografia.py) y al menos un programa activo; si el programa no tiene apoyos, crea dos de ejemplo."""
 import argparse
 import sys
-from datetime import timedelta
+from datetime import date, timedelta
 
 from sqlalchemy import select
 
 from app import validators_padron as vpd
 from app.db import new_session
-from app.models import (Apoyo, Beneficiario, CapturaApoyo, CatalogoMunicipio, DescripcionApoyo, Municipio, Programa,
+from app.models import (Apoyo, Beneficiario, CapturaApoyo, CatalogoMunicipio, Colonia, DescripcionApoyo, Municipio, Programa,
                         Usuario, UsuarioPrograma)
 from app.services.padron_beneficiarios import hoy
 
@@ -25,7 +25,9 @@ PERSONAS = [
     ("Flores Díaz Fernanda", "F", 41, 0, 2, 0), ("Torres Ortiz Jorge", "M", 58, 1, 3, 1),
     ("Cruz Reyes Marta", "F", 63, 0, 3, 2), ("Morales Silva Ernesto", "M", 71, 1, 4, 0),
     ("Jiménez Castro Rosa", "F", 79, 0, 5, 1), ("Vargas Núñez Pedro", "M", 27, 1, 6, 2),
+    ("Ortega Pineda Emilio", "M", 1, 0, 0, 0), ("Salas Bravo Josefina", "F", 85, 1, 1, 1),  # sin grupo de edad (1 y 85 años)
 ]
+ANIOS_ANTERIORES = (2024, 2025)  # además de las capturas recientes, para el comparativo y el concentrado
 APOYOS = [("EJ-APO1", "Despensa (EJEMPLO)", [("EJ-D1", "Despensa básica (EJEMPLO)"), ("EJ-D2", "Despensa ampliada (EJEMPLO)")]),
           ("EJ-APO2", "Apoyo escolar (EJEMPLO)", [("EJ-D3", "Paquete de útiles (EJEMPLO)")])]
 
@@ -74,12 +76,24 @@ def main(argv=None) -> int:
             print("El municipio no tiene geografía: corre copiar_geografia.py primero", file=sys.stderr)
             return 2
 
+        # Localidades repartidas: la primera de varios municipios, para que el top 5 y el comparativo tengan variedad
+        repartidas = [(m, l) for m in munis for l in db.scalars(select(CatalogoMunicipio).where(
+            CatalogoMunicipio.padre_id == m.id, CatalogoMunicipio.tipo == "geo_localidad").order_by(CatalogoMunicipio.clave).limit(1))][:7]
+        colonia_de = {}  # una colonia de ejemplo (del catálogo) en los tres primeros municipios
+        for k, (m, _) in enumerate(repartidas[:3], start=1):
+            c = db.scalar(select(Colonia).where(Colonia.municipio_id == mid, Colonia.clave == f"EJ-C{k}"))
+            if c is None:
+                c = Colonia(municipio_id=mid, clave=f"EJ-C{k}", nombre=f"Colonia de ejemplo {k}", estado_id=mun.estado_republica_id,
+                            municipio_geo_id=m.id)
+                db.add(c)
+                db.flush()
+            colonia_de[m.id] = c
         nuevos = capturas = 0
         for i, (nombre, genero, edad, n_apoyo, atras, n_nivel) in enumerate(PERSONAS):
             curp = f"EJEMPLO{i + 1:04d}"
             b = db.scalar(select(Beneficiario).where(Beneficiario.municipio_id == mid, Beneficiario.curp == curp))
             if b is None:
-                m, l = locs[(i * 7) % len(locs)]
+                m, l = repartidas[i % len(repartidas)]
                 nac = dia.replace(year=dia.year - edad, month=3, day=15) if edad else dia
                 b = Beneficiario(municipio_id=mid, curp=curp, nombre=f"{nombre} (EJEMPLO)", fecha_nacimiento=nac, genero=genero,
                                  cp="36000", estado_id=mun.estado_republica_id, municipio_geo_id=m.id, localidad_id=l.id,
@@ -88,6 +102,12 @@ def main(argv=None) -> int:
                 db.add(b)
                 db.flush()
                 nuevos += 1
+            m, l = repartidas[i % len(repartidas)]  # también reubica los de ejemplo ya sembrados (son inventados)
+            b.municipio_geo_id, b.localidad_id = m.id, l.id
+            if m.id in colonia_de and i % 2 == 0:  # algunos con colonia del catálogo; el resto, escrita a mano
+                b.colonia_id, b.colonia = colonia_de[m.id].id, colonia_de[m.id].nombre
+            else:
+                b.colonia_id, b.colonia = None, "Colonia Ejemplo"
             if db.scalar(select(CapturaApoyo.id).where(CapturaApoyo.beneficiario_id == b.id).limit(1)) is None:
                 apoyo = apoyos[n_apoyo % len(apoyos)]
                 desc = db.scalars(select(DescripcionApoyo).where(DescripcionApoyo.apoyo_id == apoyo.id).order_by(DescripcionApoyo.clave)).first()
@@ -99,6 +119,24 @@ def main(argv=None) -> int:
                     nivel_socioeconomico_id=niveles[n_nivel % len(niveles)].id if niveles else None,
                     grupo_edad_id=vpd.grupo_de_edad(e, rangos), edad=e, cantidad=1 + i % 3, fecha_entrega=entrega,
                     fecha_registro=entrega, observaciones="Captura de ejemplo", es_ejemplo=True))
+                capturas += 1
+            # Capturas de años anteriores (2024, 2025): una por beneficiario y año, si ya nació y no la tiene
+            for anio in ANIOS_ANTERIORES:
+                entrega = date(anio, 1 + (i * 2) % 12, 10)
+                if i % 4 == 3 and anio == 2024 or b.fecha_nacimiento is None or entrega < b.fecha_nacimiento:
+                    continue
+                if db.scalar(select(CapturaApoyo.id).where(CapturaApoyo.beneficiario_id == b.id, CapturaApoyo.es_ejemplo.is_(True),
+                                                           CapturaApoyo.fecha_entrega == entrega)) is not None:
+                    continue
+                apoyo = apoyos[(n_apoyo + anio) % len(apoyos)]
+                desc = db.scalars(select(DescripcionApoyo).where(DescripcionApoyo.apoyo_id == apoyo.id).order_by(DescripcionApoyo.clave)).first()
+                e = vpd.calcular_edad(b.fecha_nacimiento, entrega)
+                db.add(CapturaApoyo(
+                    municipio_id=mid, beneficiario_id=b.id, programa_id=programa.id, apoyo_id=apoyo.id,
+                    descripcion_apoyo_id=desc.id if desc else None,
+                    nivel_socioeconomico_id=niveles[(n_nivel + anio) % len(niveles)].id if niveles else None,
+                    grupo_edad_id=vpd.grupo_de_edad(e, rangos), edad=e, cantidad=1 + (i + anio) % 3, fecha_entrega=entrega,
+                    fecha_registro=entrega, observaciones=f"Captura de ejemplo {anio}", es_ejemplo=True))
                 capturas += 1
         db.commit()
     print(f"{a.subdominio}: {nuevos} beneficiarios y {capturas} capturas de ejemplo agregados (programa {programa.clave})")
