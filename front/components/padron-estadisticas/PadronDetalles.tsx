@@ -7,13 +7,14 @@ import { ApiError, api } from "@/lib/api.client";
 import { descargar } from "@/lib/estadisticas";
 import { puede } from "@/lib/permisos";
 import { consulta, FiltrosPadronUI, useFiltrosPadron, useHoy } from "./Filtros";
+import { ListaDocumentos, type DocumentoBen } from "../padron/DocumentosBeneficiario";
 import { SelectorAnios } from "./PadronComparativo";
 
 type Detallado = { tipo: "detallado"; titulo: string; total: number; encabezados: string[]; filas: (string | number | null)[][] };
 type Concentrado = {
   tipo: "concentrado"; anios: number[];
   beneficiario: { curp: string; nombre: string; edad_actual: number | null; genero: string | null; grupo_edad_actual: string | null; localidad: string | null; nivel_socioeconomico: string | null };
-  beneficio: { programa: string; apoyo: string; anios: Record<string, number> }[]; documentos: unknown[];
+  beneficio: { programa: string; apoyo: string; anios: Record<string, number> }[]; documentos: DocumentoBen[];
 };
 const MSG_CURP = "Para Generar Tipo Concentrado debe tener un CURP valido";
 
@@ -118,6 +119,7 @@ export function PadronDetalles() {
               </div>
             </div>
             <div className="pe-franja">Documentos del Beneficiario</div>
+            <ListaDocumentos docs={r.documentos} />
           </div>)}
       </div></div>
     </>

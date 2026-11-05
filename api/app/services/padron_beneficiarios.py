@@ -130,6 +130,8 @@ class Beneficiarios(Cat):
         o = self.obtener(ctx, id_)
         vpd.validar_borrable(self.usos(ctx, o))
         curp = o.curp
+        from . import padron_documentos  # import local: ese módulo importa este paquete
+        padron_documentos.borrar_de_beneficiario(ctx, o.id)  # archivos del bucket y filas, antes de borrar a la persona
         ctx.db.delete(o)
         ctx.db.flush()
         ctx.bitacora(self.entidad, "eliminar", id_, {"curp": curp})
